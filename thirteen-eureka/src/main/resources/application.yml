@@ -1,0 +1,12 @@
+# spring 配置
+spring:
+  application:
+    name: thirteen-eureka
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  profiles:
+    # 环境配置 dev（开发环境） test（测试环境） prod（生产环境）
+    active: @profile.active@

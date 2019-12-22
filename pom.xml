@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>thirteen</artifactId>
+  <groupId>org.thirteen</groupId>
+  <packaging>pom</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <modules>
+    <module>thirteen-config</module>
+    <module>thirteen-eureka</module>
+    <module>thirteen-zuul</module>
+    <module>thirteen-authorization</module>
+  </modules>
+  <name>依赖jar包</name>
+  <description>依赖jar包版本配置</description>
+
+  <!-- 集中定义依赖版本号 -->
+  <properties>
+    <!-- 全局编码 -->
+    <global.encoding>UTF-8</global.encoding>
+    <!-- jdk版本 -->
+    <java.version>13</java.version>
+    <!-- 文件拷贝时的编码 -->
+    <project.build.sourceEncoding>${global.encoding}</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>${global.encoding}</project.reporting.outputEncoding>
+    <!-- 编译时的编码 -->
+    <maven.compiler.encoding>${global.encoding}</maven.compiler.encoding>
+
+    <spring.cloud.version>Hoxton.RELEASE</spring.cloud.version><!-- spring-cloud包 -->
+    <spring.boot.version>2.2.2.RELEASE</spring.boot.version><!-- spring boot -->
+    <spring.data.redis.version>2.2.3.RELEASE</spring.data.redis.version><!-- spring-data-redis -->
+    <spring.data.jpa.version>2.2.3.RELEASE</spring.data.jpa.version><!-- spring-data-jpa -->
+    <spring.test.version>5.2.2.RELEASE</spring.test.version><!-- spring test 测试包 -->
+    <junit.version>4.12</junit.version><!-- Junit测试包 -->
+    <jedis.version>3.1.0</jedis.version><!-- redis的java版本的客户端实现 -->
+    <mysql.version>8.0.18</mysql.version><!-- mysql连接 -->
+    <slf4j.version>2.0.0-alpha1</slf4j.version><!-- 日志工具 -->
+    <springfox.swagger2.version>2.9.2</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
+    <fastjson.version>1.2.62</fastjson.version><!-- 阿里json格式解析工具 -->
+    <httpclient.version>4.5.10</httpclient.version><!-- HTTP协议的客户端编程工具包 -->
+    <joda-time.version>2.10.5</joda-time.version><!-- 处理时间 -->
+    <commons-lang3.version>3.9</commons-lang3.version><!-- java常用处理集 -->
+    <commons-io.version>2.6</commons-io.version><!-- io处理 -->
+    <commons-net.version>3.6</commons-net.version><!-- 下载功能 -->
+    <commons-fileupload.version>1.4</commons-fileupload.version><!-- 文件上传 -->
+    <commons-codec.version>1.13</commons-codec.version><!-- 加密库 -->
+    <javax.servlet.version>4.0.1</javax.servlet.version><!-- javax.servlet -->
+    <javax.persistence.version>1.0.2</javax.persistence.version><!-- javax.persistence -->
+    <poi.version>4.1.1</poi.version><!-- excel导出 -->
+    <lombok.version>1.18.10</lombok.version><!-- lombok -->
+    <geoip2.version>2.12.0</geoip2.version><!-- 通过IP反解国家省份城市工具 -->
+    <jwt.version>3.8.3</jwt.version><!-- jwt -->
+    <jjwt.version>0.9.1</jjwt.version><!-- jwt常用工具包 -->
+    <lombok.version>1.18.10</lombok.version><!-- lombok -->
+    <dozer.version>5.5.1</dozer.version><!-- 对象转换工具 -->
+  </properties>
+
+  <!-- 只定义依赖的版本，并不实际依赖 -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- spring cloud -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring.cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- spring boot -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- spring data redis -->
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-redis</artifactId>
+        <version>${spring.data.redis.version}</version>
+      </dependency>
+      <!-- spring data jpa -->
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-jpa</artifactId>
+        <version>${spring.data.jpa.version}</version>
+      </dependency>
+      <!-- spring test 测试包 -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-test</artifactId>
+        <version>${spring.boot.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${spring.test.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- junit -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- Redis客户端 -->
+      <dependency>
+        <groupId>redis.clients</groupId>
+        <artifactId>jedis</artifactId>
+        <version>${jedis.version}</version>
+      </dependency>
+      <!-- MySql -->
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql.version}</version>
+      </dependency>
+      <!-- 日志处理 -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <!-- springfox swagger2 -->
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger2</artifactId>
+        <version>${springfox.swagger2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger-ui</artifactId>
+        <version>${springfox.swagger2.version}</version>
+      </dependency>
+      <!-- 阿里Json处理工具包 -->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>fastjson</artifactId>
+        <version>${fastjson.version}</version>
+      </dependency>
+      <!-- http client -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+      </dependency>
+      <!-- 时间操作组件 -->
+      <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>${joda-time.version}</version>
+      </dependency>
+      <!-- Apache工具组件 -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-net</groupId>
+        <artifactId>commons-net</artifactId>
+        <version>${commons-net.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>${commons-fileupload.version}</version>
+      </dependency>
+      <!-- 加密库 -->
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons-codec.version}</version>
+      </dependency>
+      <!-- javax.servlet -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${javax.servlet.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- javax.persistence -->
+      <dependency>
+        <groupId>javax.persistence</groupId>
+        <artifactId>persistence-api</artifactId>
+        <version>${javax.persistence.version}</version>
+      </dependency>
+      <!-- 通过IP反解国家省份城市工具 -->
+      <dependency>
+        <groupId>com.maxmind.geoip2</groupId>
+        <artifactId>geoip2</artifactId>
+        <version>${geoip2.version}</version>
+      </dependency>
+      <!-- jwt -->
+      <dependency>
+        <groupId>com.auth0</groupId>
+        <artifactId>java-jwt</artifactId>
+        <version>${jwt.version}</version>
+      </dependency>
+      <!-- jwt常用工具包 -->
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>${jjwt.version}</version>
+      </dependency>
+      <!-- lombok -->
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- 对象转换工具 -->
+      <dependency>
+        <groupId>net.sf.dozer</groupId>
+        <artifactId>dozer</artifactId>
+        <version>${dozer.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.dozer</groupId>
+        <artifactId>dozer-spring</artifactId>
+        <version>${dozer.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <repositories>
+    <!-- spring-milestones发布里程碑版本,里程碑版本不会在maven仓库中进行发布 -->
+    <repository>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/libs-milestone</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <pluginManagement>
+      <plugins>
+        <!-- spring boot 热部署 -->
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring.boot.version}</version>
+          <configuration>
+            <!-- 没有该配置，devtools 不生效 -->
+            <fork>true</fork>
+          </configuration>
+          <!-- 解决打包后没有主清单文件 -->
+          <executions>
+            <execution>
+              <goals>
+                <goal>repackage</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <!-- java编译插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
+            <encoding>${global.encoding}</encoding>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <!-- 多环境配置 -->
+  <profiles>
+    <!-- 开发环境 -->
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <profile.active>dev</profile.active>
+      </properties>
+    </profile>
+    <!-- 测试环境 -->
+    <profile>
+      <id>test</id>
+      <properties>
+        <profile.active>test</profile.active>
+      </properties>
+    </profile>
+    <!-- 生产环境 -->
+    <profile>
+      <id>prod</id>
+      <properties>
+        <profile.active>prod</profile.active>
+      </properties>
+    </profile>
+  </profiles>
+
+</project>

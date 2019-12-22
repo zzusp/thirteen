@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>thirteen-authorization</artifactId>
+    <groupId>org.thirteen</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <name>鉴权授权模块-控制器</name>
+  <artifactId>thirteen-authorization-web</artifactId>
+  <groupId>thirteen-authorization</groupId>
+
+  <dependencies>
+    <!-- 鉴权授权模块-通用工具 -->
+    <dependency>
+      <groupId>thirteen-authorization</groupId>
+      <artifactId>thirteen-authorization-common</artifactId>
+    </dependency>
+    <!-- 鉴权授权模块-核心业务API -->
+    <dependency>
+      <groupId>thirteen-authorization</groupId>
+      <artifactId>thirteen-authorization-core-service-api</artifactId>
+    </dependency>
+    <!-- 包含 mvc,aop 等jar资源 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- 支持 @ConfigurationProperties 注解 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>

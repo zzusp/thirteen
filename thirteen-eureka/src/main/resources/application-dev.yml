@@ -1,0 +1,22 @@
+# 服务器
+server:
+  # 端口
+  port: 8761
+
+# spring cloud 配置
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    # 是否将自己注册到服务中心，默认为true
+    registerWithEureka: false
+    # 是否从服务中心获取注册信息，默认为true
+    fetchRegistry: false
+    serviceUrl:
+      # 设置与Eureka Server交互的地址，默认为http://localhost:8761/eureka，多个地址用逗号（,）分隔
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    # 设为false，关闭自我保护
+    # enable-self-preservation: false
+    # 清理间隔10分钟（单位毫秒，默认是60*1000）
+    eviction-interval-timer-in-ms: 30000

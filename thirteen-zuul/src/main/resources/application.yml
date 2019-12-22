@@ -1,0 +1,63 @@
+# spring 配置
+spring:
+  application:
+    name: thirteen-zuul
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  profiles:
+    # 环境配置 dev（开发环境） test（测试环境） prod（生产环境）
+    active: @profile.active@
+
+# 网关配置
+zuul:
+  host:
+    # 适用于ApacheHttpClient，如果是okhttp无效。每个服务的http客户端连接池最大连接，默认是200.
+    maxTotalConnections: 600
+    # 适用于ApacheHttpClient，如果是okhttp无效。每个route可用的最大连接数，默认值是20。
+    maxPerRouteConnections: 200
+  routes:
+    # 解决session不一致
+    intelligentsiaAuthority:
+      sensitiveHeaders: Authorization
+    # 鉴权中心
+    api-authorization:
+      path: /api-authorization/**
+      serviceId: authorization
+      # 过滤客户端附带的headers，如果值为空则传递原始的header信息
+      sensitiveHeaders:
+      # 启用个性化headers过滤配置
+      customSensitiveHeaders: true
+  # 关闭全局重试机制
+  retryable: false
+  ribbon:
+    # 饥饿加载配置，解决第一次请求时间过长
+    eager-load:
+      enabled: true
+
+ribbon:
+  # 请求执行超时时间 单位毫秒
+  ReadTimeout: 50000
+  # 请求连接超时时间 单位毫秒
+  ConnectTimeout: 50000
+  # 最大重试次数
+  MaxAutoRetries: 0
+  # 最大重试次数（跳其他机器）
+  MaxAutoRetriesNextServer: 0
+
+# feign配置
+feign:
+  hystrix:
+    # 开启熔断器
+    enabled: true
+
+# 断路器配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000

@@ -1,0 +1,32 @@
+# spring 配置
+spring:
+  application:
+    name: authorization
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  profiles:
+    # 环境配置 dev（开发环境） test（测试环境） prod（生产环境）
+    active: @profile.active@
+
+# feign配置
+feign:
+  hystrix:
+    # 开启熔断器
+    enabled: true
+
+# 断路器配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+
+dozer:
+  mapper:
+    base: classpath*:org/thirteen/authorization/model/mapping/base/*.xml
+    files: classpath*:com/thirteen/authorization/model/mapping/*.xml

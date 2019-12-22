@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>thirteen-authorization</artifactId>
+    <groupId>org.thirteen</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <name>鉴权授权模块-核心业务</name>
+  <artifactId>thirteen-authorization-core-service</artifactId>
+  <groupId>thirteen-authorization</groupId>
+
+  <dependencies>
+    <!-- 鉴权授权模块-通用工具 -->
+    <dependency>
+      <groupId>thirteen-authorization</groupId>
+      <artifactId>thirteen-authorization-common</artifactId>
+    </dependency>
+    <!-- 鉴权授权模块-核心业务API -->
+    <dependency>
+      <groupId>thirteen-authorization</groupId>
+      <artifactId>thirteen-authorization-core-service-api</artifactId>
+    </dependency>
+    <!-- 鉴权授权模块-数据访问 -->
+    <dependency>
+      <groupId>thirteen-authorization</groupId>
+      <artifactId>thirteen-authorization-dal</artifactId>
+    </dependency>
+    <!-- spring data redis -->
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-redis</artifactId>
+    </dependency>
+    <!-- spring test 测试包 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Redis客户端 -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+    </dependency>
+    <!-- 对象转换工具 -->
+    <dependency>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer-spring</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
