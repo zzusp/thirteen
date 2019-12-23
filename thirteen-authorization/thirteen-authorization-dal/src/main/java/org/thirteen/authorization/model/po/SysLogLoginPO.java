@@ -8,7 +8,7 @@ import org.thirteen.authorization.model.po.base.BasePO;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author Aaron.Sun
@@ -33,7 +33,7 @@ public class SysLogLoginPO extends BasePO<String> {
      * 登陆时间
      */
     @Column(name = "`login_time`")
-    private Date loginTime;
+    private LocalDateTime loginTime;
     /**
      * 账号
      */

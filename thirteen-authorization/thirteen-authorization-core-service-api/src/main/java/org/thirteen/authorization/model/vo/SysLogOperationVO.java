@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author Aaron.Sun
@@ -49,7 +49,7 @@ public class SysLogOperationVO extends BaseVO<String> {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date startTime;
+    private LocalDateTime startTime;
     /**
      * 操作结束时间
      */
@@ -57,7 +57,7 @@ public class SysLogOperationVO extends BaseVO<String> {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date endTime;
+    private LocalDateTime endTime;
     /**
      * 操作名称
      */

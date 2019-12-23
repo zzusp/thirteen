@@ -8,7 +8,7 @@ import org.thirteen.authorization.model.po.base.BasePO;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author Aaron.Sun
@@ -43,12 +43,12 @@ public class SysLogOperationPO extends BasePO<String> {
      * 操作开始时间
      */
     @Column(name = "`start_time`")
-    private Date startTime;
+    private LocalDateTime startTime;
     /**
      * 操作结束时间
      */
     @Column(name = "`end_time`")
-    private Date endTime;
+    private LocalDateTime endTime;
     /**
      * 操作名称
      */

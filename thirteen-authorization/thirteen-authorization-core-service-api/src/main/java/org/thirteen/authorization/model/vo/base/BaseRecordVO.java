@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author Aaron.Sun
@@ -46,7 +46,7 @@ public abstract class BaseRecordVO<PK> extends BaseVO<PK> {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    protected Date createTime;
+    protected LocalDateTime createTime;
     /**
      * 更新者ID/账号/编码（推荐账号）
      */
@@ -64,7 +64,7 @@ public abstract class BaseRecordVO<PK> extends BaseVO<PK> {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    protected Date updateTime;
+    protected LocalDateTime updateTime;
     /**
      * 备注
      */

@@ -19,9 +19,9 @@ import java.io.Serializable;
 public class PageParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @ApiParam(required = true, value = "当前页码")
+    @ApiParam(value = "当前页码")
     private Integer pageNum;
-    @ApiParam(required = true, value = "每页大小")
+    @ApiParam(value = "每页大小")
     private Integer pageSize;
 
 }

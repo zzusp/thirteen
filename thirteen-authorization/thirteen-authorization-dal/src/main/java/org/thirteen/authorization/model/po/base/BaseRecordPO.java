@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author Aaron.Sun
@@ -35,7 +35,7 @@ public abstract class BaseRecordPO<PK> extends BasePO<PK> {
      * 创建时间
      */
     @Column(name = "`create_time`")
-    protected Date createTime;
+    protected LocalDateTime createTime;
     /**
      * 更新者ID/账号/编码（推荐账号）
      */
@@ -45,7 +45,7 @@ public abstract class BaseRecordPO<PK> extends BasePO<PK> {
      * 更新时间
      */
     @Column(name = "`update_time`")
-    protected Date updateTime;
+    protected LocalDateTime updateTime;
     /**
      * 备注
      */
