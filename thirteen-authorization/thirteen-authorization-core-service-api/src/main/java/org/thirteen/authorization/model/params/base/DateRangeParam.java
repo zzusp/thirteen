@@ -19,6 +19,8 @@ import java.io.Serializable;
 public class DateRangeParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    @ApiParam(value = "字段名")
+    private String field;
     @ApiParam(value = "开始日期，格式yyyy-MM-dd")
     private String startDate;
     @ApiParam(value = "结束日期，格式yyyy-MM-dd")

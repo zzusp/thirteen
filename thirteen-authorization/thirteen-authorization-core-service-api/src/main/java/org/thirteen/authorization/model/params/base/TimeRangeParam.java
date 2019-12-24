@@ -19,6 +19,8 @@ import java.io.Serializable;
 public class TimeRangeParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    @ApiParam(value = "字段名")
+    private String field;
     @ApiParam(value = "开始时间，格式yyyy-MM-dd hh:mm:ss.SSS")
     private String startDate;
     @ApiParam(value = "结束时间，格式yyyy-MM-dd hh:mm:ss.SSS")
