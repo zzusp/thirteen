@@ -22,7 +22,7 @@ public abstract class BaseVO<PK> implements Serializable {
     /**
      * 实体主键（唯一标识）
      */
-    @ApiModelProperty(readOnly = true)
+    @ApiModelProperty(notes = "主键")
     protected PK id;
 
 }

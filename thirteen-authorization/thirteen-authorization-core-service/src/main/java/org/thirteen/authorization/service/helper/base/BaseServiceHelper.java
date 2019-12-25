@@ -2,6 +2,7 @@ package org.thirteen.authorization.service.helper.base;
 
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.exceptions.EntityErrorException;
+import org.thirteen.authorization.model.po.base.BasePO;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,6 +14,36 @@ import java.lang.reflect.Method;
  * @modified by
  */
 public class BaseServiceHelper {
+
+    /**
+     * 由泛型真实类型的class反射实例化
+     *
+     * @param clazz 泛型真实类型的Class
+     * @param <T>   对象类型
+     * @return 实例化对象
+     */
+    public static <T> T newInstance(Class<T> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new EntityErrorException(clazz.getPackageName() + clazz.getName() + "实例化失败");
+        }
+    }
+
+    /**
+     * 由泛型真实类型的class反射实例化PO对象，并设置ID
+     *
+     * @param clazz 泛型真实类型的Class
+     * @param id    主键ID
+     * @param <T>   对象类型
+     * @param <PK>  主键类型
+     * @return 实例化对象
+     */
+    public static <T extends BasePO<PK>, PK> T newPoInstance(Class<T> clazz, PK id) {
+        T obj = newInstance(clazz);
+        obj.setId(id);
+        return obj;
+    }
 
     /**
      * 判断目标类中是否包含指定字段，不包含则抛出异常

@@ -13,7 +13,6 @@ import org.thirteen.authorization.model.po.base.BasePO;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
 import org.thirteen.authorization.service.base.BaseService;
-import org.thirteen.authorization.service.helper.base.BaseServiceHelper;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -21,6 +20,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.thirteen.authorization.service.helper.base.BaseServiceHelper.*;
 
 /**
  * @author Aaron.Sun
@@ -40,10 +41,6 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
      */
     public static final String DEL_FLAG_NORMAL = "0";
     public static final String DEL_FLAG_DELETE = "1";
-    /**
-     * 当前泛型对象
-     */
-    private PO model;
     /**
      * baseRepository注入
      */
@@ -141,18 +138,15 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @SuppressWarnings("unchecked")
     @Override
     public void deleteAll(List<PK> ids) {
-        baseRepository.deleteAll(ids.stream().map(item -> (PO) BasePO.builder().id(item).build())
-            .collect(Collectors.toList()));
+        baseRepository.deleteAll(ids.stream().map(item -> newPoInstance(poClass, item)).collect(Collectors.toList()));
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @SuppressWarnings("unchecked")
     @Override
     public void deleteInBatch(List<PK> ids) {
-        baseRepository.deleteInBatch(ids.stream().map(item -> (PO) BasePO.builder().id(item).build())
+        baseRepository.deleteInBatch(ids.stream().map(item -> newPoInstance(poClass, item))
             .collect(Collectors.toList()));
     }
 
@@ -160,16 +154,16 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     @Override
     public void logicDelete(PK id) {
         // 获取poClass中逻辑删除字段的set方法，获取不到则抛出异常
-        Method method = BaseServiceHelper.getFieldSetMethod(poClass, DEL_FLAG_FIELD, String.class);
+        Method method = getFieldSetMethod(poClass, DEL_FLAG_FIELD, String.class);
         // 逻辑删除前先由ID获取数据信息
-        Optional<PO> optional = baseRepository.findById(model.getId());
+        Optional<PO> optional = baseRepository.findById(id);
         // 判断数据是否存在
         if (optional.isPresent()) {
             // 如果存在则将入参中的非null属性赋给查询结果
-            BaseServiceHelper.invokeFieldSetMethod(method, DEL_FLAG_DELETE);
+            invokeFieldSetMethod(method, DEL_FLAG_DELETE);
             baseRepository.save(optional.get());
         } else {
-            throw new DataNotFoundException(model.getId());
+            throw new DataNotFoundException(id);
         }
     }
 
@@ -197,7 +191,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
 
     @Override
     public List<VO> findAll(ExampleMatcher matcher) {
-        Example<PO> example = Example.of(model, matcher);
+        Example<PO> example = Example.of(newInstance(poClass), matcher);
         return dozerMapper.mapList(baseRepository.findAll(example), voClass);
     }
 
