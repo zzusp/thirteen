@@ -87,7 +87,7 @@ public class DozerMapper {
      */
     @SuppressWarnings("unchecked")
     public void copy(final Object source, final Object destinationObject, final boolean mapNull,
-                                final boolean mapEmptyString) {
+                     final boolean mapEmptyString) {
         // WeakReference弱引用
         // 当一个对象仅仅被weak reference指向, 而没有任何其他strong reference指向的时候, 如果GC运行, 那么这个对象就会被回收
         WeakReference weakReference = new WeakReference(new DozerBeanMapper());

@@ -10,8 +10,12 @@ public class DataNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public DataNotFoundException(String message) {
-        super(message);
+    public DataNotFoundException() {
+        super("数据不存在");
+    }
+
+    public DataNotFoundException(Object id) {
+        super("主键：" + id + "，数据不存在");
     }
 
     public DataNotFoundException(String message, Throwable cause) {

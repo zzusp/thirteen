@@ -7,17 +7,14 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thirteen.authorization.common.utils.IDGenerator;
-import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.DataNotFoundException;
-import org.thirteen.authorization.exceptions.LogicDeleteErrorException;
 import org.thirteen.authorization.model.po.base.BasePO;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
 import org.thirteen.authorization.service.base.BaseService;
+import org.thirteen.authorization.service.helper.base.BaseServiceHelper;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -32,7 +29,7 @@ import java.util.stream.Collectors;
  * @modified by
  */
 @Service
-public abstract class AbstractService<VO extends BaseVO, PK, PO extends BasePO> implements BaseService<VO, PK> {
+public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends BasePO<PK>> implements BaseService<VO, PK> {
 
     /**
      * 逻辑删除字段
@@ -69,7 +66,7 @@ public abstract class AbstractService<VO extends BaseVO, PK, PO extends BasePO> 
     protected Class<PO> poClass;
 
     @Autowired
-    public AbstractService(BaseRepository<PO, PK> baseRepository, DozerMapper dozerMapper) {
+    public BaseServiceImpl(BaseRepository<PO, PK> baseRepository, DozerMapper dozerMapper) {
         this.baseRepository = baseRepository;
         this.dozerMapper = dozerMapper;
     }
@@ -78,7 +75,7 @@ public abstract class AbstractService<VO extends BaseVO, PK, PO extends BasePO> 
      * 通过反射获取子类确定的泛型类
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public AbstractService() {
+    public BaseServiceImpl() {
         Type genType = getClass().getGenericSuperclass();
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
         voClass = (Class<VO>) params[0];
@@ -87,43 +84,21 @@ public abstract class AbstractService<VO extends BaseVO, PK, PO extends BasePO> 
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @SuppressWarnings("unchecked")
     @Override
     public void save(VO model) {
-        // 判断主键类型是否为String类型（即uuid），如果是String类型，则需要手动设置id
-        if (pkClass.equals(String.class)) {
-            // 设置ID
-            model.setId(IDGenerator.id());
-        }
         baseRepository.save(dozerMapper.map(model, poClass));
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @SuppressWarnings("unchecked")
     @Override
     public void saveAndFlush(VO model) {
-        // 判断主键类型是否为String类型（即uuid），如果是String类型，则需要手动设置id
-        if (pkClass.equals(String.class)) {
-            // 设置ID
-            model.setId(IDGenerator.id());
-        }
         baseRepository.saveAndFlush(dozerMapper.map(model, poClass));
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @SuppressWarnings("unchecked")
     @Override
     public void saveAll(List<VO> models) {
-        // 判断主键类型是否为String类型（即uuid），如果是String类型，则需要手动设置id
-        if (pkClass.equals(String.class)) {
-            baseRepository.saveAll(models.stream().map(item -> {
-                // 设置ID
-                item.setId(IDGenerator.id());
-                return dozerMapper.map(item, poClass);
-            }).collect(Collectors.toList()));
-        } else {
-            baseRepository.saveAll(dozerMapper.mapList(models, poClass));
-        }
+        baseRepository.saveAll(dozerMapper.mapList(models, poClass));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -132,19 +107,18 @@ public abstract class AbstractService<VO extends BaseVO, PK, PO extends BasePO> 
         baseRepository.save(dozerMapper.map(model, poClass));
     }
 
-    @Transactional(rollbackFor = {Exception.class, DataNotFoundException.class})
-    @SuppressWarnings("unchecked")
+    @Transactional(rollbackFor = {Exception.class})
     @Override
-    public void updateSelective(VO model) throws DataNotFoundException {
+    public void updateSelective(VO model) {
         // 更新前先由ID获取数据信息
-        Optional<PO> optional = baseRepository.findById((PK) model.getId());
+        Optional<PO> optional = baseRepository.findById(model.getId());
         // 判断数据是否存在
         if (optional.isPresent()) {
             // 如果存在则将入参中的非null属性赋给查询结果
             dozerMapper.copy(dozerMapper.map(model, poClass), optional.get(), false, true);
             baseRepository.save(optional.get());
         } else {
-            throw new DataNotFoundException("更新失败，未找到主键：" + model.getId() + " 对应数据");
+            throw new DataNotFoundException(model.getId());
         }
     }
 
@@ -182,42 +156,26 @@ public abstract class AbstractService<VO extends BaseVO, PK, PO extends BasePO> 
             .collect(Collectors.toList()));
     }
 
-    @Transactional(rollbackFor = {Exception.class, LogicDeleteErrorException.class})
-    @SuppressWarnings("unchecked")
+    @Transactional(rollbackFor = {Exception.class})
     @Override
-    public void logicDelete(PK id) throws LogicDeleteErrorException {
-        try {
-            assert poClass.getDeclaredField(DEL_FLAG_FIELD) != null;
-        } catch (NoSuchFieldException e) {
-            throw new LogicDeleteErrorException("逻辑删除失败，当前对象无" + DEL_FLAG_FIELD + "字段", e.getCause());
-        }
-        // 逻辑删除字段get方法
-        String setter = "set" + StringUtil.capitalize(DEL_FLAG_FIELD);
-        Method method;
-        try {
-            method = poClass.getMethod(setter, String.class);
-        } catch (NoSuchMethodException e) {
-            throw new LogicDeleteErrorException("逻辑删除失败，当前对象无" + setter + "(String)方法", e.getCause());
-        }
+    public void logicDelete(PK id) {
+        // 获取poClass中逻辑删除字段的set方法，获取不到则抛出异常
+        Method method = BaseServiceHelper.getFieldSetMethod(poClass, DEL_FLAG_FIELD, String.class);
         // 逻辑删除前先由ID获取数据信息
-        Optional<PO> optional = baseRepository.findById((PK) model.getId());
+        Optional<PO> optional = baseRepository.findById(model.getId());
         // 判断数据是否存在
         if (optional.isPresent()) {
             // 如果存在则将入参中的非null属性赋给查询结果
-            try {
-                method.invoke(optional.get(), DEL_FLAG_DELETE);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new LogicDeleteErrorException("逻辑删除失败，调用" + setter + "()方法失败", e.getCause());
-            }
+            BaseServiceHelper.invokeFieldSetMethod(method, DEL_FLAG_DELETE);
             baseRepository.save(optional.get());
         } else {
-            throw new LogicDeleteErrorException("逻辑删除失败，未找到主键：" + model.getId() + " 对应数据");
+            throw new DataNotFoundException(model.getId());
         }
     }
 
-    @Transactional(rollbackFor = {Exception.class, LogicDeleteErrorException.class})
+    @Transactional(rollbackFor = {Exception.class})
     @Override
-    public void logicDeleteAll(List<PK> ids) throws LogicDeleteErrorException {
+    public void logicDeleteAll(List<PK> ids) {
         ids.forEach(this::logicDelete);
     }
 
@@ -242,33 +200,5 @@ public abstract class AbstractService<VO extends BaseVO, PK, PO extends BasePO> 
         Example<PO> example = Example.of(model, matcher);
         return dozerMapper.mapList(baseRepository.findAll(example), voClass);
     }
-
-/*
-
-
-    @Override
-    public PageInfo<VO> listPage(int pageNum, int pageSize) {
-        Page<VO> page = PageHelper.startPage(pageNum, pageSize);
-        listAll();
-        return new PageInfo<VO>(page);
-    }
-
-    @Override
-    public PageInfo<VO> listPage(Example example, int pageNum, int pageSize) {
-        Page<VO> page = PageHelper.startPage(pageNum, pageSize);
-        list(example);
-        return new PageInfo<VO>(page);
-    }
-
-    @Override
-    public int count() {
-        return count(new Example(poClass));
-    }
-
-    @Override
-    public int count(Example example) {
-        return baseRepository.selectCountByExample(example);
-    }*/
-
 
 }

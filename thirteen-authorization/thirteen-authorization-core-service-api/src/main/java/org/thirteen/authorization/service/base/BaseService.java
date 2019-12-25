@@ -2,8 +2,6 @@ package org.thirteen.authorization.service.base;
 
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
-import org.thirteen.authorization.exceptions.DataNotFoundException;
-import org.thirteen.authorization.exceptions.LogicDeleteErrorException;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 
 import java.util.List;
@@ -14,7 +12,7 @@ import java.util.List;
  * @date Created in 21:42 2018/1/10
  * @modified by
  */
-public interface BaseService<VO extends BaseVO, PK> {
+public interface BaseService<VO extends BaseVO<PK>, PK> {
 
     /**
      * 新增
@@ -48,9 +46,8 @@ public interface BaseService<VO extends BaseVO, PK> {
      * 根据主键更新，只更新属性值不为null的字段
      *
      * @param model VO对象
-     * @throws DataNotFoundException 数据操作异常-未找到数据异常
      */
-    void updateSelective(VO model) throws DataNotFoundException;
+    void updateSelective(VO model);
 
     /**
      * 根据主键更新，立即刷新到DB
@@ -91,18 +88,16 @@ public interface BaseService<VO extends BaseVO, PK> {
      * 根据主键逻辑删除
      *
      * @param id 主键
-     * @throws LogicDeleteErrorException 数据操作异常-逻辑删除异常
      */
-    void logicDelete(PK id) throws LogicDeleteErrorException;
+    void logicDelete(PK id);
 
     /**
      * 逻辑删除表中所有数据
      * 效率低，慎用，建议该删除操作加锁
      *
      * @param ids 主键数组
-     * @throws LogicDeleteErrorException 数据操作异常-逻辑删除异常
      */
-    void logicDeleteAll(List<PK> ids) throws LogicDeleteErrorException;
+    void logicDeleteAll(List<PK> ids);
 
     /**
      * 根据ID值获取一个对象
