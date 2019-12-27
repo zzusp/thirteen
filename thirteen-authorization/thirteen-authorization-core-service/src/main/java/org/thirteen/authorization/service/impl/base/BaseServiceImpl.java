@@ -13,15 +13,13 @@ import org.thirteen.authorization.model.po.base.BasePO;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
 import org.thirteen.authorization.service.base.BaseService;
+import org.thirteen.authorization.service.support.base.ModelInformation;
+import org.thirteen.authorization.service.support.base.ModelSupport;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.thirteen.authorization.service.helper.base.BaseServiceHelper.*;
 
 /**
  * @author Aaron.Sun
@@ -50,34 +48,39 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
      */
     protected DozerMapper dozerMapper;
     /**
-     * 当前泛型真实类型的Class
+     * PO对象信息
      */
-    protected Class<VO> voClass;
+    private ModelInformation<PO, PK> poInformation;
     /**
-     * 当前泛型真实类型的Class
+     * VO对象信息
      */
-    protected Class<PK> pkClass;
+    private ModelInformation<VO, PK> voInformation;
     /**
-     * 当前泛型真实类型的Class
+     * PO实际class
      */
-    protected Class<PO> poClass;
+    private Class<PO> poClass;
+    /**
+     * PO实际class
+     */
+    private Class<VO> voClass;
+    /**
+     * PO对象帮助类
+     */
+    private ModelSupport<PO, PK> poSupport;
+
+    public BaseServiceImpl(ModelInformation<PO, PK> poInformation, ModelInformation<VO, PK> voInformation) {
+        this.poInformation = poInformation;
+        this.voInformation = voInformation;
+        this.poClass = this.poInformation.getRealClass();
+        this.voClass = this.voInformation.getRealClass();
+        this.poSupport = new ModelSupport<>(poInformation);
+    }
 
     @Autowired
     public BaseServiceImpl(BaseRepository<PO, PK> baseRepository, DozerMapper dozerMapper) {
+        this(new ModelInformation<>(), new ModelInformation<>());
         this.baseRepository = baseRepository;
         this.dozerMapper = dozerMapper;
-    }
-
-    /**
-     * 通过反射获取子类确定的泛型类
-     */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public BaseServiceImpl() {
-        Type genType = getClass().getGenericSuperclass();
-        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
-        voClass = (Class<VO>) params[0];
-        pkClass = (Class<PK>) params[1];
-        poClass = (Class<PO>) params[2];
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -140,13 +143,14 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteAll(List<PK> ids) {
-        baseRepository.deleteAll(ids.stream().map(item -> newPoInstance(poClass, item)).collect(Collectors.toList()));
+        baseRepository.deleteAll(ids.stream().map(item -> poSupport.builder().id(item).build())
+            .collect(Collectors.toList()));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(List<PK> ids) {
-        baseRepository.deleteInBatch(ids.stream().map(item -> newPoInstance(poClass, item))
+        baseRepository.deleteInBatch(ids.stream().map(item -> poSupport.builder().id(item).build())
             .collect(Collectors.toList()));
     }
 
@@ -154,13 +158,13 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     @Override
     public void logicDelete(PK id) {
         // 获取poClass中逻辑删除字段的set方法，获取不到则抛出异常
-        Method method = getFieldSetMethod(poClass, DEL_FLAG_FIELD, String.class);
+        Method method = poInformation.getSetter(DEL_FLAG_FIELD, String.class);
         // 逻辑删除前先由ID获取数据信息
         Optional<PO> optional = baseRepository.findById(id);
         // 判断数据是否存在
         if (optional.isPresent()) {
             // 如果存在则将入参中的非null属性赋给查询结果
-            invokeFieldSetMethod(method, DEL_FLAG_DELETE);
+            poInformation.invokeSet(method, optional.get(), DEL_FLAG_DELETE);
             baseRepository.save(optional.get());
         } else {
             throw new DataNotFoundException(id);
@@ -176,7 +180,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     @Override
     public VO get(PK id) {
         Optional<PO> optional = baseRepository.findById(id);
-        return optional.isPresent() ? dozerMapper.map(baseRepository.findById(id), voClass) : null;
+        return optional.map(po -> dozerMapper.map(po, voClass)).orElse(null);
     }
 
     @Override
@@ -191,8 +195,10 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
 
     @Override
     public List<VO> findAll(ExampleMatcher matcher) {
-        Example<PO> example = Example.of(newInstance(poClass), matcher);
+        Example<PO> example = Example.of(poSupport.builder().build(), matcher);
         return dozerMapper.mapList(baseRepository.findAll(example), voClass);
     }
+
+
 
 }
