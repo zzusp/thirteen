@@ -17,13 +17,9 @@ import java.lang.reflect.Type;
  */
 public class ModelInformation<T, PK> {
 
-    /**
-     * 当前泛型真实类型的Class
-     */
+    /** 当前泛型真实类型的Class */
     private Class<T> realClass;
-    /**
-     * 当前泛型真实类型的Class
-     */
+    /** 当前泛型真实类型的Class */
     private Class<PK> pkClass;
 
     /**
@@ -76,6 +72,27 @@ public class ModelInformation<T, PK> {
     }
 
     /**
+     * 获取指定字段的get方法
+     *
+     * @param field          指定字段
+     * @param parameterTypes get方法的入参类型
+     * @return 目标类中指定字段的get方法
+     * @throws EntityErrorException 目标类中无指定字段异常
+     */
+    public Method getGetter(String field, Class<?>... parameterTypes) throws EntityErrorException {
+        Assert.notNull(field, "The given field must not be null!");
+        Method method;
+        // 字段的get方法名
+        String getter = "get" + StringUtil.capitalize(field);
+        try {
+            method = realClass.getMethod(getter, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new EntityErrorException(e.getMessage());
+        }
+        return method;
+    }
+
+    /**
      * 调用指定的set方法
      *
      * @param field          指定字段
@@ -90,6 +107,20 @@ public class ModelInformation<T, PK> {
     }
 
     /**
+     * 调用指定的get方法
+     *
+     * @param field          指定字段
+     * @param parameterTypes get方法的入参类型
+     * @param obj            目标类对象
+     * @param args           get方法的入参
+     */
+    public Object invokeGet(String field, Class<?>[] parameterTypes, Object obj, Object... args) {
+        Assert.notNull(field, "The given field must not be null!");
+        Assert.notNull(obj, "Object must not be null!");
+        return invokeGet(getGetter(field, parameterTypes), obj, args);
+    }
+
+    /**
      * 调用指定的set方法
      *
      * @param setMethod set方法
@@ -100,6 +131,22 @@ public class ModelInformation<T, PK> {
         Assert.notNull(obj, "Object must not be null!");
         try {
             setMethod.invoke(obj, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new EntityErrorException(e.getMessage(), e.getCause());
+        }
+    }
+
+    /**
+     * 调用指定的get方法
+     *
+     * @param getMethod get方法
+     * @param obj       目标类对象
+     * @param args      get方法的入参
+     */
+    public Object invokeGet(Method getMethod, Object obj, Object... args) {
+        Assert.notNull(obj, "Object must not be null!");
+        try {
+            return getMethod.invoke(obj, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new EntityErrorException(e.getMessage(), e.getCause());
         }

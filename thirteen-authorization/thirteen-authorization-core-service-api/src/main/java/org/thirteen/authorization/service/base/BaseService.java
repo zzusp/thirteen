@@ -85,21 +85,6 @@ public interface BaseService<VO extends BaseVO<PK>, PK> {
     void deleteInBatch(List<PK> ids);
 
     /**
-     * 根据主键逻辑删除
-     *
-     * @param id 主键
-     */
-    void logicDelete(PK id);
-
-    /**
-     * 逻辑删除表中所有数据
-     * 效率低，慎用，建议该删除操作加锁
-     *
-     * @param ids 主键数组
-     */
-    void logicDeleteAll(List<PK> ids);
-
-    /**
      * 根据ID值获取一个对象
      *
      * @param id 主键
