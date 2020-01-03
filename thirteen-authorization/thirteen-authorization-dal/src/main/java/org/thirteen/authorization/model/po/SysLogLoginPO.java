@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BaseDeletePO;
-import org.thirteen.authorization.model.po.base.BasePO;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

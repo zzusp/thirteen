@@ -10,7 +10,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.thirteen.authorization.model.vo.base.BaseDeleteVO;
-import org.thirteen.authorization.model.vo.base.BaseVO;
 
 import java.time.LocalDateTime;
 
