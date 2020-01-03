@@ -4,10 +4,10 @@ import org.springframework.util.Assert;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.exceptions.EntityErrorException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import javax.persistence.Table;
+import java.lang.reflect.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Aaron.Sun
@@ -21,6 +21,10 @@ public class ModelInformation<T, PK> {
     private Class<T> realClass;
     /** 当前泛型真实类型的Class */
     private Class<PK> pkClass;
+    /** 模型对应的表名，仅PO模型存在表名 */
+    public String tableName;
+    /** 当前泛型对象中的所有属性，包含父类中的属性 */
+    public Field[] fields;
 
     /**
      * 通过反射获取子类确定的泛型类
@@ -31,6 +35,11 @@ public class ModelInformation<T, PK> {
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
         realClass = (Class<T>) params[0];
         pkClass = (Class<PK>) params[1];
+        Table table = realClass.getAnnotation(Table.class);
+        if (table != null) {
+            tableName = table.name();
+        }
+        fields = realClass.getFields();
     }
 
     /**
@@ -43,7 +52,7 @@ public class ModelInformation<T, PK> {
         Assert.notNull(field, "The given field must not be null!");
         boolean flag = true;
         try {
-            realClass.getDeclaredField(field);
+            realClass.getField(field);
         } catch (NoSuchFieldException e) {
             flag = false;
         }

@@ -81,26 +81,26 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void save(VO model) {
+    public void insert(VO model) {
         Assert.notNull(model, "Entity must not be null!");
         PO po = dozerMapper.map(model, poClass);
-        baseRepository.save(poSupport.getModel(po, CREATE_BY_FIELD, CREATE_TIME_FIELD, true));
+        baseRepository.save(poSupport.getSaveModel(po, true));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveAndFlush(VO model) {
+    public void insertAndFlush(VO model) {
         Assert.notNull(model, "Entity must not be null!");
         PO po = dozerMapper.map(model, poClass);
-        baseRepository.saveAndFlush(poSupport.getModel(po, CREATE_BY_FIELD, CREATE_TIME_FIELD, true));
+        baseRepository.saveAndFlush(poSupport.getSaveModel(po, true));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveAll(List<VO> models) {
+    public void insertAll(List<VO> models) {
         Assert.notEmpty(models, "Entity collection must not be empty!");
         List<PO> pos = dozerMapper.mapList(models, poClass);
-        baseRepository.saveAll(poSupport.getModels(pos, CREATE_BY_FIELD, CREATE_TIME_FIELD, true));
+        baseRepository.saveAll(poSupport.getSaveModels(pos, true));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -108,7 +108,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     public void update(VO model) {
         Assert.notNull(model, "Entity must not be null!");
         PO po = dozerMapper.map(model, poClass);
-        baseRepository.save(poSupport.getModel(po, UPDATE_BY_FIELD, UPDATE_TIME_FIELD, false));
+        baseRepository.save(poSupport.getSaveModel(po, false));
     }
 
     @Transactional(rollbackFor = {Exception.class})
@@ -121,7 +121,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
         if (optional.isPresent()) {
             // 如果存在则将入参中的非null属性赋给查询结果
             dozerMapper.copy(dozerMapper.map(model, poClass), optional.get(), false, true);
-            baseRepository.save(poSupport.getModel(optional.get(), UPDATE_BY_FIELD, UPDATE_TIME_FIELD, false));
+            baseRepository.save(poSupport.getSaveModel(optional.get(), false));
         } else {
             throw new DataNotFoundException(model.getId());
         }
@@ -132,7 +132,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     public void updateAndFlush(VO model) {
         Assert.notNull(model, "Entity must not be null!");
         PO po = dozerMapper.map(model, poClass);
-        baseRepository.saveAndFlush(poSupport.getModel(po, UPDATE_BY_FIELD, UPDATE_TIME_FIELD, false));
+        baseRepository.saveAndFlush(poSupport.getSaveModel(po, false));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -140,7 +140,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     public void updateAll(List<VO> models) {
         Assert.notEmpty(models, "Entity collection must not be empty!");
         List<PO> pos = dozerMapper.mapList(models, poClass);
-        baseRepository.saveAll(poSupport.getModels(pos, UPDATE_BY_FIELD, UPDATE_TIME_FIELD, false));
+        baseRepository.saveAll(poSupport.getSaveModels(pos, false));
     }
 
     @Transactional(rollbackFor = Exception.class)

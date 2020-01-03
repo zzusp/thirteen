@@ -19,21 +19,21 @@ public interface BaseService<VO extends BaseVO<PK>, PK> {
      *
      * @param model VO对象
      */
-    void save(VO model);
+    void insert(VO model);
 
     /**
      * 新增，立即刷新到DB
      *
      * @param model VO对象
      */
-    void saveAndFlush(VO model);
+    void insertAndFlush(VO model);
 
     /**
      * 批量新增
      *
      * @param models VO对象集合
      */
-    void saveAll(List<VO> models);
+    void insertAll(List<VO> models);
 
     /**
      * 根据主键更新
