@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BaseRecordPO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
@@ -19,44 +20,21 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_permission`")
-public class SysPermissionPO extends BaseRecordPO<String> {
+@Entity
+@Table(name = "sys_permission")
+@org.hibernate.annotations.Table(appliesTo = "sys_permission", comment = "权限信息表")
+public class SysPermissionPO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 权限名称
-     */
-    @Column(name = "`name`")
-    private String name;
-    /**
-     * 显示顺序
-     */
-    @Column(name = "`sort`")
-    protected Integer sort;
-    /**
-     * 应用ID
-     */
-    @Column(name = "`application_id`")
-    private String applicationId;
-    /**
-     * 路径
-     */
-    @Column(name = "`url`")
+    /** 应用编码 */
+    @Column(name = "application_code", columnDefinition = "CHAR(20) COMMENT '应用编码'")
+    private String applicationCode;
+    /** 路径 */
+    @Column(name = "url", columnDefinition = "VARCHAR(100) COMMENT '路径'")
     private String url;
-    /**
-     * 0：需登录；1：需认证；2：需授权（注：授权需登陆）
-     */
-    @Column(name = "`type`")
+    /** 0：需登录；1：需认证；2：需授权（注：授权需登陆） */
+    @Column(name = "type", columnDefinition = "CHAR(1) COMMENT '权限类型 " +
+        "0：需登录；1：需认证；2：需授权（注：授权需登陆）'")
     private String type;
-    /**
-     * 0：禁用；1启用
-     */
-    @Column(name = "`is_active`")
-    private String isActive;
-    /**
-     * 0：正常；1：删除
-     */
-    @Column(name = "`del_flag`")
-    private String delFlag;
 
 }

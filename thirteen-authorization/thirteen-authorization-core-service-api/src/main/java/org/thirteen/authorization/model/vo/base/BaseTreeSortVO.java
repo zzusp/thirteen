@@ -18,27 +18,16 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseTreeSortVO<PK> extends BaseRecordVO<PK> {
+public abstract class BaseTreeSortVO extends BaseRecordVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 节点名称
-     */
-    @ApiModelProperty(notes = "节点名称")
-    protected String name;
-    /**
-     * 显示顺序
-     */
+    /** 显示顺序 */
     @ApiModelProperty(notes = "显示顺序")
     protected Integer sort;
-    /**
-     * 上级编码
-     */
+    /** 上级编码 */
     @ApiModelProperty(notes = "上级编码")
     protected String parentCode;
-    /**
-     * 下级节点
-     */
+    /** 下级节点 */
     @ApiModelProperty(notes = "上级编码", hidden = true)
     protected List<BaseTreeSortVO> children;
 

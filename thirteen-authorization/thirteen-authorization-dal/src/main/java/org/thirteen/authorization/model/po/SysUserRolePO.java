@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BasePO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
@@ -19,19 +20,17 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_user_role`")
-public class SysUserRolePO extends BasePO<String> {
+@Entity
+@Table(name = "sys_user_role")
+@org.hibernate.annotations.Table(appliesTo = "sys_user_role", comment = "用户角色关联表")
+public class SysUserRolePO extends BasePO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 用户ID
-     */
-    @Column(name = "`user_id`")
-    private String userId;
-    /**
-     * 角色ID
-     */
-    @Column(name = "`role_id`")
-    private String roleId;
+    /** 用户编码 */
+    @Column(name = "user_code", columnDefinition = "CHAR(20) COMMENT '用户编码'")
+    private String userCode;
+    /** 角色编码 */
+    @Column(name = "role_code", columnDefinition = "CHAR(20) COMMENT '角色编码'")
+    private String roleCode;
 
 }

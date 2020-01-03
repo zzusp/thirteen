@@ -12,8 +12,8 @@ import javax.persistence.MappedSuperclass;
 
 /**
  * @author Aaron.Sun
- * @description 上下级结构的实体类的基类
- * @date Created in 17:18 2018/1/11
+ * @description 通用实体类（包含删除标记信息的实体类的基类）
+ * @date Created in 15:23 2018/1/11
  * @modified by
  */
 @EqualsAndHashCode(callSuper = true)
@@ -22,14 +22,11 @@ import javax.persistence.MappedSuperclass;
 @AllArgsConstructor
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class BaseTreeSortPO extends BaseRecordPO {
+public abstract class BaseDeletePO extends BasePO {
 
     private static final long serialVersionUID = 1L;
-    /** 显示顺序 */
-    @Column(name = "sort", columnDefinition = "INT COMMENT '显示顺序'")
-    protected Integer sort;
-    /** 上级编码 */
-    @Column(name = "parent_code", unique = true, columnDefinition = "CHAR(20) NOT NULL COMMENT '上级编码'")
-    protected String parentCode;
+    /** 0：正常；1：删除 */
+    @Column(name = "del_flag", columnDefinition = "CHAR(1) NOT NULL COMMENT '删除标记 0：正常；1：删除'")
+    private String delFlag;
 
 }

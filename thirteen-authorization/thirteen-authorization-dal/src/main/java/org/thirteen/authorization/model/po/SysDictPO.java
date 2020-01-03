@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BaseRecordPO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
@@ -19,29 +20,14 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_dict`")
-public class SysDictPO extends BaseRecordPO<String> {
+@Entity
+@Table(name = "sys_dict")
+@org.hibernate.annotations.Table(appliesTo = "sys_dict", comment = "数据字典信息表")
+public class SysDictPO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 字典名称
-     */
-    @Column(name = "`name`")
-    private String name;
-    /**
-     * 0：禁用；1启用
-     */
-    @Column(name = "`is_active`")
-    private String isActive;
-    /**
-     * 业务类型ID
-     */
-    @Column(name = "`biz_type_id`")
-    private String bizTypeId;
-    /**
-     * 0：正常；1：删除
-     */
-    @Column(name = "`del_flag`")
-    private String delFlag;
+    /** 业务类型编码 */
+    @Column(name = "biz_type_code", columnDefinition = "CHAR(20) COMMENT '业务类型编码'")
+    private String bizTypeCode;
 
 }

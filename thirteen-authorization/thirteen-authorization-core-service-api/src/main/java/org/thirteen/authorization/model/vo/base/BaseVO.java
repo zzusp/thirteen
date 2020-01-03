@@ -16,13 +16,11 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseVO<PK> implements Serializable {
+public abstract class BaseVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 实体主键（唯一标识）
-     */
-    @ApiModelProperty(notes = "主键")
-    protected PK id;
+    /** 实体主键（唯一标识） */
+    @ApiModelProperty(notes = "实体主键（唯一标识）")
+    protected String id;
 
 }

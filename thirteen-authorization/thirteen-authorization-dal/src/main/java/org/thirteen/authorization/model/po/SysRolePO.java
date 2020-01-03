@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BaseRecordPO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
@@ -19,29 +20,14 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_role`")
-public class SysRolePO extends BaseRecordPO<String> {
+@Entity
+@Table(name = "sys_role")
+@org.hibernate.annotations.Table(appliesTo = "sys_role", comment = "角色信息表")
+public class SysRolePO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 角色名称
-     */
-    @Column(name = "`name`")
-    private String name;
-    /**
-     * 0：禁用；1启用
-     */
-    @Column(name = "`is_active`")
-    private String isActive;
-    /**
-     * 所属组织ID
-     */
-    @Column(name = "`group_id`")
-    private String groupId;
-    /**
-     * 0：正常；1：删除
-     */
-    @Column(name = "`del_flag`")
-    private String delFlag;
+    /** 所属组织编码 */
+    @Column(name = "group_code", columnDefinition = "CHAR(20) COMMENT '所属组织编码'")
+    private String groupCode;
 
 }

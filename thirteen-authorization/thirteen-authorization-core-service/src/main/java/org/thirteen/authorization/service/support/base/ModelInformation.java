@@ -6,8 +6,6 @@ import org.thirteen.authorization.exceptions.EntityErrorException;
 
 import javax.persistence.Table;
 import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Aaron.Sun

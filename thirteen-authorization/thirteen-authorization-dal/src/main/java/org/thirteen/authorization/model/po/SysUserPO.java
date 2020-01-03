@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BaseRecordPO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
@@ -19,69 +20,38 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_user`")
-public class SysUserPO extends BaseRecordPO<String> {
+@Entity
+@Table(name = "sys_user")
+@org.hibernate.annotations.Table(appliesTo = "sys_user", comment = "用户信息表")
+public class SysUserPO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 帐号
-     */
-    @Column(name = "`account`")
+    /** 帐号 */
+    @Column(name = "account", unique = true, columnDefinition = "VARCHAR(20) NOT NULL COMMENT '帐号'")
     private String account;
-    /**
-     * 密码
-     */
-    @Column(name = "`password`")
+    /** 密码 */
+    @Column(name = "password", columnDefinition = "VARCHAR(100) NOT NULL COMMENT '密码'")
     private String password;
-    /**
-     * 盐
-     */
-    @Column(name = "`salt`")
+    /** 盐 */
+    @Column(name = "salt", columnDefinition = "VARCHAR(20) NOT NULL COMMENT '盐'")
     private String salt;
-    /**
-     * 姓名
-     */
-    @Column(name = "`name`")
-    private String name;
-    /**
-     * 对应业务类型为gender的业务字典中的code
-     */
-    @Column(name = "`gender`")
+    /** 对应业务类型为gender的业务字典中的code */
+    @Column(name = "gender", columnDefinition = "CHAR(20) COMMENT '性别，对应业务类型为gender的业务字典中的code'")
     private String gender;
-    /**
-     * 手机
-     */
-    @Column(name = "`mobile`")
+    /** 手机 */
+    @Column(name = "mobile", columnDefinition = "VARCHAR(20) COMMENT '手机'")
     private String mobile;
-    /**
-     * 电子邮箱
-     */
-    @Column(name = "`email`")
+    /** 电子邮箱 */
+    @Column(name = "email", columnDefinition = "VARCHAR(50) COMMENT '电子邮箱'")
     private String email;
-    /**
-     * 头像
-     */
-    @Column(name = "`photo`")
+    /** 头像 */
+    @Column(name = "photo", columnDefinition = "VARCHAR(500) COMMENT '头像'")
     private String photo;
-    /**
-     * 0：禁用；1启用
-     */
-    @Column(name = "`is_active`")
-    private String isActive;
-    /**
-     * 所属部门ID
-     */
-    @Column(name = "`dept_id`")
-    private String deptId;
-    /**
-     * 所属组织ID
-     */
-    @Column(name = "`group_id`")
-    private String groupId;
-    /**
-     * 0：正常；1：删除
-     */
-    @Column(name = "`del_flag`")
-    private String delFlag;
+    /** 所属部门编码 */
+    @Column(name = "dept_code", columnDefinition = "CHAR(20) COMMENT '所属部门编码'")
+    private String deptCode;
+    /** 所属组织编码 */
+    @Column(name = "group_code", columnDefinition = "CHAR(20) COMMENT '所属组织编码'")
+    private String groupCode;
 
 }

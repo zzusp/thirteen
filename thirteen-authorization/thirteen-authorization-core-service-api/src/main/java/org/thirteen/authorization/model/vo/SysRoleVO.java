@@ -21,38 +21,17 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysRoleVO extends BaseRecordVO<String> {
+public class SysRoleVO extends BaseRecordVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 角色名称
-     */
-    @ApiModelProperty(value = "名称")
-    private String name;
-    /**
-     * 0：禁用；1启用
-     */
-    @ApiModelProperty(value = "是否启用")
-    private String isActive;
-    /**
-     * 所属组织
-     */
+    /** 所属组织 */
     @ApiModelProperty(value = "所属组织", hidden = true)
     private SysGroupVO group;
-    /**
-     * 角色下的应用
-     */
+    /** 角色下的应用 */
     @ApiModelProperty(value = "角色下的应用", hidden = true)
     private List<SysApplicationVO> applications;
-    /**
-     * 角色下的权限
-     */
+    /** 角色下的权限 */
     @ApiModelProperty(value = "角色下的权限", hidden = true)
     private List<SysPermissionVO> permissions;
-    /**
-     * 0：正常；1：删除
-     */
-    @ApiModelProperty(value = "删除标志 0：正常；1：删除")
-    private String delFlag;
 
 }

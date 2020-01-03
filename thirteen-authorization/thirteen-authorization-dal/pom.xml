@@ -18,6 +18,11 @@
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-jpa</artifactId>
     </dependency>
+    <!-- hibernate-annotations -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+    </dependency>
     <!-- MySql -->
     <dependency>
       <groupId>mysql</groupId>

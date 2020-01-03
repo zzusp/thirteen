@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.DataNotFoundException;
 import org.thirteen.authorization.model.po.base.BasePO;
@@ -19,12 +18,12 @@ import org.thirteen.authorization.service.support.base.ModelInformation;
 import org.thirteen.authorization.service.support.base.ModelSupport;
 
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.thirteen.authorization.service.support.base.ModelSupport.*;
+import static org.thirteen.authorization.service.support.base.ModelSupport.DEL_FLAG_DELETE;
+import static org.thirteen.authorization.service.support.base.ModelSupport.DEL_FLAG_FIELD;
 
 /**
  * @author Aaron.Sun
@@ -35,33 +34,19 @@ import static org.thirteen.authorization.service.support.base.ModelSupport.*;
 @Service
 public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends BasePO<PK>> implements BaseService<VO, PK> {
 
-    /**
-     * baseRepository注入
-     */
+    /** baseRepository注入 */
     protected BaseRepository<PO, PK> baseRepository;
-    /**
-     * 对象转换器
-     */
+    /** 对象转换器 */
     protected DozerMapper dozerMapper;
-    /**
-     * PO对象信息
-     */
+    /** PO对象信息 */
     private ModelInformation<PO, PK> poInformation;
-    /**
-     * VO对象信息
-     */
+    /** VO对象信息 */
     private ModelInformation<VO, PK> voInformation;
-    /**
-     * PO实际class
-     */
+    /** PO实际class */
     private Class<PO> poClass;
-    /**
-     * PO实际class
-     */
+    /** PO实际class */
     private Class<VO> voClass;
-    /**
-     * PO对象帮助类
-     */
+    /** PO对象帮助类 */
     private ModelSupport<PO, PK> poSupport;
 
     public BaseServiceImpl(ModelInformation<PO, PK> poInformation, ModelInformation<VO, PK> voInformation) {

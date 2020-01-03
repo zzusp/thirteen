@@ -21,28 +21,14 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysGroupVO extends BaseTreeSortVO<String> {
+public class SysGroupVO extends BaseTreeSortVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 组织简称
-     */
+    /** 组织简称 */
     @ApiModelProperty(value = "组织简称")
     private String shortName;
-    /**
-     * 0：禁用；1启用
-     */
-    @ApiModelProperty(value = "是否启用")
-    private String isActive;
-    /**
-     * 组织拥有的角色
-     */
+    /** 组织拥有的角色 */
     @ApiModelProperty(value = "组织拥有的角色", hidden = true)
     private List<SysRoleVO> roles;
-    /**
-     * 0：正常；1：删除
-     */
-    @ApiModelProperty(value = "删除标志 0：正常；1：删除")
-    private String delFlag;
 
 }

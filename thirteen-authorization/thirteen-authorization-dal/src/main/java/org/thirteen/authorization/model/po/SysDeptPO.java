@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BaseTreeSortPO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
@@ -19,24 +20,14 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_dept`")
-public class SysDeptPO extends BaseTreeSortPO<String> {
+@Entity
+@Table(name = "sys_dept")
+@org.hibernate.annotations.Table(appliesTo = "sys_dept", comment = "部门信息表")
+public class SysDeptPO extends BaseTreeSortPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 部门简称
-     */
-    @Column(name = "`short_name`")
+    /** 部门简称 */
+    @Column(name = "short_name", columnDefinition = "VARCHAR(20) COMMENT '部门简称'")
     private String shortName;
-    /**
-     * 0：禁用；1启用
-     */
-    @Column(name = "`is_active`")
-    private String isActive;
-    /**
-     * 0：正常；1：删除
-     */
-    @Column(name = "`del_flag`")
-    private String delFlag;
 
 }

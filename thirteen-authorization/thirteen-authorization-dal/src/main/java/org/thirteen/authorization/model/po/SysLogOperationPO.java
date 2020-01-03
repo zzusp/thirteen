@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.thirteen.authorization.model.po.base.BaseDeletePO;
 import org.thirteen.authorization.model.po.base.BasePO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -20,74 +22,47 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_log_operation`")
-public class SysLogOperationPO extends BasePO<String> {
+@Entity
+@Table(name = "sys_log_operation")
+@org.hibernate.annotations.Table(appliesTo = "sys_log_operation", comment = "操作日志信息表")
+public class SysLogOperationPO extends BaseDeletePO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 操作人ID
-     */
-    @Column(name = "`user_id`")
-    private String userId;
-    /**
-     * 应用ID
-     */
-    @Column(name = "`application_id`")
-    private String applicationId;
-    /**
-     * 请求地址
-     */
-    @Column(name = "`request_path`")
+    /** 账号 */
+    @Column(name = "account", columnDefinition = "VARCHAR(20) COMMENT '账号'")
+    private String account;
+    /** 应用编码 */
+    @Column(name = "application_code", columnDefinition = "CHAR(20) COMMENT '应用编码'")
+    private String applicationCode;
+    /** 请求地址 */
+    @Column(name = "request_path", columnDefinition = "VARCHAR(500) COMMENT '请求地址'")
     private String requestPath;
-    /**
-     * 操作开始时间
-     */
-    @Column(name = "`start_time`")
+    /** 操作开始时间 */
+    @Column(name = "start_time", columnDefinition = "DATETIME COMMENT '操作开始时间'")
     private LocalDateTime startTime;
-    /**
-     * 操作结束时间
-     */
-    @Column(name = "`end_time`")
+    /** 操作结束时间 */
+    @Column(name = "end_time", columnDefinition = "DATETIME COMMENT '操作结束时间'")
     private LocalDateTime endTime;
-    /**
-     * 操作名称
-     */
-    @Column(name = "`operation_value`")
+    /** 操作名称 */
+    @Column(name = "operation_value", columnDefinition = "VARCHAR(50) COMMENT '操作名称'")
     private String operationValue;
-    /**
-     * 操作描述
-     */
-    @Column(name = "`operation_notes`")
+    /** 操作描述 */
+    @Column(name = "operation_notes", columnDefinition = "VARCHAR(200) COMMENT '操作描述'")
     private String operationNotes;
-    /**
-     * 方法
-     */
-    @Column(name = "`method`")
+    /** 方法 */
+    @Column(name = "method", columnDefinition = "VARCHAR(100) COMMENT '方法'")
     private String method;
-    /**
-     * 参数
-     */
-    @Column(name = "`arguments`")
+    /** 参数 */
+    @Column(name = "arguments", columnDefinition = "VARCHAR(1000) COMMENT '参数'")
     private String arguments;
-    /**
-     * 结果
-     */
-    @Column(name = "`result`")
+    /** 结果 */
+    @Column(name = "result", columnDefinition = "VARCHAR(1000) COMMENT '结果'")
     private String result;
-    /**
-     * 状态码
-     */
-    @Column(name = "`status`")
+    /** 状态码 */
+    @Column(name = "status", columnDefinition = "INT COMMENT '状态码'")
     private Integer status;
-    /**
-     * 信息
-     */
-    @Column(name = "`message`")
+    /** 信息 */
+    @Column(name = "message", columnDefinition = "VARCHAR(500) COMMENT '信息'")
     private String message;
-    /**
-     * 0：正常；1：删除
-     */
-    @Column(name = "`del_flag`")
-    private String delFlag;
 
 }

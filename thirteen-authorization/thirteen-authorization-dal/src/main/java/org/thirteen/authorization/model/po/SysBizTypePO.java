@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.po.base.BaseRecordPO;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
@@ -19,24 +20,11 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`sys_biz_type`")
-public class SysBizTypePO extends BaseRecordPO<String> {
+@Entity
+@Table(name = "sys_biz_type")
+@org.hibernate.annotations.Table(appliesTo = "sys_biz_type", comment = "业务类型信息表")
+public class SysBizTypePO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 业务类型名称
-     */
-    @Column(name = "`name`")
-    private String name;
-    /**
-     * 0：禁用；1启用
-     */
-    @Column(name = "`is_active`")
-    private String isActive;
-    /**
-     * 0：正常；1：删除
-     */
-    @Column(name = "`del_flag`")
-    private String delFlag;
 
 }
