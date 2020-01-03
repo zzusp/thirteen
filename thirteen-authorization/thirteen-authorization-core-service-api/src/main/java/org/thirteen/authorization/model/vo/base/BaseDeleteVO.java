@@ -6,6 +6,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author Aaron.Sun
+ * @description 通用VO（包含删除标记信息的VO的基类）
+ * @date Created in 15:23 2018/1/11
+ * @modified by
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
