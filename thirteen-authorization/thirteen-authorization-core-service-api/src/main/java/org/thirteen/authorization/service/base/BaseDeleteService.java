@@ -8,6 +8,6 @@ import org.thirteen.authorization.model.vo.base.BaseDeleteVO;
  * @date Created in 15:23 2018/1/11
  * @modified by
  */
-public interface BaseDeleteService<VO extends BaseDeleteVO> extends BaseService {
+public interface BaseDeleteService<VO extends BaseDeleteVO> extends BaseService<VO> {
 
 }

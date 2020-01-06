@@ -26,7 +26,7 @@ public class ModelInformation<T> {
      * 通过反射获取子类确定的泛型类
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    ModelInformation() {
+    public ModelInformation() {
         Type genType = getClass().getGenericSuperclass();
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
         realClass = (Class<T>) params[0];

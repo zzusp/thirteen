@@ -90,7 +90,14 @@ public interface BaseService<VO extends BaseVO> {
      * @param id 主键
      * @return VO对象
      */
-    VO get(String id);
+    VO findById(String id);
+
+    /**
+     * 获取所有数据
+     *
+     * @return VO对象集合
+     */
+    List<VO> findByIds(List<String> ids);
 
     /**
      * 获取所有数据

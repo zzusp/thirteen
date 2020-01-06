@@ -2,7 +2,6 @@ package org.thirteen.authorization.service.support.base;
 
 import org.springframework.util.Assert;
 import org.thirteen.authorization.common.utils.StringUtil;
-import org.thirteen.authorization.exceptions.EntityErrorException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -42,63 +41,12 @@ public class ModelSupport<T> {
         this.modelInformation = modelInformation;
     }
 
-    /**
-     * 初始化对象中的创建者/创建时间/更新者/更新时间字段
-     *
-     * @param obj    对象
-     * @param isSave 是否为新增操作
-     * @return 对象（已初始化创建者/创建时间/更新者/更新时间字段）
-     */
-    public T getSaveModel(T obj, boolean isSave) {
-        return getModel(obj, isSave, LocalDateTime.now());
-    }
-
-    /**
-     * 初始化对象集合中对象的创建者/创建时间/更新者/更新时间字段
-     *
-     * @param objs   对象集合
-     * @param isSave 是否为新增操作
-     * @return 对象集合（已初始化创建者/创建时间/更新者/更新时间字段）
-     */
-    public List<T> getSaveModels(List<T> objs, boolean isSave) {
-        Assert.notEmpty(objs, "Object collection must not be empty!");
-        LocalDateTime now = LocalDateTime.now();
-        for (T obj : objs) {
-            getModel(obj, isSave, now);
+    public T newInstance() {
+        try {
+            return modelInformation.getRealClass().getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            return null;
         }
-        return objs;
-    }
-
-    /**
-     * 初始化对象中的创建者/创建时间/更新者/更新时间字段
-     *
-     * @param obj    对象
-     * @param isSave 是否为新增操作
-     * @param now    操作时间
-     * @return 对象（已初始化创建者/创建时间/更新者/更新时间字段）
-     */
-    private T getModel(T obj, boolean isSave, LocalDateTime now) {
-        Assert.notNull(obj, "Object must not be null!");
-        String timeFlag = UPDATE_TIME_FIELD;
-        if (isSave) {
-            timeFlag = CREATE_TIME_FIELD;
-            // 判断是否存在逻辑删除字段，如果存在，则设置为未删除
-            if (modelInformation.contains(DEL_FLAG_FIELD)) {
-                Object delFlag = modelInformation.invokeGet(DEL_FLAG_FIELD, new Class[]{String.class}, obj);
-                if (delFlag == null) {
-                    modelInformation.invokeSet(DEL_FLAG_FIELD, new Class[]{String.class}, obj, DEL_FLAG_NORMAL);
-                }
-            }
-        }
-        // TODO 设置创建/更新者（账号）
-        // 如果存在创建/更新时间字段，设置创建/更新时间
-        if (modelInformation.contains(timeFlag)) {
-            Object time = modelInformation.invokeGet(timeFlag, new Class[]{LocalDateTime.class}, obj);
-            if (time == null) {
-                modelInformation.invokeSet(timeFlag, new Class[]{LocalDateTime.class}, obj, now);
-            }
-        }
-        return obj;
     }
 
     /**
@@ -169,51 +117,4 @@ public class ModelSupport<T> {
         sql.append(StringUtil.join(equations, ",")).append(")");
         return sql.toString();
     }
-
-
-    /**
-     * 获取创建model对象的对象
-     *
-     * @return 创建model对象的对象
-     */
-    public ModelBuilder builder() {
-        return new ModelBuilder();
-    }
-
-    /**
-     * 内部类（创建model对象）
-     */
-    public class ModelBuilder {
-        /** ID */
-        private String id;
-
-        /**
-         * 设置ID
-         *
-         * @param id 主键ID
-         * @return 当前对象
-         */
-        public ModelBuilder id(String id) {
-            this.id = id;
-            return this;
-        }
-
-        /**
-         * 创建model对象，并设置ID
-         *
-         * @return model对象
-         */
-        public T build() {
-            try {
-                T obj = modelInformation.getRealClass().getDeclaredConstructor().newInstance();
-                if (id != null) {
-                    modelInformation.invokeSet(ID_FIELD, new Class[]{String.class}, obj, this.id);
-                }
-                return obj;
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                throw new EntityErrorException(e.getMessage());
-            }
-        }
-    }
-
 }
