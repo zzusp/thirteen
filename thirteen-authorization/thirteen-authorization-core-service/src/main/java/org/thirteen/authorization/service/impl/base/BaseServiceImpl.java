@@ -1,6 +1,5 @@
 package org.thirteen.authorization.service.impl.base;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -32,35 +31,38 @@ import static org.thirteen.authorization.service.support.base.ModelSupport.DEL_F
  * @modified by
  */
 @Service
-public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends BasePO<PK>> implements BaseService<VO, PK> {
+public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> implements BaseService<VO> {
 
     /** baseRepository注入 */
-    protected BaseRepository<PO, PK> baseRepository;
+    protected BaseRepository<PO, String> baseRepository;
     /** 对象转换器 */
     protected DozerMapper dozerMapper;
     /** PO对象信息 */
-    private ModelInformation<PO, PK> poInformation;
+    private ModelInformation<PO> poInformation;
     /** VO对象信息 */
-    private ModelInformation<VO, PK> voInformation;
+    private ModelInformation<VO> voInformation;
     /** PO实际class */
     private Class<PO> poClass;
     /** PO实际class */
     private Class<VO> voClass;
     /** PO对象帮助类 */
-    private ModelSupport<PO, PK> poSupport;
+    private ModelSupport<PO> poSupport;
 
-    public BaseServiceImpl(ModelInformation<PO, PK> poInformation, ModelInformation<VO, PK> voInformation) {
-        this.poInformation = poInformation;
-        this.voInformation = voInformation;
+    public BaseServiceImpl() {
+        this.poInformation = new ModelInformation<>();
+        this.voInformation = new ModelInformation<>();
         this.poClass = this.poInformation.getRealClass();
         this.voClass = this.voInformation.getRealClass();
         this.poSupport = new ModelSupport<>(poInformation);
     }
 
     @Autowired
-    public BaseServiceImpl(BaseRepository<PO, PK> baseRepository, DozerMapper dozerMapper) {
-        this(new ModelInformation<>(), new ModelInformation<>());
+    public void setBaseRepository(BaseRepository<PO, String> baseRepository) {
         this.baseRepository = baseRepository;
+    }
+
+    @Autowired
+    public void setDozerMapper(DozerMapper dozerMapper) {
         this.dozerMapper = dozerMapper;
     }
 
@@ -130,7 +132,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void delete(PK id) {
+    public void delete(String id) {
         Assert.notNull(id, "The given id must not be null!");
         // 如果存在逻辑删除字段，则逻辑删除
         if (poInformation.contains(DEL_FLAG_FIELD)) {
@@ -153,7 +155,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deleteAll(List<PK> ids) {
+    public void deleteAll(List<String> ids) {
         Assert.notEmpty(ids, "ID collection must not be empty!");
         // 如果存在逻辑删除字段，则逻辑删除
         if (poInformation.contains(DEL_FLAG_FIELD)) {
@@ -166,7 +168,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deleteInBatch(List<PK> ids) {
+    public void deleteInBatch(List<String> ids) {
         Assert.notEmpty(ids, "ID collection must not be empty!");
         // 如果存在逻辑删除字段，则逻辑删除
         if (poInformation.contains(DEL_FLAG_FIELD)) {
@@ -178,7 +180,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO<PK>, PK, PO extends Base
     }
 
     @Override
-    public VO get(PK id) {
+    public VO get(String id) {
         Assert.notNull(id, "The given id must not be null!");
         Optional<PO> optional = baseRepository.findById(id);
         return optional.map(po -> dozerMapper.map(po, voClass)).orElse(null);

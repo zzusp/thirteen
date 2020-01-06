@@ -17,7 +17,7 @@ import java.util.List;
  * @date Created in 18:04 2019/12/27
  * @modified by
  */
-public class ModelSupport<T, PK> {
+public class ModelSupport<T> {
 
     /** 主键ID字段 */
     public static final String ID_FIELD = "id";
@@ -36,9 +36,9 @@ public class ModelSupport<T, PK> {
     public static final String DEL_FLAG_DELETE = "1";
 
     /** 模型对象信息 */
-    private ModelInformation<T, PK> modelInformation;
+    private ModelInformation<T> modelInformation;
 
-    public ModelSupport(ModelInformation<T, PK> modelInformation) {
+    public ModelSupport(ModelInformation<T> modelInformation) {
         this.modelInformation = modelInformation;
     }
 
@@ -185,7 +185,7 @@ public class ModelSupport<T, PK> {
      */
     public class ModelBuilder {
         /** ID */
-        private PK id;
+        private String id;
 
         /**
          * 设置ID
@@ -193,7 +193,7 @@ public class ModelSupport<T, PK> {
          * @param id 主键ID
          * @return 当前对象
          */
-        public ModelBuilder id(PK id) {
+        public ModelBuilder id(String id) {
             this.id = id;
             return this;
         }
@@ -207,7 +207,7 @@ public class ModelSupport<T, PK> {
             try {
                 T obj = modelInformation.getRealClass().getDeclaredConstructor().newInstance();
                 if (id != null) {
-                    modelInformation.invokeSet(ID_FIELD, new Class[]{modelInformation.getPkClass()}, obj, this.id);
+                    modelInformation.invokeSet(ID_FIELD, new Class[]{String.class}, obj, this.id);
                 }
                 return obj;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

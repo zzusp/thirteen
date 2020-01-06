@@ -8,11 +8,11 @@ import java.util.List;
 
 /**
  * @author Aaron.Sun
- * @description 通用Service层接口，仅适用于单表操作
+ * @description 通用Service层接口
  * @date Created in 21:42 2018/1/10
  * @modified by
  */
-public interface BaseService<VO extends BaseVO<PK>, PK> {
+public interface BaseService<VO extends BaseVO> {
 
     /**
      * 新增
@@ -68,21 +68,21 @@ public interface BaseService<VO extends BaseVO<PK>, PK> {
      *
      * @param id 主键
      */
-    void delete(PK id);
+    void delete(String id);
 
     /**
      * 根据主键批量删除，逐条执行删除，效率低，不推荐
      *
      * @param ids 主键数组
      */
-    void deleteAll(List<PK> ids);
+    void deleteAll(List<String> ids);
 
     /**
      * 根据主键批量删除，一条sql语句，效率高，推荐
      *
      * @param ids 主键数组
      */
-    void deleteInBatch(List<PK> ids);
+    void deleteInBatch(List<String> ids);
 
     /**
      * 根据ID值获取一个对象
@@ -90,7 +90,7 @@ public interface BaseService<VO extends BaseVO<PK>, PK> {
      * @param id 主键
      * @return VO对象
      */
-    VO get(PK id);
+    VO get(String id);
 
     /**
      * 获取所有数据

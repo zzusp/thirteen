@@ -13,12 +13,10 @@ import java.lang.reflect.*;
  * @date Created in 10:26 2019/12/27
  * @modified by
  */
-public class ModelInformation<T, PK> {
+public class ModelInformation<T> {
 
     /** 当前泛型真实类型的Class */
     private Class<T> realClass;
-    /** 当前泛型真实类型的Class */
-    private Class<PK> pkClass;
     /** 模型对应的表名，仅PO模型存在表名 */
     public String tableName;
     /** 当前泛型对象中的所有属性，包含父类中的属性 */
@@ -32,7 +30,6 @@ public class ModelInformation<T, PK> {
         Type genType = getClass().getGenericSuperclass();
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
         realClass = (Class<T>) params[0];
-        pkClass = (Class<PK>) params[1];
         Table table = realClass.getAnnotation(Table.class);
         if (table != null) {
             tableName = table.name();
@@ -166,15 +163,6 @@ public class ModelInformation<T, PK> {
      */
     public Class<T> getRealClass() {
         return this.realClass;
-    }
-
-    /**
-     * 获取主键的真实类型
-     *
-     * @return 主键的真实类型
-     */
-    public Class<PK> getPkClass() {
-        return this.pkClass;
     }
 
 }
