@@ -15,6 +15,7 @@ import org.thirteen.authorization.service.support.base.ModelInformation;
 import org.thirteen.authorization.service.support.base.ModelSupport;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,26 +31,34 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     protected BaseRepository<PO, String> baseRepository;
     /** 对象转换器 */
     protected DozerMapper dozerMapper;
-    /** PO对象信息 */
-    protected ModelInformation<PO> poInformation;
     /** VO对象信息 */
     protected ModelInformation<VO> voInformation;
+    /** PO对象信息 */
+    protected ModelInformation<PO> poInformation;
+    /** VO实际class */
+    protected Class<VO> voClass;
     /** PO实际class */
     protected Class<PO> poClass;
-    /** PO实际class */
-    protected Class<VO> voClass;
+    /** VO对象帮助类 */
+    protected ModelSupport<VO> voSupport;
     /** PO对象帮助类 */
     protected ModelSupport<PO> poSupport;
 
     BaseServiceImpl(BaseRepository<PO, String> baseRepository, DozerMapper dozerMapper) {
-        this.poInformation = new ModelInformation<>();
-        this.voInformation = new ModelInformation<>();
-        this.poClass = this.poInformation.getRealClass();
-        this.voClass = this.voInformation.getRealClass();
+        this(new ModelInformation<>(), new ModelInformation<>(), baseRepository, dozerMapper);
+    }
+
+    BaseServiceImpl(ModelInformation<VO> voInformation, ModelInformation<PO> poInformation,
+                    BaseRepository<PO, String> baseRepository, DozerMapper dozerMapper) {
+        this.voClass = voInformation.getRealClass();
+        this.poClass = poInformation.getRealClass();
+        this.voSupport = new ModelSupport<>(voInformation);
         this.poSupport = new ModelSupport<>(poInformation);
         this.baseRepository = baseRepository;
         this.dozerMapper = dozerMapper;
     }
+
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -120,7 +129,9 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Override
     public void deleteAll(List<String> ids) {
         Assert.notEmpty(ids, "ID collection must not be empty!");
-        baseRepository.deleteAll(ids.stream().map(item -> baseRepository.findById(item).orElse(null))
+        baseRepository.deleteAll(ids.stream()
+            .map(item -> baseRepository.findById(item).orElse(null))
+            .filter(Objects::nonNull)
             .collect(Collectors.toList()));
     }
 
@@ -128,8 +139,9 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Override
     public void deleteInBatch(List<String> ids) {
         Assert.notEmpty(ids, "ID collection must not be empty!");
-        // 如果存在逻辑删除字段，则逻辑删除
-        baseRepository.deleteInBatch(ids.stream().map(item -> baseRepository.findById(item).orElse(null))
+        baseRepository.deleteInBatch(ids.stream()
+            .map(item -> baseRepository.findById(item).orElse(null))
+            .filter(Objects::nonNull)
             .collect(Collectors.toList()));
     }
 
@@ -144,7 +156,9 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     public List<VO> findByIds(List<String> ids) {
         Assert.notEmpty(ids, "ID collection must not be empty!");
         return ids.stream()
-            .map(item -> baseRepository.findById(item).map(model -> dozerMapper.map(model, voClass)).orElse(null))
+            .map(item -> baseRepository.findById(item)
+                .map(model -> dozerMapper.map(model, voClass)).orElse(null))
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 

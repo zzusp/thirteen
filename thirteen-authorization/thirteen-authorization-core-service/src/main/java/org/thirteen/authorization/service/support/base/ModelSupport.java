@@ -30,9 +30,6 @@ public class ModelSupport<T> {
     public static final String UPDATE_TIME_FIELD = "updateTime";
     /** 逻辑删除字段 */
     public static final String DEL_FLAG_FIELD = "delFlag";
-    /** 删除标记（0：正常；1：删除） */
-    public static final String DEL_FLAG_NORMAL = "0";
-    public static final String DEL_FLAG_DELETE = "1";
 
     /** 模型对象信息 */
     private ModelInformation<T> modelInformation;
