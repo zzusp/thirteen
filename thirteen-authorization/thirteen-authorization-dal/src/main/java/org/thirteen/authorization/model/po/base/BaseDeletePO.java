@@ -1,11 +1,11 @@
 package org.thirteen.authorization.model.po.base;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 /**
  * @author Aaron.Sun
@@ -28,6 +28,19 @@ public abstract class BaseDeletePO extends BasePO {
     /** 0：正常；1：删除 */
     @Column(name = "del_flag", columnDefinition = "CHAR(1) NOT NULL COMMENT '删除标记 0：正常；1：删除'")
     private String delFlag;
+    /** 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作 */
+    @Version
+    @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
+    private Integer version;
+
+    /**
+     * 判断当前对象是否为未被删除
+     *
+     * @return 当前对象是否为未被删除
+     */
+    public boolean isNotDeleted() {
+        return DEL_FLAG_NORMAL.equals(this.delFlag);
+    }
 
     /**
      * 判断当前对象是否为已被删除
@@ -35,7 +48,7 @@ public abstract class BaseDeletePO extends BasePO {
      * @return 当前对象是否为已被删除
      */
     public boolean isDeleted() {
-        return !DEL_FLAG_NORMAL.equals(this.delFlag);
+        return !isNotDeleted();
     }
 
     /**
@@ -61,4 +74,5 @@ public abstract class BaseDeletePO extends BasePO {
         this.setDelFlag(DEL_FLAG_DELETE);
         return (T) this;
     }
+
 }

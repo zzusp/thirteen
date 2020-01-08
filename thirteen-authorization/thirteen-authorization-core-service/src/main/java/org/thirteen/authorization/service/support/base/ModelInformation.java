@@ -18,9 +18,23 @@ public class ModelInformation<T> {
     /** 当前泛型真实类型的Class */
     private Class<T> realClass;
     /** 模型对应的表名，仅PO模型存在表名 */
-    public String tableName;
+    private String tableName;
     /** 当前泛型对象中的所有属性，包含父类中的属性 */
-    public Field[] fields;
+    private Field[] fields;
+    /** 主键ID字段 */
+    public static final String ID_FIELD = "id";
+    /** 创建者字段 */
+    public static final String CREATE_BY_FIELD = "createBy";
+    /** 创建时间字段 */
+    public static final String CREATE_TIME_FIELD = "createTime";
+    /** 更新者字段 */
+    public static final String UPDATE_BY_FIELD = "updateBy";
+    /** 更新时间字段 */
+    public static final String UPDATE_TIME_FIELD = "updateTime";
+    /** 逻辑删除字段 */
+    public static final String DEL_FLAG_FIELD = "delFlag";
+    /** 版本号字段 */
+    public static final String VERSION_FIELD = "version";
 
     /**
      * 通过反射获取子类确定的泛型类
@@ -35,6 +49,14 @@ public class ModelInformation<T> {
             tableName = table.name();
         }
         fields = realClass.getFields();
+    }
+
+    public T newInstance() {
+        try {
+            return this.getRealClass().getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            return null;
+        }
     }
 
     /**
@@ -165,4 +187,21 @@ public class ModelInformation<T> {
         return this.realClass;
     }
 
+    /**
+     * 获取PO对象@Table对应的表名
+     *
+     * @return 对应的表名
+     */
+    public String getTableName() {
+        return tableName;
+    }
+
+    /**
+     * 获取对象的所有字段
+     *
+     * @return 对象的所有字段
+     */
+    public Field[] getFields() {
+        return fields;
+    }
 }

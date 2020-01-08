@@ -1,23 +1,22 @@
 package org.thirteen.authorization.service.impl.base;
 
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
-import org.thirteen.authorization.exceptions.DataNotFoundException;
 import org.thirteen.authorization.model.po.base.BasePO;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
 import org.thirteen.authorization.service.base.BaseService;
 import org.thirteen.authorization.service.support.base.ModelInformation;
-import org.thirteen.authorization.service.support.base.ModelSupport;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.thirteen.authorization.service.support.base.ModelInformation.ID_FIELD;
 
 /**
  * @author Aaron.Sun
@@ -31,116 +30,109 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     protected BaseRepository<PO, String> baseRepository;
     /** 对象转换器 */
     protected DozerMapper dozerMapper;
+    /** 实体类管理器 */
+    protected EntityManager em;
     /** VO对象信息 */
     protected ModelInformation<VO> voInformation;
     /** PO对象信息 */
     protected ModelInformation<PO> poInformation;
-    /** VO实际class */
-    protected Class<VO> voClass;
-    /** PO实际class */
-    protected Class<PO> poClass;
-    /** VO对象帮助类 */
-    protected ModelSupport<VO> voSupport;
-    /** PO对象帮助类 */
-    protected ModelSupport<PO> poSupport;
 
-    BaseServiceImpl(BaseRepository<PO, String> baseRepository, DozerMapper dozerMapper) {
-        this(new ModelInformation<>(), new ModelInformation<>(), baseRepository, dozerMapper);
-    }
-
-    BaseServiceImpl(ModelInformation<VO> voInformation, ModelInformation<PO> poInformation,
-                    BaseRepository<PO, String> baseRepository, DozerMapper dozerMapper) {
-        this.voClass = voInformation.getRealClass();
-        this.poClass = poInformation.getRealClass();
-        this.voSupport = new ModelSupport<>(voInformation);
-        this.poSupport = new ModelSupport<>(poInformation);
+    BaseServiceImpl(BaseRepository<PO, String> baseRepository, EntityManager em, DozerMapper dozerMapper) {
         this.baseRepository = baseRepository;
+        this.em = em;
         this.dozerMapper = dozerMapper;
     }
-
-
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(VO model) {
         Assert.notNull(model, "Entity must not be null!");
-        baseRepository.save(dozerMapper.map(model, poClass));
+        this.baseRepository.save(this.converToPo(model));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void insertAndFlush(VO model) {
         Assert.notNull(model, "Entity must not be null!");
-        baseRepository.saveAndFlush(dozerMapper.map(model, poClass));
+        this.baseRepository.saveAndFlush(this.converToPo(model));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void insertAll(List<VO> models) {
         Assert.notEmpty(models, "Entity collection must not be empty!");
-        baseRepository.saveAll(dozerMapper.mapList(models, poClass));
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void update(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
-        baseRepository.save(dozerMapper.map(model, poClass));
+        this.baseRepository.saveAll(this.converToPo(models));
     }
 
     @Transactional(rollbackFor = {Exception.class})
     @Override
     public void updateSelective(VO model) {
         Assert.notNull(model, "Entity must not be null!");
-        // 更新前先由ID获取数据信息
-        Optional<PO> optional = baseRepository.findById(model.getId());
-        // 判断数据是否存在
-        if (optional.isPresent()) {
-            // 如果存在则将入参中的非null属性赋给查询结果
-            dozerMapper.copy(dozerMapper.map(model, poClass), optional.get(), false, true);
-            baseRepository.save(optional.get());
-        } else {
-            throw new DataNotFoundException(model.getId());
+        List<String> equations = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
+        // 动态sql
+        StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET", poInformation.getTableName()));
+        // 条件序号
+        int i = 0;
+        Object id = null;
+        // while循环中，临时变量
+        Object value;
+        // 动态拼接条件
+        for (Field field : poInformation.getFields()) {
+            value = this.poInformation.invokeGet(field.getName(), new Class[]{field.getType()}, converToPo(model));
+            if (ID_FIELD.equals(field.getName())) {
+                id = value;
+            } else if (Objects.nonNull(value)) {
+                i++;
+                equations.add(String.format(" %s = ?%d", field.getName(), i));
+                values.add(value);
+            }
         }
+        sql.append(StringUtil.join(equations, ","));
+        sql.append(String.format(" WHERE %s = ?%d", ID_FIELD, i + 1));
+        // 断言ID不可为null
+        Assert.notNull(id, "The given id must not be null!");
+        values.add(id);
+        // 创建查询对象
+        Query nativeQuery = em.createNativeQuery(sql.toString(), poInformation.getRealClass());
+        Iterator<Object> it = values.iterator();
+        i = 0;
+        while (it.hasNext()) {
+            ++i;
+            nativeQuery.setParameter(i, it.next());
+        }
+        // 执行更新语句
+        nativeQuery.executeUpdate();
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateAndFlush(VO model) {
+    public void updateSelectiveAndFlush(VO model) {
         Assert.notNull(model, "Entity must not be null!");
-        baseRepository.saveAndFlush(dozerMapper.map(model, poClass));
+        this.updateSelective(model);
+        this.em.flush();
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateAll(List<VO> models) {
+    public void updateSelectiveAll(List<VO> models) {
         Assert.notEmpty(models, "Entity collection must not be empty!");
-        baseRepository.saveAll(dozerMapper.mapList(models, poClass));
+        models.forEach(this::updateSelective);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(String id) {
         Assert.notNull(id, "The given id must not be null!");
-        baseRepository.deleteById(id);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void deleteAll(List<String> ids) {
-        Assert.notEmpty(ids, "ID collection must not be empty!");
-        baseRepository.deleteAll(ids.stream()
-            .map(item -> baseRepository.findById(item).orElse(null))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList()));
+        this.baseRepository.deleteById(id);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(List<String> ids) {
         Assert.notEmpty(ids, "ID collection must not be empty!");
-        baseRepository.deleteInBatch(ids.stream()
-            .map(item -> baseRepository.findById(item).orElse(null))
+        this.baseRepository.deleteInBatch(ids.stream()
+            .map(item -> this.baseRepository.findById(item).orElse(null))
             .filter(Objects::nonNull)
             .collect(Collectors.toList()));
     }
@@ -148,33 +140,69 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Override
     public VO findById(String id) {
         Assert.notNull(id, "The given id must not be null!");
-        Optional<PO> optional = baseRepository.findById(id);
-        return optional.map(po -> dozerMapper.map(po, voClass)).orElse(null);
+        Optional<PO> optional = this.baseRepository.findById(id);
+        return optional.map(this::converToVo).orElse(null);
     }
 
     @Override
     public List<VO> findByIds(List<String> ids) {
         Assert.notEmpty(ids, "ID collection must not be empty!");
         return ids.stream()
-            .map(item -> baseRepository.findById(item)
-                .map(model -> dozerMapper.map(model, voClass)).orElse(null))
+            .map(item -> this.baseRepository.findById(item)
+                .map(this::converToVo).orElse(null))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 
     @Override
     public List<VO> findAll() {
-        return dozerMapper.mapList(baseRepository.findAll(), voClass);
+        return converToVo(this.baseRepository.findAll());
     }
 
-    @Override
-    public List<VO> findAll(Sort sort) {
-        return dozerMapper.mapList(baseRepository.findAll(sort), voClass);
+    /**
+     * 模型转换，PO对象转换为VO对象
+     *
+     * @param model PO对象
+     * @return VO对象
+     */
+    protected VO converToVo(PO model) {
+        return this.dozerMapper.map(model, this.voInformation.getRealClass());
     }
 
-    @Override
-    public List<VO> findAll(ExampleMatcher matcher) {
-        Example<PO> example = Example.of(poSupport.newInstance(), matcher);
-        return dozerMapper.mapList(baseRepository.findAll(example), voClass);
+    /**
+     * 模型转换，PO对象集合转换为VO对象集合
+     *
+     * @param models PO对象集合
+     * @return VO对象集合
+     */
+    protected List<VO> converToVo(List<PO> models) {
+        if (models == null) {
+            models = new ArrayList<>();
+        }
+        return models.stream().map(this::converToVo).collect(Collectors.toList());
     }
+
+    /**
+     * 模型转换，VO对象转换为PO对象
+     *
+     * @param model VO对象
+     * @return PO对象
+     */
+    protected PO converToPo(VO model) {
+        return this.dozerMapper.map(model, this.poInformation.getRealClass());
+    }
+
+    /**
+     * 模型转换，VO对象集合转换为PO对象集合
+     *
+     * @param models VO对象集合
+     * @return PO对象集合
+     */
+    protected List<PO> converToPo(List<VO> models) {
+        if (models == null) {
+            models = new ArrayList<>();
+        }
+        return models.stream().map(this::converToPo).collect(Collectors.toList());
+    }
+
 }

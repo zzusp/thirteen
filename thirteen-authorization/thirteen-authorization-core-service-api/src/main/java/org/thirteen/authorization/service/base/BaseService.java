@@ -1,7 +1,5 @@
 package org.thirteen.authorization.service.base;
 
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Sort;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 
 import java.util.List;
@@ -36,13 +34,6 @@ public interface BaseService<VO extends BaseVO> {
     void insertAll(List<VO> models);
 
     /**
-     * 根据主键更新
-     *
-     * @param model VO对象
-     */
-    void update(VO model);
-
-    /**
      * 根据主键更新，只更新属性值不为null的字段
      *
      * @param model VO对象
@@ -54,14 +45,14 @@ public interface BaseService<VO extends BaseVO> {
      *
      * @param model VO对象
      */
-    void updateAndFlush(VO model);
+    void updateSelectiveAndFlush(VO model);
 
     /**
      * 根据主键批量更新，更新全部字段，值为null的字段也会更新
      *
      * @param models VO对象集合
      */
-    void updateAll(List<VO> models);
+    void updateSelectiveAll(List<VO> models);
 
     /**
      * 根据主键删除
@@ -69,13 +60,6 @@ public interface BaseService<VO extends BaseVO> {
      * @param id 主键
      */
     void delete(String id);
-
-    /**
-     * 根据主键批量删除，逐条执行删除，效率低，不推荐
-     *
-     * @param ids 主键数组
-     */
-    void deleteAll(List<String> ids);
 
     /**
      * 根据主键批量删除，一条sql语句，效率高，推荐
@@ -105,21 +89,5 @@ public interface BaseService<VO extends BaseVO> {
      * @return VO对象集合
      */
     List<VO> findAll();
-
-    /**
-     * 获取所有数据，排序
-     *
-     * @param sort 排序参数对象
-     * @return VO对象集合
-     */
-    List<VO> findAll(Sort sort);
-
-    /**
-     * 根据example matcher获取多条数据
-     *
-     * @param matcher example matcher对象
-     * @return VO对象集合
-     */
-    List<VO> findAll(ExampleMatcher matcher);
 
 }
