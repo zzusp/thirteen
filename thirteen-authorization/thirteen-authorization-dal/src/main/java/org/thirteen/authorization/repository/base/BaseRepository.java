@@ -1,6 +1,7 @@
 package org.thirteen.authorization.repository.base;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -10,5 +11,5 @@ import org.springframework.stereotype.Repository;
  * @modified by
  */
 @Repository
-public interface BaseRepository<PO, PK> extends JpaRepository<PO, PK> {
+public interface BaseRepository<PO, PK> extends JpaRepository<PO, PK>, JpaSpecificationExecutor<PO> {
 }

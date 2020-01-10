@@ -4,11 +4,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
+import org.thirteen.authorization.model.params.base.BaseParam;
 import org.thirteen.authorization.model.po.base.BasePO;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
 import org.thirteen.authorization.service.base.BaseService;
 import org.thirteen.authorization.service.support.base.ModelInformation;
+import org.thirteen.authorization.web.PagerResult;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -52,13 +54,6 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void insertAndFlush(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
-        this.baseRepository.saveAndFlush(this.converToPo(model));
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
     public void insertAll(List<VO> models) {
         Assert.notEmpty(models, "Entity collection must not be empty!");
         this.baseRepository.saveAll(this.converToPo(models));
@@ -66,58 +61,20 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
 
     @Transactional(rollbackFor = {Exception.class})
     @Override
-    public void updateSelective(VO model) {
+    public void update(VO model) {
         Assert.notNull(model, "Entity must not be null!");
-        List<String> equations = new ArrayList<>();
-        List<Object> values = new ArrayList<>();
-        // 动态sql
-        StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET", poInformation.getTableName()));
-        // 条件序号
-        int i = 0;
-        Object id = null;
-        // while循环中，临时变量
-        Object value;
-        // 动态拼接条件
-        for (Field field : poInformation.getFields()) {
-            value = this.poInformation.invokeGet(field.getName(), new Class[]{field.getType()}, converToPo(model));
-            if (ID_FIELD.equals(field.getName())) {
-                id = value;
-            } else if (Objects.nonNull(value)) {
-                i++;
-                equations.add(String.format(" %s = ?%d", field.getName(), i));
-                values.add(value);
-            }
-        }
-        sql.append(StringUtil.join(equations, ","));
-        sql.append(String.format(" WHERE %s = ?%d", ID_FIELD, i + 1));
-        // 断言ID不可为null
-        Assert.notNull(id, "The given id must not be null!");
-        values.add(id);
-        // 创建查询对象
-        Query nativeQuery = em.createNativeQuery(sql.toString(), poInformation.getRealClass());
-        Iterator<Object> it = values.iterator();
-        i = 0;
-        while (it.hasNext()) {
-            ++i;
-            nativeQuery.setParameter(i, it.next());
-        }
-        // 执行更新语句
-        nativeQuery.executeUpdate();
+        Assert.notNull(model.getId(), "The given id must not be null!");
+        List<Object> params = new ArrayList<>();
+        String sql = this.getUpdateSql(converToPo(model), params);
+        // 创建查询对象，并执行更新语句
+        this.createNativeQuery(sql, params).executeUpdate();
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateSelectiveAndFlush(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
-        this.updateSelective(model);
-        this.em.flush();
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void updateSelectiveAll(List<VO> models) {
+    public void updateAll(List<VO> models) {
         Assert.notEmpty(models, "Entity collection must not be empty!");
-        models.forEach(this::updateSelective);
+        models.forEach(this::update);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -130,7 +87,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(List<String> ids) {
-        Assert.notEmpty(ids, "ID collection must not be empty!");
+        Assert.notEmpty(ids, "Id collection must not be empty!");
         this.baseRepository.deleteInBatch(ids.stream()
             .map(item -> this.baseRepository.findById(item).orElse(null))
             .filter(Objects::nonNull)
@@ -145,19 +102,25 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     }
 
     @Override
-    public List<VO> findByIds(List<String> ids) {
-        Assert.notEmpty(ids, "ID collection must not be empty!");
-        return ids.stream()
-            .map(item -> this.baseRepository.findById(item)
-                .map(this::converToVo).orElse(null))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+    public PagerResult<VO> findByIds(List<String> ids) {
+        Assert.notEmpty(ids, "Id collection must not be empty!");
+        return PagerResult.of(this.converToVo(this.baseRepository.findAllById(ids)));
     }
 
     @Override
-    public List<VO> findAll() {
-        return converToVo(this.baseRepository.findAll());
+    public PagerResult<VO> findAll() {
+        return PagerResult.of(this.converToVo(this.baseRepository.findAll()));
     }
+
+    @Override
+    public PagerResult<VO> findAllByParam(BaseParam param) {
+        Assert.notNull(param, "The given param must not be null!");
+        // 判断分页参数是否为空
+
+        return null;
+    }
+
+    // ================================= 以下方法为类方法 ================================= //
 
     /**
      * 模型转换，PO对象转换为VO对象
@@ -203,6 +166,72 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
             models = new ArrayList<>();
         }
         return models.stream().map(this::converToPo).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取更新语句（不包含值为null的字段）
+     *
+     * @param model  PO对象
+     * @param params 参数
+     * @return 更新语句
+     */
+    protected String getUpdateSql(PO model, List<Object> params) {
+        Assert.notNull(params, "params collection must not be null!");
+        List<String> equations = new ArrayList<>();
+        // 动态sql
+        StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET", this.poInformation.getTableName()));
+        // 条件序号
+        int i = 0;
+        // while循环中，临时变量
+        Object value;
+        // 动态拼接条件
+        for (Field field : this.poInformation.getFields()) {
+            if (!ID_FIELD.equals(field.getName())) {
+                value = this.poInformation.invokeGet(field.getName(), new Class[]{field.getType()}, model);
+                if (Objects.nonNull(value)) {
+                    i++;
+                    equations.add(String.format(" %s = ?%d", field.getName(), i));
+                    params.add(value);
+                }
+            }
+        }
+        sql.append(StringUtil.join(equations, ","));
+        sql.append(String.format(" WHERE %s = ?%d", ID_FIELD, i + 1));
+        params.add(model.getId());
+        return sql.toString();
+    }
+
+    /**
+     * 创建查询对象
+     *
+     * @param sql   sql语句
+     * @param param 参数
+     * @return 查询对象
+     */
+    protected Query createNativeQuery(String sql, Object param) {
+        // 创建查询对象
+        Query nativeQuery = this.em.createNativeQuery(sql, this.poInformation.getRealClass());
+        nativeQuery.setParameter(1, param);
+        return nativeQuery;
+    }
+
+    /**
+     * 创建查询对象
+     *
+     * @param sql    sql语句
+     * @param params 参数集合
+     * @return 查询对象
+     */
+    protected Query createNativeQuery(String sql, List<Object> params) {
+        // 创建查询对象
+        Query nativeQuery = this.em.createNativeQuery(sql, this.poInformation.getRealClass());
+        Iterator<Object> it = params.iterator();
+        int i = 0;
+        while (it.hasNext()) {
+            ++i;
+            nativeQuery.setParameter(i, it.next());
+        }
+        return nativeQuery;
     }
 
 }

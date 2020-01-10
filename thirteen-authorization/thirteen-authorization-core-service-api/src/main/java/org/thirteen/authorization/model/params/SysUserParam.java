@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.params.base.BaseParam;
-import org.thirteen.authorization.model.vo.SysUserVO;
 
 /**
  * @author Aaron.Sun
@@ -19,5 +18,5 @@ import org.thirteen.authorization.model.vo.SysUserVO;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysUserParam extends BaseParam<SysUserVO> {
+public class SysUserParam extends BaseParam {
 }

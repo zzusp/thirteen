@@ -1,6 +1,8 @@
 package org.thirteen.authorization.service.base;
 
+import org.thirteen.authorization.model.params.base.BaseParam;
 import org.thirteen.authorization.model.vo.base.BaseVO;
+import org.thirteen.authorization.web.PagerResult;
 
 import java.util.List;
 
@@ -20,13 +22,6 @@ public interface BaseService<VO extends BaseVO> {
     void insert(VO model);
 
     /**
-     * 新增，立即刷新到DB
-     *
-     * @param model VO对象
-     */
-    void insertAndFlush(VO model);
-
-    /**
      * 批量新增
      *
      * @param models VO对象集合
@@ -38,21 +33,14 @@ public interface BaseService<VO extends BaseVO> {
      *
      * @param model VO对象
      */
-    void updateSelective(VO model);
+    void update(VO model);
 
     /**
-     * 根据主键更新，立即刷新到DB
-     *
-     * @param model VO对象
-     */
-    void updateSelectiveAndFlush(VO model);
-
-    /**
-     * 根据主键批量更新，更新全部字段，值为null的字段也会更新
+     * 根据主键批量更新，只更新属性值不为null的字段
      *
      * @param models VO对象集合
      */
-    void updateSelectiveAll(List<VO> models);
+    void updateAll(List<VO> models);
 
     /**
      * 根据主键删除
@@ -79,15 +67,24 @@ public interface BaseService<VO extends BaseVO> {
     /**
      * 获取所有数据
      *
+     * @param ids 主键数组
      * @return VO对象集合
      */
-    List<VO> findByIds(List<String> ids);
+    PagerResult<VO> findByIds(List<String> ids);
 
     /**
      * 获取所有数据
      *
      * @return VO对象集合
      */
-    List<VO> findAll();
+    PagerResult<VO> findAll();
+
+    /**
+     * 由条件基类查询数据
+     *
+     * @param param 条件基类
+     * @return VO对象集合
+     */
+    PagerResult<VO> findAllByParam(BaseParam param);
 
 }

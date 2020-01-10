@@ -51,28 +51,4 @@ public abstract class BaseDeletePO extends BasePO {
         return !isNotDeleted();
     }
 
-    /**
-     * 设置当前对象删除标记为未删除
-     *
-     * @param <T> 当前类的子类
-     * @return 当前对象
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends BaseDeletePO> T normal() {
-        this.setDelFlag(DEL_FLAG_NORMAL);
-        return (T) this;
-    }
-
-    /**
-     * 设置当前对象删除标记为已删除
-     *
-     * @param <T> 当前类的子类
-     * @return 当前对象
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends BaseDeletePO> T delete() {
-        this.setDelFlag(DEL_FLAG_DELETE);
-        return (T) this;
-    }
-
 }

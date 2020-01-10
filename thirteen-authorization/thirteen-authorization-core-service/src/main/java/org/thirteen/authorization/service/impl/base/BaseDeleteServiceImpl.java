@@ -6,9 +6,9 @@ import org.thirteen.authorization.model.po.base.BaseDeletePO;
 import org.thirteen.authorization.model.vo.base.BaseDeleteVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
 import org.thirteen.authorization.service.base.BaseDeleteService;
+import org.thirteen.authorization.web.PagerResult;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -34,42 +34,25 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     @Override
     public void insert(VO model) {
         Assert.notNull(model, "Entity must not be null!");
-        this.baseRepository.save(this.converToPo(model).normal());
+        model.setDelFlag(BaseDeletePO.DEL_FLAG_NORMAL);
+        super.insert(model);
     }
 
-    @Override
-    public void insertAndFlush(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
-        this.baseRepository.saveAndFlush(this.converToPo(model).normal());
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public void insertAll(List<VO> models) {
         Assert.notEmpty(models, "Entity collection must not be empty!");
-        this.baseRepository.saveAll((List<PO>) this.converToPo(models).stream()
-            .map(PO::normal).collect(Collectors.toList()));
+        models.forEach(item -> item.setDelFlag(BaseDeletePO.DEL_FLAG_NORMAL));
+        super.insertAll(models);
     }
 
     @Override
-    public void updateSelective(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
-        model.setDelFlag(null);
-        super.updateSelective(model);
+    public void update(VO model) {
+        super.update(model);
     }
 
     @Override
-    public void updateSelectiveAndFlush(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
-        model.setDelFlag(null);
-        super.updateSelectiveAndFlush(model);
-    }
-
-    @Override
-    public void updateSelectiveAll(List<VO> models) {
-        Assert.notEmpty(models, "Entity collection must not be empty!");
-        models.forEach(item -> item.setDelFlag(null));
-        super.updateSelectiveAll(models);
+    public void updateAll(List<VO> models) {
+        super.updateAll(models);
     }
 
     @Override
@@ -77,21 +60,18 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
         Assert.notNull(id, "The given id must not be null!");
         // 动态sql
         String sql = String.format("UPDATE %s SET %s = %s WHERE %s = ?%d",
-            this.poInformation.getTableName(), DEL_FLAG_FIELD, PO.DEL_FLAG_DELETE, ID_FIELD, 1);
-        // 创建查询对象
-        Query nativeQuery = this.em.createNativeQuery(sql, this.poInformation.getRealClass());
-        nativeQuery.setParameter(1, id);
-        // 执行更新语句
-        nativeQuery.executeUpdate();
+            this.poInformation.getTableName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE, ID_FIELD, 1);
+        // 创建查询对象，并执行更新语句
+        this.createNativeQuery(sql, id).executeUpdate();
     }
 
     @Override
     public void deleteInBatch(List<String> ids) {
-        Assert.notEmpty(ids, "ID collection must not be empty!");
+        Assert.notEmpty(ids, "Id collection must not be empty!");
         Iterator<String> it = ids.iterator();
         // 动态sql
         StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET %s = %s WHERE",
-            this.poInformation.getTableName(), DEL_FLAG_FIELD, PO.DEL_FLAG_DELETE));
+            this.poInformation.getTableName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE));
         // 条件序号
         int i = 0;
         // 动态拼接条件
@@ -103,15 +83,8 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
                 sql.append(" OR");
             }
         }
-        // 创建查询对象
-        Query nativeQuery = this.em.createNativeQuery(sql.toString(), this.poInformation.getRealClass());
-        i = 0;
-        while (it.hasNext()) {
-            ++i;
-            nativeQuery.setParameter(i, it.next());
-        }
-        // 执行更新语句
-        nativeQuery.executeUpdate();
+        // 创建查询对象，并执行更新语句
+        this.createNativeQuery(sql.toString(), ids).executeUpdate();
     }
 
     @Override
@@ -122,21 +95,29 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     }
 
     @Override
-    public List<VO> findByIds(List<String> ids) {
-        Assert.notEmpty(ids, "ID collection must not be empty!");
-        return ids.stream()
+    public PagerResult<VO> findByIds(List<String> ids) {
+        Assert.notEmpty(ids, "Id collection must not be empty!");
+        return PagerResult.of(ids.stream()
             .map(item -> this.baseRepository.findById(item)
                 .filter(PO::isNotDeleted)
                 .map(this::converToVo)
                 .orElse(null))
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .collect(Collectors.toList()));
     }
 
     @Override
-    public List<VO> findAll() {
-        return this.converToVo(this.baseRepository.findAll().stream()
-            .filter(PO::isNotDeleted).collect(Collectors.toList()));
+    public PagerResult<VO> findAll() {
+        return PagerResult.of(this.converToVo(this.baseRepository.findAll().stream()
+            .filter(PO::isNotDeleted).collect(Collectors.toList())));
     }
 
+    @Override
+    protected String getUpdateSql(PO model, List<Object> params) {
+        // 不可更新删除标记字段
+        model.setDelFlag(null);
+        params.add(BaseDeletePO.DEL_FLAG_NORMAL);
+        // 追加等式（已被删除的数据不可更新）
+        return super.getUpdateSql(model, params) + String.format(" AND %s = ?%d", DEL_FLAG_FIELD, params.size());
+    }
 }
