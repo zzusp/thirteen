@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class PageParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @ApiParam(value = "当前页码，第一页页码为1")
+    @ApiParam(value = "当前页码，第一页页码为0")
     private Integer pageNum;
     @ApiParam(value = "每页大小")
     private Integer pageSize;

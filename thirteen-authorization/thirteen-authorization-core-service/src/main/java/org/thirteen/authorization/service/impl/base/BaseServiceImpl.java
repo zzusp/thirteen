@@ -1,10 +1,13 @@
 package org.thirteen.authorization.service.impl.base;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
+import org.thirteen.authorization.exceptions.ParamErrorException;
 import org.thirteen.authorization.model.params.base.BaseParam;
+import org.thirteen.authorization.model.params.base.CriteriaParam;
 import org.thirteen.authorization.model.po.base.BasePO;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
@@ -14,6 +17,10 @@ import org.thirteen.authorization.web.PagerResult;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +35,7 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.I
  */
 public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> implements BaseService<VO> {
 
+    private static final Integer MAX_DEEP = 5;
     /** baseRepository */
     protected BaseRepository<PO, String> baseRepository;
     /** 对象转换器 */
@@ -234,4 +242,32 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
         return nativeQuery;
     }
 
+    /**
+     * 由搜索条件参数生成jpa数据查询参数对象
+     *
+     * @param criteria
+     * @return
+     */
+    protected Specification<PO> createSpecification(CriteriaParam criteria) {
+        return (Root<PO> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> this.setCriteria(root, cb, criteria, 0);
+    }
+
+    private Predicate setCriteria(Root<PO> root, CriteriaBuilder cb, CriteriaParam criteria, int deep) {
+        Predicate predicate = null;
+        // 防止恶意攻击，限制深度最多为5层
+        if (deep < MAX_DEEP) {
+            // 判断条件组是否不为空
+            if (criteria.getGroup() != null && criteria.getGroup().size() > 0) {
+                deep++;
+                this.setCriteria(root, cb, criteria, deep);
+            } else {
+                if ("like".equals(criteria.getOperator())) {
+                    predicate = cb.like(root.get(criteria.getFeild()), criteria.getValue());
+                }
+            }
+        } else {
+            throw new ParamErrorException("条件深度最大为5层");
+        }
+        return predicate;
+    }
 }

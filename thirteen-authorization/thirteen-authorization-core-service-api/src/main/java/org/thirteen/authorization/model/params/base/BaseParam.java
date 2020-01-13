@@ -23,8 +23,6 @@ public class BaseParam implements Serializable {
     private static final long serialVersionUID = 1L;
     @ApiParam(value = "条件参数对象")
     protected CriteriaParam criteria;
-    @ApiParam(value = "条件参数对象集合")
-    protected List<CriteriaParam> criterias;
     @ApiParam(value = "分页参数对象")
     protected PageParam page;
     @ApiParam(value = "排序参数对象")
@@ -38,7 +36,7 @@ public class BaseParam implements Serializable {
      * @return 分页查询对象是否有效
      */
     public boolean isPageabled() {
-        return Objects.nonNull(this.page) && this.page.getPageNum() > 0 && this.page.getPageSize() > 0;
+        return Objects.nonNull(this.page) && this.page.getPageNum() >= 0 && this.page.getPageSize() > 0;
     }
 
     /**

@@ -34,5 +34,6 @@ public class CriteriaParam implements Serializable {
     protected String relation;
     @ApiParam(value = "是否必选（字段对应值为空或null时，条件是否仍生效），默认为false")
     protected boolean required;
-
+    @ApiParam(value = "多个条件组成的条件组")
+    protected List<CriteriaParam> group;
 }
