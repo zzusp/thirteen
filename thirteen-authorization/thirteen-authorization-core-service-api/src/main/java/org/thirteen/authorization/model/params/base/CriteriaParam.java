@@ -22,13 +22,13 @@ public class CriteriaParam implements Serializable {
     private static final long serialVersionUID = 1L;
     @ApiParam(value = "字段")
     protected String feild;
-    @ApiParam(value = "比较操作符")
+    @ApiParam(value = "比较操作符，默认为equals")
     protected String operator;
     @ApiParam(value = "字段对应值")
     protected String value;
-    @ApiParam(value = "字段对应值，一般用于条件 BETWEEN")
+    @ApiParam(value = "字段对应值，一般用于比较操作符between")
     private String otherValue;
-    @ApiParam(value = "字段对应值的集合，一般用于条件 IN")
+    @ApiParam(value = "字段对应值的集合，一般用于比较操作符in")
     protected List<String> values;
     @ApiParam(value = "与上个条件的关系 AND/OR，默认为AND")
     protected String relation;

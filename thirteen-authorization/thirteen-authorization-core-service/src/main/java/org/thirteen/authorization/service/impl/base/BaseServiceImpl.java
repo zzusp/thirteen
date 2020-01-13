@@ -245,24 +245,49 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     /**
      * 由搜索条件参数生成jpa数据查询参数对象
      *
-     * @param criteria
-     * @return
+     * @param criteria 搜索条件参数
+     * @return jpa查询参数对象
      */
     protected Specification<PO> createSpecification(CriteriaParam criteria) {
         return (Root<PO> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> this.setCriteria(root, cb, criteria, 0);
     }
 
+    /**
+     * 递归创建jpa查询参数对象
+     *
+     * @param root     实体类root
+     * @param cb       jpa查询参数创建对象
+     * @param criteria 搜索条件参数
+     * @param deep     条件深度
+     * @return jpa查询参数对象
+     */
     private Predicate setCriteria(Root<PO> root, CriteriaBuilder cb, CriteriaParam criteria, int deep) {
         Predicate predicate = null;
-        // 防止恶意攻击，限制深度最多为5层
+        // 防止恶意攻击，导致栈溢出，限制深度最多为5层
         if (deep < MAX_DEEP) {
             // 判断条件组是否不为空
             if (criteria.getGroup() != null && criteria.getGroup().size() > 0) {
                 deep++;
-                this.setCriteria(root, cb, criteria, deep);
+                for (CriteriaParam item : criteria.getGroup()) {
+                    if (predicate == null) {
+                        predicate = this.setCriteria(root, cb, item, deep);
+                    } else {
+                        if (StringUtil.isEmpty(item.getRelation()) || "AND".equals(item.getRelation())) {
+                            predicate = cb.and(predicate, this.setCriteria(root, cb, item, deep));
+                        } else if ("OR".equals(item.getRelation())) {
+                            predicate = cb.or(predicate, this.setCriteria(root, cb, item, deep));
+                        } else {
+                            throw new ParamErrorException("非法关系 " + item.getRelation());
+                        }
+                    }
+                }
             } else {
-                if ("like".equals(criteria.getOperator())) {
-                    predicate = cb.like(root.get(criteria.getFeild()), criteria.getValue());
+                if (StringUtil.isNotEmpty(criteria.getValue()) || criteria.isRequired()) {
+                    if (StringUtil.isEmpty(criteria.getOperator())) {
+                        predicate = cb.equal(root.get(criteria.getFeild()), criteria.getValue());
+                    } else if ("like".equals(criteria.getOperator())) {
+                        predicate = cb.like(root.get(criteria.getFeild()), criteria.getValue());
+                    }
                 }
             }
         } else {
