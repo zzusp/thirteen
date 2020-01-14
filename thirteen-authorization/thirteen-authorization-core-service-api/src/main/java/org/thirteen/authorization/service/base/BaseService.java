@@ -80,7 +80,15 @@ public interface BaseService<VO extends BaseVO> {
     PagerResult<VO> findAll();
 
     /**
-     * 由条件基类查询数据
+     * 由条件基类获取一个对象
+     *
+     * @param param 条件基类
+     * @return VO对象集合
+     */
+    VO findOneByParam(BaseParam param);
+
+    /**
+     * 由条件基类查询所有数据
      *
      * @param param 条件基类
      * @return VO对象集合

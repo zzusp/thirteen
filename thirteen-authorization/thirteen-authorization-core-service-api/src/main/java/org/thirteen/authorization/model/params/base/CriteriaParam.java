@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,8 +60,6 @@ public class CriteriaParam implements Serializable {
     protected String operator;
     @ApiParam(value = "字段对应值")
     protected Object value;
-    @ApiParam(value = "字段对应值，一般用于比较操作符between")
-    private Object otherValue;
     @ApiParam(value = "字段对应值的集合，一般用于比较操作符in")
     protected List<Object> values;
     @ApiParam(value = "与上个条件的关系 AND/OR，默认为AND")
@@ -69,4 +68,55 @@ public class CriteriaParam implements Serializable {
     protected boolean required;
     @ApiParam(value = "多个条件组成的条件组")
     protected List<CriteriaParam> criterias;
+
+    public static CriteriaParam of(String feild, String operator, Object value, List<Object> values, String relation,
+                                   boolean required, List<CriteriaParam> criterias) {
+        return new CriteriaParam().feild(feild).operator(operator).value(value).values(values).relation(relation)
+            .required(required).criterias(criterias);
+    }
+
+    public static CriteriaParam of(String feild, Object value) {
+        return new CriteriaParam().feild(feild).operator(EQUAL).value(value).relation(AND);
+    }
+
+    public static CriteriaParam of(String feild, List<Object> values) {
+        return new CriteriaParam().feild(feild).operator(IN).values(values).relation(AND);
+    }
+
+    public CriteriaParam feild(String feild) {
+        this.feild = feild;
+        return this;
+    }
+
+    public CriteriaParam operator(String operator) {
+        this.operator = operator;
+        return this;
+    }
+
+    public CriteriaParam value(Object value) {
+        this.value = value;
+        return this;
+    }
+
+    public CriteriaParam values(List<Object> values) {
+        this.values = new ArrayList<>();
+        this.values.addAll(values);
+        return this;
+    }
+
+    public CriteriaParam relation(String relation) {
+        this.relation = relation;
+        return this;
+    }
+
+    public CriteriaParam required(boolean required) {
+        this.required = required;
+        return this;
+    }
+
+    public CriteriaParam criterias(List<CriteriaParam> criterias) {
+        this.criterias = new ArrayList<>();
+        this.criterias.addAll(criterias);
+        return this;
+    }
 }

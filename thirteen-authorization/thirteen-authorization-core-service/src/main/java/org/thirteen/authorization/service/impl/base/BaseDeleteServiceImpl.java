@@ -2,6 +2,8 @@ package org.thirteen.authorization.service.impl.base;
 
 import org.springframework.util.Assert;
 import org.thirteen.authorization.dozer.DozerMapper;
+import org.thirteen.authorization.model.params.base.BaseParam;
+import org.thirteen.authorization.model.params.base.CriteriaParam;
 import org.thirteen.authorization.model.po.base.BaseDeletePO;
 import org.thirteen.authorization.model.vo.base.BaseDeleteVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
@@ -11,9 +13,6 @@ import org.thirteen.authorization.web.PagerResult;
 import javax.persistence.EntityManager;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.thirteen.authorization.service.support.base.ModelInformation.DEL_FLAG_FIELD;
 import static org.thirteen.authorization.service.support.base.ModelInformation.ID_FIELD;
@@ -90,26 +89,20 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     @Override
     public VO findById(String id) {
         Assert.notNull(id, "The given id must not be null!");
-        Optional<PO> optional = this.baseRepository.findById(id);
-        return optional.filter(PO::isNotDeleted).map(this::converToVo).orElse(null);
+        return this.findOneByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, id))
+            .add(CriteriaParam.of(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL)));
     }
 
     @Override
     public PagerResult<VO> findByIds(List<String> ids) {
         Assert.notEmpty(ids, "Id collection must not be empty!");
-        return PagerResult.of(ids.stream()
-            .map(item -> this.baseRepository.findById(item)
-                .filter(PO::isNotDeleted)
-                .map(this::converToVo)
-                .orElse(null))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList()));
+        return this.findAllByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, ids))
+            .add(CriteriaParam.of(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL)));
     }
 
     @Override
     public PagerResult<VO> findAll() {
-        return PagerResult.of(this.converToVo(this.baseRepository.findAll().stream()
-            .filter(PO::isNotDeleted).collect(Collectors.toList())));
+        return this.findAllByParam(BaseParam.of().add(CriteriaParam.of(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL)));
     }
 
     @Override

@@ -112,24 +112,31 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Override
     public VO findById(String id) {
         Assert.notNull(id, "The given id must not be null!");
-        Optional<PO> optional = this.baseRepository.findById(id);
-        return optional.map(this::converToVo).orElse(null);
+        return this.findOneByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, id)));
     }
 
     @Override
     public PagerResult<VO> findByIds(List<String> ids) {
         Assert.notEmpty(ids, "Id collection must not be empty!");
-        return PagerResult.of(this.converToVo(this.baseRepository.findAllById(ids)));
+        return this.findAllByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, ids)));
     }
 
     @Override
     public PagerResult<VO> findAll() {
-        return PagerResult.of(this.converToVo(this.baseRepository.findAll()));
+        return this.findAllByParam(BaseParam.of());
+    }
+
+    @Override
+    public VO findOneByParam(BaseParam param) {
+        Assert.notNull(param, "条件对象不可为空");
+        Assert.notEmpty(param.getCriterias(), "条件对象不可为空");
+        Optional<PO> optional = this.baseRepository.findOne(this.createSpecification(param.getCriterias()));
+        return optional.map(this::converToVo).orElse(null);
     }
 
     @Override
     public PagerResult<VO> findAllByParam(BaseParam param) {
-        Assert.notNull(param, "The given param must not be null!");
+        Assert.notNull(param, "条件对象不可为空");
         PagerResult<VO> result;
         Specification<PO> specification = null;
         Sort sort = null;
@@ -314,10 +321,10 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     /**
      * 递归创建jpa查询参数对象
      *
-     * @param root     实体类root
-     * @param cb       jpa查询参数创建对象
+     * @param root      实体类root
+     * @param cb        jpa查询参数创建对象
      * @param criterias 搜索条件参数集合
-     * @param deep     条件深度
+     * @param deep      条件深度
      * @return jpa查询参数对象
      */
     @SuppressWarnings("unchecked")
@@ -347,44 +354,44 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
                             item.setOperator(CriteriaParam.EQUAL);
                         }
                         try {
-                            switch(item.getOperator()) {
-                                case CriteriaParam.EQUAL :
+                            switch (item.getOperator()) {
+                                case CriteriaParam.EQUAL:
                                     predicate = cb.equal(root.get(item.getFeild()), item.getValue());
                                     break;
-                                case CriteriaParam.NOT_EQUAL :
+                                case CriteriaParam.NOT_EQUAL:
                                     predicate = cb.notEqual(root.get(item.getFeild()), item.getValue());
                                     break;
-                                case CriteriaParam.GT :
+                                case CriteriaParam.GT:
                                     predicate = cb.gt(root.get(item.getFeild()), (Number) item.getValue());
                                     break;
-                                case CriteriaParam.GE :
+                                case CriteriaParam.GE:
                                     predicate = cb.ge(root.get(item.getFeild()), (Number) item.getValue());
                                     break;
-                                case CriteriaParam.LT :
+                                case CriteriaParam.LT:
                                     predicate = cb.lt(root.get(item.getFeild()), (Number) item.getValue());
                                     break;
-                                case CriteriaParam.LE :
+                                case CriteriaParam.LE:
                                     predicate = cb.le(root.get(item.getFeild()), (Number) item.getValue());
                                     break;
-                                case CriteriaParam.GREATER_THAN :
+                                case CriteriaParam.GREATER_THAN:
                                     predicate = cb.greaterThan(root.get(item.getFeild()), (Comparable) item.getValue());
                                     break;
-                                case CriteriaParam.GREATER_THAN_OR_EQUAL_TO :
+                                case CriteriaParam.GREATER_THAN_OR_EQUAL_TO:
                                     predicate = cb.greaterThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
                                     break;
-                                case CriteriaParam.LESS_THEN :
+                                case CriteriaParam.LESS_THEN:
                                     predicate = cb.lessThan(root.get(item.getFeild()), (Comparable) item.getValue());
                                     break;
-                                case CriteriaParam.LESS_THAN_OR_EQUAL_TO :
+                                case CriteriaParam.LESS_THAN_OR_EQUAL_TO:
                                     predicate = cb.lessThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
                                     break;
-                                case CriteriaParam.LIKE :
+                                case CriteriaParam.LIKE:
                                     predicate = cb.like(root.get(item.getFeild()), (String) item.getValue());
                                     break;
-                                case CriteriaParam.NOT_LIKE :
+                                case CriteriaParam.NOT_LIKE:
                                     predicate = cb.notLike(root.get(item.getFeild()), (String) item.getValue());
                                     break;
-                                case CriteriaParam.IN :
+                                case CriteriaParam.IN:
                                     predicate = cb.in(root.get(item.getFeild())).in(item.getValues());
                                     break;
                                 default:

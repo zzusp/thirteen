@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Aaron.Sun
@@ -28,18 +28,36 @@ public class BaseParam implements Serializable {
     @ApiParam(value = "排序参数对象集合")
     protected List<SortParam> sorts;
 
-    /**
-     * 判断分页查询对象是否有效
-     *
-     * @return 分页查询对象是否有效
-     */
-    public boolean isPageabled() {
-        return Objects.nonNull(this.page) && this.page.getPageNum() >= 0 && this.page.getPageSize() > 0;
+    public static BaseParam of(List<CriteriaParam> criterias, PageParam page, List<SortParam> sorts) {
+        return new BaseParam().criterias(criterias).page(page).sorts(sorts);
     }
 
-    /**
-     * 参数合法校验，如果不合法，则抛出异常
-     */
-    public void validate() {
+    public static BaseParam of() {
+        return new BaseParam().criterias(new ArrayList<>()).sorts(new ArrayList<>());
+    }
+
+    public BaseParam criterias(List<CriteriaParam> criterias) {
+        this.criterias = new ArrayList<>();
+        this.criterias.addAll(criterias);
+        return this;
+    }
+
+    public BaseParam add(CriteriaParam criteria) {
+        if (this.criterias == null) {
+            this.criterias = new ArrayList<>();
+        }
+        this.criterias.add(criteria);
+        return this;
+    }
+
+    public BaseParam page(PageParam page) {
+        this.page = page;
+        return this;
+    }
+
+    public BaseParam sorts(List<SortParam> sorts) {
+        this.sorts = new ArrayList<>();
+        this.sorts.addAll(sorts);
+        return this;
     }
 }
