@@ -19,6 +19,11 @@ import java.io.Serializable;
 public class SortParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    /** 升序 */
+    public static final String ASC = "asc";
+    /** 降序 */
+    public static final String DESC = "desc";
+
     @ApiParam(value = "字段名")
     private String field;
     @ApiParam(value = "排序 asc（升序）/desc（降序）")

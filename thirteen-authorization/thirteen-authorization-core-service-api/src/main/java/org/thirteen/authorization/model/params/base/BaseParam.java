@@ -22,11 +22,9 @@ public class BaseParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @ApiParam(value = "条件参数对象")
-    protected CriteriaParam criteria;
+    protected List<CriteriaParam> criterias;
     @ApiParam(value = "分页参数对象")
     protected PageParam page;
-    @ApiParam(value = "排序参数对象")
-    protected SortParam sort;
     @ApiParam(value = "排序参数对象集合")
     protected List<SortParam> sorts;
 

@@ -1,5 +1,8 @@
 package org.thirteen.authorization.service.impl.base;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -8,6 +11,7 @@ import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.ParamErrorException;
 import org.thirteen.authorization.model.params.base.BaseParam;
 import org.thirteen.authorization.model.params.base.CriteriaParam;
+import org.thirteen.authorization.model.params.base.SortParam;
 import org.thirteen.authorization.model.po.base.BasePO;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.repository.base.BaseRepository;
@@ -35,6 +39,9 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.I
  */
 public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> implements BaseService<VO> {
 
+    /** 每层条件的最大值 */
+    private static final Integer MAX_CRITERIA_SIZE = 10;
+    /** 条件最大深度 */
     private static final Integer MAX_DEEP = 5;
     /** baseRepository */
     protected BaseRepository<PO, String> baseRepository;
@@ -123,9 +130,40 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Override
     public PagerResult<VO> findAllByParam(BaseParam param) {
         Assert.notNull(param, "The given param must not be null!");
+        PagerResult<VO> result;
+        Specification<PO> specification = null;
+        Sort sort = null;
+        // 判断条件参数是否为空
+        if (param.getCriterias() != null && param.getCriterias().size() > 0) {
+            specification = this.createSpecification(param.getCriterias());
+        }
+        // 判断排序参数是否为空
+        if (param.getSorts() != null && param.getSorts().size() > 0) {
+            sort = this.createSort(param.getSorts());
+        }
         // 判断分页参数是否为空
-
-        return null;
+        if (param.getPage() != null) {
+            PageRequest pageRequest;
+            Page<PO> page;
+            if (sort != null) {
+                pageRequest = PageRequest.of(param.getPage().getPageNum(), param.getPage().getPageSize(), sort);
+            } else {
+                pageRequest = PageRequest.of(param.getPage().getPageNum(), param.getPage().getPageSize());
+            }
+            page = this.baseRepository.findAll(pageRequest);
+            result = PagerResult.of(page.getTotalPages(), this.converToVo(page.getContent()));
+        } else {
+            if (specification != null && sort != null) {
+                result = PagerResult.of(this.converToVo(this.baseRepository.findAll(specification, sort)));
+            } else if (specification != null) {
+                result = PagerResult.of(this.converToVo(this.baseRepository.findAll(specification)));
+            } else if (sort != null) {
+                result = PagerResult.of(this.converToVo(this.baseRepository.findAll(sort)));
+            } else {
+                result = PagerResult.of(this.converToVo(this.baseRepository.findAll()));
+            }
+        }
+        return result;
     }
 
     // ================================= 以下方法为类方法 ================================= //
@@ -245,11 +283,32 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     /**
      * 由搜索条件参数生成jpa数据查询参数对象
      *
-     * @param criteria 搜索条件参数
+     * @param criterias 搜索条件参数集合
      * @return jpa查询参数对象
      */
-    protected Specification<PO> createSpecification(CriteriaParam criteria) {
-        return (Root<PO> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> this.setCriteria(root, cb, criteria, 0);
+    protected Specification<PO> createSpecification(List<CriteriaParam> criterias) {
+        return (Root<PO> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> this.setCriteria(root, cb, criterias, 0);
+    }
+
+    /**
+     * 由排序参数生成jpa数据查询排序对象
+     *
+     * @param sorts 排序参数集合
+     * @return jpa数据查询排序对象
+     */
+    protected Sort createSort(List<SortParam> sorts) {
+        Assert.notEmpty(sorts, "排序参数集合不可为空");
+        List<Sort.Order> orders = new ArrayList<>();
+        for (SortParam item : sorts) {
+            if (StringUtil.isEmpty(item.getOrderBy()) || SortParam.ASC.equals(item.getOrderBy())) {
+                orders.add(Sort.Order.asc(item.getOrderBy()));
+            } else if (SortParam.DESC.equals(item.getOrderBy())) {
+                orders.add(Sort.Order.desc(item.getOrderBy()));
+            } else {
+                throw new ParamErrorException("非法排序关键字 " + item.getOrderBy());
+            }
+        }
+        return Sort.by(orders);
     }
 
     /**
@@ -257,42 +316,104 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
      *
      * @param root     实体类root
      * @param cb       jpa查询参数创建对象
-     * @param criteria 搜索条件参数
+     * @param criterias 搜索条件参数集合
      * @param deep     条件深度
      * @return jpa查询参数对象
      */
-    private Predicate setCriteria(Root<PO> root, CriteriaBuilder cb, CriteriaParam criteria, int deep) {
+    @SuppressWarnings("unchecked")
+    private Predicate setCriteria(Root<PO> root, CriteriaBuilder cb, List<CriteriaParam> criterias, int deep) {
+        Assert.notEmpty(criterias, "条件参数集合不可为空");
+        if (criterias.size() > MAX_CRITERIA_SIZE) {
+            throw new ParamErrorException("条件参数集合大小不可大于10");
+        }
+        // 结果
+        Predicate result = null;
+        // 循环中的变量
         Predicate predicate = null;
         // 防止恶意攻击，导致栈溢出，限制深度最多为5层
         if (deep < MAX_DEEP) {
-            // 判断条件组是否不为空
-            if (criteria.getGroup() != null && criteria.getGroup().size() > 0) {
-                deep++;
-                for (CriteriaParam item : criteria.getGroup()) {
-                    if (predicate == null) {
-                        predicate = this.setCriteria(root, cb, item, deep);
-                    } else {
-                        if (StringUtil.isEmpty(item.getRelation()) || "AND".equals(item.getRelation())) {
-                            predicate = cb.and(predicate, this.setCriteria(root, cb, item, deep));
-                        } else if ("OR".equals(item.getRelation())) {
-                            predicate = cb.or(predicate, this.setCriteria(root, cb, item, deep));
-                        } else {
-                            throw new ParamErrorException("非法关系 " + item.getRelation());
+            // 深度加1
+            deep++;
+            // 遍历条件参数集合
+            for (CriteriaParam item : criterias) {
+                // 判断条件组是否为空
+                if (item.getCriterias() != null && item.getCriterias().size() > 0) {
+                    predicate = this.setCriteria(root, cb, item.getCriterias(), deep);
+                } else {
+                    // 当value不为null和空，或条件为必选时，添加该条件
+                    if (item.getValue() != null || item.isRequired()) {
+                        // 比较操作符默认为equals
+                        if (StringUtil.isEmpty(item.getOperator())) {
+                            item.setOperator(CriteriaParam.EQUAL);
+                        }
+                        try {
+                            switch(item.getOperator()) {
+                                case CriteriaParam.EQUAL :
+                                    predicate = cb.equal(root.get(item.getFeild()), item.getValue());
+                                    break;
+                                case CriteriaParam.NOT_EQUAL :
+                                    predicate = cb.notEqual(root.get(item.getFeild()), item.getValue());
+                                    break;
+                                case CriteriaParam.GT :
+                                    predicate = cb.gt(root.get(item.getFeild()), (Number) item.getValue());
+                                    break;
+                                case CriteriaParam.GE :
+                                    predicate = cb.ge(root.get(item.getFeild()), (Number) item.getValue());
+                                    break;
+                                case CriteriaParam.LT :
+                                    predicate = cb.lt(root.get(item.getFeild()), (Number) item.getValue());
+                                    break;
+                                case CriteriaParam.LE :
+                                    predicate = cb.le(root.get(item.getFeild()), (Number) item.getValue());
+                                    break;
+                                case CriteriaParam.GREATER_THAN :
+                                    predicate = cb.greaterThan(root.get(item.getFeild()), (Comparable) item.getValue());
+                                    break;
+                                case CriteriaParam.GREATER_THAN_OR_EQUAL_TO :
+                                    predicate = cb.greaterThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
+                                    break;
+                                case CriteriaParam.LESS_THEN :
+                                    predicate = cb.lessThan(root.get(item.getFeild()), (Comparable) item.getValue());
+                                    break;
+                                case CriteriaParam.LESS_THAN_OR_EQUAL_TO :
+                                    predicate = cb.lessThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
+                                    break;
+                                case CriteriaParam.LIKE :
+                                    predicate = cb.like(root.get(item.getFeild()), (String) item.getValue());
+                                    break;
+                                case CriteriaParam.NOT_LIKE :
+                                    predicate = cb.notLike(root.get(item.getFeild()), (String) item.getValue());
+                                    break;
+                                case CriteriaParam.IN :
+                                    predicate = cb.in(root.get(item.getFeild())).in(item.getValues());
+                                    break;
+                                default:
+                                    throw new ParamErrorException("非法比较操作符 " + item.getOperator());
+                            }
+                        } catch (ParamErrorException e) {
+                            throw new ParamErrorException(e.getMessage());
+                        } catch (Exception e) {
+                            throw new ParamErrorException("创建条件失败");
                         }
                     }
                 }
-            } else {
-                if (StringUtil.isNotEmpty(criteria.getValue()) || criteria.isRequired()) {
-                    if (StringUtil.isEmpty(criteria.getOperator())) {
-                        predicate = cb.equal(root.get(criteria.getFeild()), criteria.getValue());
-                    } else if ("like".equals(criteria.getOperator())) {
-                        predicate = cb.like(root.get(criteria.getFeild()), criteria.getValue());
+                // 判断jpa查询参数是否为空
+                if (result == null) {
+                    result = predicate;
+                } else {
+                    // 判断条件间关系（默认关系为AND）
+                    if (StringUtil.isEmpty(item.getRelation()) || "AND".equals(item.getRelation())) {
+                        result = cb.and(result, predicate);
+                    } else if ("OR".equals(item.getRelation())) {
+                        result = cb.or(result, predicate);
+                    } else {
+                        throw new ParamErrorException("非法关系 " + item.getRelation());
                     }
                 }
             }
         } else {
             throw new ParamErrorException("条件深度最大为5层");
         }
-        return predicate;
+        return result;
     }
 }
