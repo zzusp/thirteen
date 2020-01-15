@@ -16,7 +16,6 @@ import org.thirteen.authorization.model.params.base.BaseParam;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "查询参数-用户")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class SysUserParam extends BaseParam {
 }

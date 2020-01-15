@@ -32,7 +32,6 @@ import java.util.List;
  * @date Created in 10:45 2018/1/15
  * @modified by
  */
-@EnableSwagger2
 @Configuration
 public class Swagger2Config extends WebMvcConfigurationSupport {
 

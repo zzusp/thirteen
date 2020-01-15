@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -69,18 +70,24 @@ public class CriteriaParam implements Serializable {
     @ApiParam(value = "多个条件组成的条件组")
     protected List<CriteriaParam> criterias;
 
-    public static CriteriaParam of(String feild, String operator, Object value, List<Object> values, String relation,
-                                   boolean required, List<CriteriaParam> criterias) {
-        return new CriteriaParam().feild(feild).operator(operator).value(value).values(values).relation(relation)
-            .required(required).criterias(criterias);
+    public static CriteriaParam of() {
+        return new CriteriaParam().operator(EQUAL).and().required(false).criterias(new ArrayList<>());
     }
 
-    public static CriteriaParam of(String feild, Object value) {
-        return new CriteriaParam().feild(feild).operator(EQUAL).value(value).relation(AND);
+    public static CriteriaParam equal(String feild, Object value) {
+        return new CriteriaParam().feild(feild).operator(EQUAL).value(value);
     }
 
-    public static CriteriaParam of(String feild, List<Object> values) {
-        return new CriteriaParam().feild(feild).operator(IN).values(values).relation(AND);
+    public static CriteriaParam in(String feild, List values) {
+        return new CriteriaParam().feild(feild).operator(IN).values(Arrays.asList(values.toArray()));
+    }
+
+    public CriteriaParam add(CriteriaParam criteria) {
+        if (this.criterias == null) {
+            this.criterias = new ArrayList<>();
+        }
+        this.criterias.add(criteria);
+        return this;
     }
 
     public CriteriaParam feild(String feild) {
@@ -104,11 +111,6 @@ public class CriteriaParam implements Serializable {
         return this;
     }
 
-    public CriteriaParam relation(String relation) {
-        this.relation = relation;
-        return this;
-    }
-
     public CriteriaParam required(boolean required) {
         this.required = required;
         return this;
@@ -117,6 +119,16 @@ public class CriteriaParam implements Serializable {
     public CriteriaParam criterias(List<CriteriaParam> criterias) {
         this.criterias = new ArrayList<>();
         this.criterias.addAll(criterias);
+        return this;
+    }
+
+    public CriteriaParam and() {
+        this.relation = AND;
+        return this;
+    }
+
+    public CriteriaParam or() {
+        this.relation = OR;
         return this;
     }
 }

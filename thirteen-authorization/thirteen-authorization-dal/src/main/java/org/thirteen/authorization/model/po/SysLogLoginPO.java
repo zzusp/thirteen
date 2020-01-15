@@ -9,6 +9,7 @@ import org.thirteen.authorization.model.po.base.BaseDeletePO;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
 
 /**
@@ -51,5 +52,8 @@ public class SysLogLoginPO extends BaseDeletePO {
     /** 城市 */
     @Column(name = "city", columnDefinition = "VARCHAR(50) COMMENT '城市'")
     private String city;
+    /** 不需要版本号 */
+    @Transient
+    private Integer version;
 
 }

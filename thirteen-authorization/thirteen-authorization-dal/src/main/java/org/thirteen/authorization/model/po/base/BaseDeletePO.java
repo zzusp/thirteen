@@ -27,11 +27,11 @@ public abstract class BaseDeletePO extends BasePO {
     public static final String DEL_FLAG_DELETE = "1";
     /** 0：正常；1：删除 */
     @Column(name = "del_flag", columnDefinition = "CHAR(1) NOT NULL COMMENT '删除标记 0：正常；1：删除'")
-    private String delFlag;
+    protected String delFlag;
     /** 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作 */
     @Version
     @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
-    private Integer version;
+    protected Integer version;
 
     /**
      * 判断当前对象是否为未被删除

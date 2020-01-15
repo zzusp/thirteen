@@ -34,7 +34,7 @@ public abstract class BaseRecordPO extends BaseDeletePO {
     protected String name;
     /** 0：禁用；1启用 */
     @Column(name = "active", columnDefinition = "CHAR(1) NOT NULL COMMENT '启用标记 0：禁用；1启用'")
-    private String active;
+    protected String active;
     /** 创建者ID/账号/编码（推荐账号） */
     @Column(name = "create_by", columnDefinition = "VARCHAR(50) COMMENT '创建者ID/账号/编码（推荐账号）'")
     protected String createBy;

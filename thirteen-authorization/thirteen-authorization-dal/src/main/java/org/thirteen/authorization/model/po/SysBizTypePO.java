@@ -17,7 +17,6 @@ import javax.persistence.Table;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "sys_biz_type")

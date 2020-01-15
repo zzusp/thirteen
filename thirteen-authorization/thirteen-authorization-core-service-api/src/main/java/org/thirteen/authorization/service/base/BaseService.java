@@ -57,7 +57,7 @@ public interface BaseService<VO extends BaseVO> {
     void deleteInBatch(List<String> ids);
 
     /**
-     * 根据ID值获取一个对象
+     * 根据ID值获取一条数据
      *
      * @param id 主键
      * @return VO对象
@@ -80,7 +80,7 @@ public interface BaseService<VO extends BaseVO> {
     PagerResult<VO> findAll();
 
     /**
-     * 由条件基类获取一个对象
+     * 由条件基类获取一条数据
      *
      * @param param 条件基类
      * @return VO对象集合

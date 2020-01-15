@@ -21,6 +21,9 @@ public class BaseDeleteVO extends BaseVO {
     private static final long serialVersionUID = 1L;
     /** 0：正常；1：删除 */
     @ApiModelProperty(value = "删除标志 0：正常；1：删除")
-    private String delFlag;
+    protected String delFlag;
+    /** 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作 */
+    @ApiModelProperty(value = "版本号")
+    protected Integer version;
 
 }

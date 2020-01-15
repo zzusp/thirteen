@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.common.utils.StringUtil;
@@ -37,8 +38,15 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.I
  * @date Created in 21:43 2018/1/10
  * @modified by
  */
+@Service
 public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> implements BaseService<VO> {
 
+    protected static final String ID_MUST_NOT_BE_NULL = "ID不能为null";
+    protected static final String ID_COLLECTION_MUST_NOT_BE_EMPTY = "ID集合不能为空";
+    protected static final String VO_MUST_NOT_BE_NULL = "VO对象不能为null";
+    protected static final String VO_COLLECTION_MUST_NOT_BE_EMPTY = "VO集合不能为空";
+    protected static final String PARAM_MUST_NOT_BE_EMPTY = "查询参数对象不能为null";
+    protected static final String CRITERIA_COLLECTION_MUST_NOT_BE_EMPTY = "条件集合不能为空";
     /** 每层条件的最大值 */
     private static final Integer MAX_CRITERIA_SIZE = 10;
     /** 条件最大深度 */
@@ -63,24 +71,24 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
+        Assert.notNull(model, VO_MUST_NOT_BE_NULL);
         this.baseRepository.save(this.converToPo(model));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void insertAll(List<VO> models) {
-        Assert.notEmpty(models, "Entity collection must not be empty!");
+        Assert.notEmpty(models, VO_COLLECTION_MUST_NOT_BE_EMPTY);
         this.baseRepository.saveAll(this.converToPo(models));
     }
 
     @Transactional(rollbackFor = {Exception.class})
     @Override
     public void update(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
-        Assert.notNull(model.getId(), "The given id must not be null!");
+        Assert.notNull(model, VO_MUST_NOT_BE_NULL);
+        Assert.notNull(model.getId(), ID_MUST_NOT_BE_NULL);
         List<Object> params = new ArrayList<>();
-        String sql = this.getUpdateSql(converToPo(model), params);
+        String sql = this.getUpdateSql(this.converToPo(model), params);
         // 创建查询对象，并执行更新语句
         this.createNativeQuery(sql, params).executeUpdate();
     }
@@ -88,37 +96,37 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateAll(List<VO> models) {
-        Assert.notEmpty(models, "Entity collection must not be empty!");
+        Assert.notEmpty(models, VO_COLLECTION_MUST_NOT_BE_EMPTY);
         models.forEach(this::update);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(String id) {
-        Assert.notNull(id, "The given id must not be null!");
+        Assert.notNull(id, ID_MUST_NOT_BE_NULL);
         this.baseRepository.deleteById(id);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(List<String> ids) {
-        Assert.notEmpty(ids, "Id collection must not be empty!");
-        this.baseRepository.deleteInBatch(ids.stream()
-            .map(item -> this.baseRepository.findById(item).orElse(null))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList()));
+        Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);
+        String sql = this.getDeleteInBatchSql(String.format("DELETE FROM %s WHERE", this.poInformation.getTableName()),
+            ids);
+        // 创建查询对象，并执行更新语句
+        this.createNativeQuery(sql, ids).executeUpdate();
     }
 
     @Override
     public VO findById(String id) {
-        Assert.notNull(id, "The given id must not be null!");
-        return this.findOneByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, id)));
+        Assert.notNull(id, ID_MUST_NOT_BE_NULL);
+        return this.findOneByParam(BaseParam.of().add(CriteriaParam.equal(ID_FIELD, id)));
     }
 
     @Override
     public PagerResult<VO> findByIds(List<String> ids) {
-        Assert.notEmpty(ids, "Id collection must not be empty!");
-        return this.findAllByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, ids)));
+        Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);
+        return this.findAllByParam(BaseParam.of().add(CriteriaParam.in(ID_FIELD, ids)));
     }
 
     @Override
@@ -128,15 +136,15 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
 
     @Override
     public VO findOneByParam(BaseParam param) {
-        Assert.notNull(param, "条件对象不可为空");
-        Assert.notEmpty(param.getCriterias(), "条件对象不可为空");
+        Assert.notNull(param, PARAM_MUST_NOT_BE_EMPTY);
+        Assert.notEmpty(param.getCriterias(), CRITERIA_COLLECTION_MUST_NOT_BE_EMPTY);
         Optional<PO> optional = this.baseRepository.findOne(this.createSpecification(param.getCriterias()));
         return optional.map(this::converToVo).orElse(null);
     }
 
     @Override
     public PagerResult<VO> findAllByParam(BaseParam param) {
-        Assert.notNull(param, "条件对象不可为空");
+        Assert.notNull(param, PARAM_MUST_NOT_BE_EMPTY);
         PagerResult<VO> result;
         Specification<PO> specification = null;
         Sort sort = null;
@@ -222,6 +230,31 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     }
 
     /**
+     * 获取批量删除语句
+     *
+     * @param querySql 批量删除的查询语句
+     * @param ids      主键集合
+     * @return 批量删除语句
+     */
+    protected String getDeleteInBatchSql(String querySql, List<String> ids) {
+        // 动态sql
+        StringBuilder sql = new StringBuilder(querySql);
+        Iterator<String> it = ids.iterator();
+        // 条件序号
+        int i = 0;
+        // 动态拼接条件
+        while (it.hasNext()) {
+            it.next();
+            i++;
+            sql.append(String.format(" %s = ?%d", ID_FIELD, i));
+            if (it.hasNext()) {
+                sql.append(" OR");
+            }
+        }
+        return sql.toString();
+    }
+
+    /**
      * 获取更新语句（不包含值为null的字段）
      *
      * @param model  PO对象
@@ -285,6 +318,16 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
             nativeQuery.setParameter(i, it.next());
         }
         return nativeQuery;
+    }
+
+    /**
+     * 由搜索条件参数生成jpa数据查询参数对象
+     *
+     * @param criteria 搜索条件参数
+     * @return jpa查询参数对象
+     */
+    protected Specification<PO> createSpecification(CriteriaParam criteria) {
+        return this.createSpecification(BaseParam.of().add(criteria).getCriterias());
     }
 
     /**

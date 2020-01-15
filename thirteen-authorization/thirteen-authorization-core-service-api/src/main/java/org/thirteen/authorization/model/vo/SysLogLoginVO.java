@@ -2,6 +2,7 @@ package org.thirteen.authorization.model.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -54,5 +55,8 @@ public class SysLogLoginVO extends BaseDeleteVO {
     /** 城市 */
     @ApiModelProperty(value = "城市")
     private String city;
+    /** 不需要版本号 */
+    @JsonIgnore
+    private Integer version;
 
 }

@@ -2,6 +2,7 @@ package org.thirteen.authorization.model.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -69,5 +70,8 @@ public class SysLogOperationVO extends BaseDeleteVO {
     /** 信息 */
     @ApiModelProperty(value = "信息")
     private String message;
+    /** 不需要版本号 */
+    @JsonIgnore
+    private Integer version;
 
 }

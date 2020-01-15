@@ -23,6 +23,14 @@ public class ModelInformation<T> {
     private Field[] fields;
     /** 主键ID字段 */
     public static final String ID_FIELD = "id";
+    /** 编码字段 */
+    public static final String CODE_FIELD = "code";
+    /** 状态字段 */
+    public static final String STATUS_FIELD = "status";
+    /** 显示顺序字段 */
+    public static final String SORT_FIELD = "sort";
+    /** 上级编码字段 */
+    public static final String PARENT_CODE_FIELD = "parentCode";
     /** 创建者字段 */
     public static final String CREATE_BY_FIELD = "createBy";
     /** 创建时间字段 */

@@ -32,7 +32,7 @@ public abstract class BaseRecordVO extends BaseDeleteVO {
     protected String name;
     /** 0：禁用；1启用 */
     @ApiModelProperty(value = "启用标记 0：禁用；1启用")
-    private String active;
+    protected String active;
     /** 创建者ID/账号/编码（推荐账号） */
     @ApiModelProperty(notes = "创建者", hidden = true)
     protected String createBy;

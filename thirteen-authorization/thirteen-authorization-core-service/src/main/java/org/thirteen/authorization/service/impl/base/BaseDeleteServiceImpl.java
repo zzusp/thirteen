@@ -1,5 +1,6 @@
 package org.thirteen.authorization.service.impl.base;
 
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.model.params.base.BaseParam;
@@ -11,11 +12,9 @@ import org.thirteen.authorization.service.base.BaseDeleteService;
 import org.thirteen.authorization.web.PagerResult;
 
 import javax.persistence.EntityManager;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.thirteen.authorization.service.support.base.ModelInformation.DEL_FLAG_FIELD;
-import static org.thirteen.authorization.service.support.base.ModelInformation.ID_FIELD;
+import static org.thirteen.authorization.service.support.base.ModelInformation.*;
 
 /**
  * @author Aaron.Sun
@@ -23,6 +22,7 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.I
  * @date Created in 23:08 2020/1/6
  * @modified by
  */
+@Service
 public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends BaseDeletePO>
     extends BaseServiceImpl<VO, PO> implements BaseDeleteService<VO> {
 
@@ -32,31 +32,21 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
 
     @Override
     public void insert(VO model) {
-        Assert.notNull(model, "Entity must not be null!");
+        Assert.notNull(model, VO_MUST_NOT_BE_NULL);
         model.setDelFlag(BaseDeletePO.DEL_FLAG_NORMAL);
         super.insert(model);
     }
 
     @Override
     public void insertAll(List<VO> models) {
-        Assert.notEmpty(models, "Entity collection must not be empty!");
+        Assert.notEmpty(models, VO_COLLECTION_MUST_NOT_BE_EMPTY);
         models.forEach(item -> item.setDelFlag(BaseDeletePO.DEL_FLAG_NORMAL));
         super.insertAll(models);
     }
 
     @Override
-    public void update(VO model) {
-        super.update(model);
-    }
-
-    @Override
-    public void updateAll(List<VO> models) {
-        super.updateAll(models);
-    }
-
-    @Override
     public void delete(String id) {
-        Assert.notNull(id, "The given id must not be null!");
+        Assert.notNull(id, ID_MUST_NOT_BE_NULL);
         // 动态sql
         String sql = String.format("UPDATE %s SET %s = %s WHERE %s = ?%d",
             this.poInformation.getTableName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE, ID_FIELD, 1);
@@ -66,51 +56,39 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
 
     @Override
     public void deleteInBatch(List<String> ids) {
-        Assert.notEmpty(ids, "Id collection must not be empty!");
-        Iterator<String> it = ids.iterator();
-        // 动态sql
-        StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET %s = %s WHERE",
-            this.poInformation.getTableName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE));
-        // 条件序号
-        int i = 0;
-        // 动态拼接条件
-        while (it.hasNext()) {
-            it.next();
-            i++;
-            sql.append(String.format(" %s = ?%d", ID_FIELD, i));
-            if (it.hasNext()) {
-                sql.append(" OR");
-            }
-        }
+        Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);
+        String sql = this.getDeleteInBatchSql(String.format("UPDATE %s SET %s = %s WHERE",
+            this.poInformation.getTableName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE), ids);
         // 创建查询对象，并执行更新语句
-        this.createNativeQuery(sql.toString(), ids).executeUpdate();
+        this.createNativeQuery(sql, ids).executeUpdate();
     }
 
     @Override
-    public VO findById(String id) {
-        Assert.notNull(id, "The given id must not be null!");
-        return this.findOneByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, id))
-            .add(CriteriaParam.of(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL)));
+    public VO findOneByParam(BaseParam param) {
+        return super.findOneByParam(param.add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and()));
     }
 
     @Override
-    public PagerResult<VO> findByIds(List<String> ids) {
-        Assert.notEmpty(ids, "Id collection must not be empty!");
-        return this.findAllByParam(BaseParam.of().add(CriteriaParam.of(ID_FIELD, ids))
-            .add(CriteriaParam.of(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL)));
+    public PagerResult<VO> findAllByParam(BaseParam param) {
+        return super.findAllByParam(param.add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and()));
     }
 
-    @Override
-    public PagerResult<VO> findAll() {
-        return this.findAllByParam(BaseParam.of().add(CriteriaParam.of(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL)));
-    }
-
+    /**
+     * 获取更新语句（不包含值为null的字段）
+     *
+     * @param model  PO对象
+     * @param params 参数
+     * @return 更新语句
+     */
     @Override
     protected String getUpdateSql(PO model, List<Object> params) {
+        params.add(BaseDeletePO.DEL_FLAG_NORMAL);
+        params.add(model.getVersion());
         // 不可更新删除标记字段
         model.setDelFlag(null);
-        params.add(BaseDeletePO.DEL_FLAG_NORMAL);
+        model.setVersion(model.getVersion() + 1);
         // 追加等式（已被删除的数据不可更新）
-        return super.getUpdateSql(model, params) + String.format(" AND %s = ?%d", DEL_FLAG_FIELD, params.size());
+        return super.getUpdateSql(model, params)
+            + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1, VERSION_FIELD, params.size());
     }
 }

@@ -22,8 +22,8 @@ public class Geolite2Config {
     /**
      * 初始化geolite2数据库读取对象
      */
-    @Bean
+/*    @Bean
     public DatabaseReader geolite2CityDb() throws Exception {
         return new DatabaseReader.Builder(new File(geolite2CityDbPath)).build();
-    }
+    }*/
 }
