@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.common.utils.StringUtil;
@@ -27,6 +26,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,8 +39,8 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.I
  * @date Created in 21:43 2018/1/10
  * @modified by
  */
-@Service
-public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> implements BaseService<VO> {
+public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R extends BaseRepository<PO, String>>
+    implements BaseService<VO> {
 
     protected static final String ID_MUST_NOT_BE_NULL = "ID不能为null";
     protected static final String ID_COLLECTION_MUST_NOT_BE_EMPTY = "ID集合不能为空";
@@ -52,7 +53,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     /** 条件最大深度 */
     private static final Integer MAX_DEEP = 5;
     /** baseRepository */
-    protected BaseRepository<PO, String> baseRepository;
+    protected R baseRepository;
     /** 对象转换器 */
     protected DozerMapper dozerMapper;
     /** 实体类管理器 */
@@ -62,10 +63,15 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
     /** PO对象信息 */
     protected ModelInformation<PO> poInformation;
 
-    BaseServiceImpl(BaseRepository<PO, String> baseRepository, EntityManager em, DozerMapper dozerMapper) {
+    @SuppressWarnings("unchecked")
+    public BaseServiceImpl(R baseRepository, DozerMapper dozerMapper, EntityManager em) {
         this.baseRepository = baseRepository;
-        this.em = em;
         this.dozerMapper = dozerMapper;
+        this.em = em;
+        Type genType = this.getClass().getGenericSuperclass();
+        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+        this.voInformation = new ModelInformation<>((Class<VO>) params[0]);
+        this.poInformation = new ModelInformation<>((Class<PO>) params[1]);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -452,9 +458,9 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO> impl
                     result = predicate;
                 } else {
                     // 判断条件间关系（默认关系为AND）
-                    if (StringUtil.isEmpty(item.getRelation()) || "AND".equals(item.getRelation())) {
+                    if (StringUtil.isEmpty(item.getRelation()) || CriteriaParam.AND.equals(item.getRelation())) {
                         result = cb.and(result, predicate);
-                    } else if ("OR".equals(item.getRelation())) {
+                    } else if (CriteriaParam.OR.equals(item.getRelation())) {
                         result = cb.or(result, predicate);
                     } else {
                         throw new ParamErrorException("非法关系 " + item.getRelation());

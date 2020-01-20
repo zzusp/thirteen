@@ -1,5 +1,6 @@
 package org.thirteen.authorization.dozer;
 
+import org.dozer.CustomConverter;
 import org.dozer.DozerBeanMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -7,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +43,10 @@ public class DozerConfig {
         }).collect(Collectors.toList());
         DozerBeanMapper dozerBean = new DozerBeanMapper();
         dozerBean.setMappingFiles(mappings);
+        List<CustomConverter> customConverters = new ArrayList<>();
+        CustomConverter customConverter = new LocalDateTimeDozerConverter(LocalDateTime.class, LocalDateTime.class);
+        customConverters.add(customConverter);
+        dozerBean.setCustomConverters(customConverters);
         return dozerBean;
     }
 

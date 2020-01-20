@@ -36,7 +36,6 @@
     <spring.test.version>5.2.2.RELEASE</spring.test.version><!-- spring test 测试包 -->
     <junit.version>4.12</junit.version><!-- Junit测试包 -->
     <jedis.version>3.1.0</jedis.version><!-- redis的java版本的客户端实现 -->
-    <hibernate-annotations.version>3.5.6-Final</hibernate-annotations.version><!-- hibernate-annotations -->
     <mysql.version>8.0.18</mysql.version><!-- mysql连接 -->
     <slf4j.version>2.0.0-alpha1</slf4j.version><!-- 日志工具 -->
     <springfox.swagger2.version>2.9.2</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
@@ -115,12 +114,6 @@
         <groupId>redis.clients</groupId>
         <artifactId>jedis</artifactId>
         <version>${jedis.version}</version>
-      </dependency>
-      <!-- hibernate-annotations -->
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-annotations</artifactId>
-        <version>${hibernate-annotations.version}</version>
       </dependency>
       <!-- MySql -->
       <dependency>

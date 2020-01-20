@@ -19,12 +19,12 @@ import java.util.List;
  * @date Created in 20:13 2020/1/15
  * @modified by
  */
-public abstract class BaseController<VO extends BaseVO> {
+public abstract class BaseController<VO extends BaseVO, S extends BaseService<VO>> {
 
     /** service声明 */
-    private BaseService<VO> service;
+    protected final S service;
 
-    public BaseController(BaseService<VO> service) {
+    public BaseController(S service) {
         this.service = service;
     }
 

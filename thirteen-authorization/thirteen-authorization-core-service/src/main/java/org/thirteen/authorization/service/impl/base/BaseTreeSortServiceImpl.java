@@ -1,6 +1,5 @@
 package org.thirteen.authorization.service.impl.base;
 
-import org.springframework.stereotype.Service;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.model.params.base.BaseParam;
 import org.thirteen.authorization.model.params.base.CriteriaParam;
@@ -23,12 +22,11 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.P
  * @date Created in 18:15 2020/1/15
  * @modified by
  */
-@Service
-public abstract class BaseTreeSortServiceImpl<VO extends BaseTreeSortVO, PO extends BaseTreeSortPO>
-    extends BaseRecordServiceImpl<VO, PO> implements BaseTreeSortService<VO> {
+public abstract class BaseTreeSortServiceImpl<VO extends BaseTreeSortVO, PO extends BaseTreeSortPO, R extends BaseRepository<PO, String>>
+    extends BaseRecordServiceImpl<VO, PO, R> implements BaseTreeSortService<VO> {
 
-    public BaseTreeSortServiceImpl(BaseRepository<PO, String> baseRepository, EntityManager em, DozerMapper dozerMapper) {
-        super(baseRepository, em, dozerMapper);
+    public BaseTreeSortServiceImpl(R baseRepository, DozerMapper dozerMapper, EntityManager em) {
+        super(baseRepository, dozerMapper, em);
     }
 
     @Override

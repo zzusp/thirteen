@@ -5,7 +5,9 @@ import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.exceptions.EntityErrorException;
 
 import javax.persistence.Table;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author Aaron.Sun
@@ -47,11 +49,8 @@ public class ModelInformation<T> {
     /**
      * 通过反射获取子类确定的泛型类
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public ModelInformation() {
-        Type genType = getClass().getGenericSuperclass();
-        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
-        realClass = (Class<T>) params[0];
+    public ModelInformation(Class<T> domainType) {
+        realClass = domainType;
         Table table = realClass.getAnnotation(Table.class);
         if (table != null) {
             tableName = table.name();

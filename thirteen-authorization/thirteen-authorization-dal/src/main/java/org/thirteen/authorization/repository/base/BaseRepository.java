@@ -2,7 +2,7 @@ package org.thirteen.authorization.repository.base;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  * @author Aaron.Sun
@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
  * @date Created in 21:05 2018/1/10
  * @modified by
  */
-@Repository
+@NoRepositoryBean
 public interface BaseRepository<PO, PK> extends JpaRepository<PO, PK>, JpaSpecificationExecutor<PO> {
 }

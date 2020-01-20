@@ -106,12 +106,6 @@
         <artifactId>jedis</artifactId>
         <version>${jedis.version}</version>
       </dependency>
-      <!-- hibernate-annotations -->
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-annotations</artifactId>
-        <version>${hibernate-annotations.version}</version>
-      </dependency>
       <!-- MySql -->
       <dependency>
         <groupId>mysql</groupId>

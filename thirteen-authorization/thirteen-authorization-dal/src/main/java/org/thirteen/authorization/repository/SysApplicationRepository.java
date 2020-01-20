@@ -1,9 +1,8 @@
 package org.thirteen.authorization.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.thirteen.authorization.model.po.SysApplicationPO;
-import org.thirteen.authorization.model.po.SysUserPO;
+import org.thirteen.authorization.repository.base.BaseRepository;
 
 /**
  * @author Aaron.Sun
@@ -12,5 +11,5 @@ import org.thirteen.authorization.model.po.SysUserPO;
  * @modified by
  */
 @Repository
-public interface SysApplicationRepository extends JpaRepository<SysApplicationPO, String> {
+public interface SysApplicationRepository extends BaseRepository<SysApplicationPO, String> {
 }

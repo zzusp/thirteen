@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.thirteen.authorization.controller.base.BaseTreeSortController;
 import org.thirteen.authorization.model.vo.SysApplicationVO;
 import org.thirteen.authorization.service.SysApplicationService;
-import org.thirteen.authorization.service.base.BaseTreeSortService;
 
 /**
  * @author Aaron.Sun
@@ -18,10 +17,10 @@ import org.thirteen.authorization.service.base.BaseTreeSortService;
 @Api(tags = "应用信息接口")
 @RestController
 @RequestMapping(value = "/sys-application")
-public class SysApplicationController extends BaseTreeSortController<SysApplicationVO> {
+public class SysApplicationController extends BaseTreeSortController<SysApplicationVO, SysApplicationService> {
 
     @Autowired
-    public SysApplicationController(BaseTreeSortService<SysApplicationVO> service) {
+    public SysApplicationController(SysApplicationService service) {
         super(service);
     }
 }

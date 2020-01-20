@@ -9,14 +9,11 @@ import org.thirteen.authorization.service.base.BaseDeleteService;
  * @date Created in 20:13 2020/1/15
  * @modified by
  */
-public abstract class BaseDeleteController<VO extends BaseDeleteVO> extends BaseController<VO> {
+public abstract class BaseDeleteController<VO extends BaseDeleteVO, S extends BaseDeleteService<VO>>
+    extends BaseController<VO, S> {
 
-    /** service声明 */
-    private BaseDeleteService<VO> service;
-
-    public BaseDeleteController(BaseDeleteService<VO> service) {
+    public BaseDeleteController(S service) {
         super(service);
-        this.service = service;
     }
 
 }

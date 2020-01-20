@@ -15,14 +15,10 @@ import org.thirteen.authorization.web.ResponseResult;
  * @date Created in 20:13 2020/1/15
  * @modified by
  */
-public abstract class BaseRecordController<VO extends BaseRecordVO> extends BaseDeleteController<VO> {
+public abstract class BaseRecordController<VO extends BaseRecordVO, S extends BaseRecordService<VO>> extends BaseDeleteController<VO, S> {
 
-    /** service声明 */
-    private BaseRecordService<VO> service;
-
-    public BaseRecordController(BaseRecordService<VO> service) {
+    public BaseRecordController(S service) {
         super(service);
-        this.service = service;
     }
 
     @ApiOperation(value = "检查编码是否已存在", notes = "检查编码是否已存在，存在返回true，不存在返回false",

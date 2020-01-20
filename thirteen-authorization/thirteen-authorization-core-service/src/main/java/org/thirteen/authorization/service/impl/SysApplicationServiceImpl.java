@@ -5,13 +5,11 @@ import org.springframework.stereotype.Service;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.model.po.SysApplicationPO;
 import org.thirteen.authorization.model.vo.SysApplicationVO;
-import org.thirteen.authorization.repository.base.BaseRepository;
+import org.thirteen.authorization.repository.SysApplicationRepository;
 import org.thirteen.authorization.service.SysApplicationService;
 import org.thirteen.authorization.service.impl.base.BaseTreeSortServiceImpl;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 
 /**
  * @author Aaron.Sun
@@ -20,12 +18,12 @@ import javax.persistence.PersistenceContext;
  * @modified by
  */
 @Service
-public class SysApplicationServiceImpl extends BaseTreeSortServiceImpl<SysApplicationVO, SysApplicationPO>
+public class SysApplicationServiceImpl
+    extends BaseTreeSortServiceImpl<SysApplicationVO, SysApplicationPO, SysApplicationRepository>
     implements SysApplicationService {
 
     @Autowired
-    public SysApplicationServiceImpl(BaseRepository<SysApplicationPO, String> baseRepository, EntityManagerFactory entityManagerFactory, DozerMapper dozerMapper) {
-        super(baseRepository, entityManagerFactory.createEntityManager(), dozerMapper);
+    public SysApplicationServiceImpl(SysApplicationRepository baseRepository, DozerMapper dozerMapper, EntityManager em) {
+        super(baseRepository, dozerMapper, em);
     }
-
 }

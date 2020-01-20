@@ -15,14 +15,11 @@ import org.thirteen.authorization.web.ResponseResult;
  * @date Created in 20:13 2020/1/15
  * @modified by
  */
-public abstract class BaseTreeSortController<VO extends BaseTreeSortVO> extends BaseRecordController<VO> {
+public abstract class BaseTreeSortController<VO extends BaseTreeSortVO, S extends BaseTreeSortService<VO>>
+    extends BaseRecordController<VO, S> {
 
-    /** service声明 */
-    private BaseTreeSortService<VO> service;
-
-    public BaseTreeSortController(BaseTreeSortService<VO> service) {
+    public BaseTreeSortController(S service) {
         super(service);
-        this.service = service;
     }
 
     @ApiOperation(value = "通过编码获取上级节点信息", notes = "通过编码获取上级节点信息",

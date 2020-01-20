@@ -1,6 +1,5 @@
 package org.thirteen.authorization.service.impl.base;
 
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.model.params.base.BaseParam;
@@ -23,12 +22,11 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.D
  * @date Created in 16:39 2020/1/15
  * @modified by
  */
-@Service
-public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends BaseRecordPO>
-    extends BaseDeleteServiceImpl<VO, PO> implements BaseRecordService<VO> {
+public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends BaseRecordPO, R extends BaseRepository<PO, String>>
+    extends BaseDeleteServiceImpl<VO, PO, R> implements BaseRecordService<VO> {
 
-    public BaseRecordServiceImpl(BaseRepository<PO, String> baseRepository, EntityManager em, DozerMapper dozerMapper) {
-        super(baseRepository, em, dozerMapper);
+    public BaseRecordServiceImpl(R baseRepository, DozerMapper dozerMapper, EntityManager em) {
+        super(baseRepository, dozerMapper, em);
     }
 
     @Override

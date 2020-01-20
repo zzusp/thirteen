@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.thirteen.authorization.model.params.base.BaseParam;
 
 /**

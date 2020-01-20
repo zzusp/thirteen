@@ -41,7 +41,7 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://122.152.221.117:3306/thirteen?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=CTT
+    jdbc-url: jdbc:mysql://122.152.221.117:3306/thirteen?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=CTT
     username: root
     password:
     #hikari数据库连接池
@@ -61,6 +61,13 @@ spring:
       connection-timeout: 30000
       # 用来检测连接是否有效的sql，要求是一个查询语句
       connection-test-query: SELECT 1
+  # JPA配置
+  jpa:
+    # 是否显示sql
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
 # 文件上传路径，根据实际情况调整
 upload:
