@@ -28,6 +28,11 @@
       <groupId>thirteen-authorization</groupId>
       <artifactId>thirteen-authorization-core-service</artifactId>
     </dependency>
+    <!-- 鉴权授权模块-数据访问 -->
+    <dependency>
+      <groupId>thirteen-authorization</groupId>
+      <artifactId>thirteen-authorization-dal</artifactId>
+    </dependency>
     <!-- spring cloud eureka服务提供 -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>

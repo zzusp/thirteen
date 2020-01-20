@@ -29,4 +29,6 @@ hystrix:
 dozer:
   mapper:
     base: classpath*:org/thirteen/authorization/model/mapping/base/*.xml
+    custom:
+      converter: classpath*:org/thirteen/authorization/model/mapping/converter/*.xml
     files: classpath*:com/thirteen/authorization/model/mapping/*.xml

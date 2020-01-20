@@ -43,7 +43,7 @@ public class DozerMapper {
         if (source == null) {
             return null;
         }
-        return mapper.map(source, destinationClass);
+        return this.mapper.map(source, destinationClass);
     }
 
     /**
@@ -56,11 +56,11 @@ public class DozerMapper {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> List<T> mapList(Collection sourceList, Class<T> destinationClass) {
-        List<T> destinationList = new ArrayList<T>();
+        List<T> destinationList = new ArrayList<>();
         if (sourceList == null || sourceList.size() <= 0) {
             return destinationList;
         }
-        return (List<T>) sourceList.stream().map(source -> map(source, destinationClass)).collect(Collectors.toList());
+        return (List<T>) sourceList.stream().map(source -> this.map(source, destinationClass)).collect(Collectors.toList());
     }
 
     /**
@@ -73,7 +73,7 @@ public class DozerMapper {
         if (source == null) {
             destinationObject = null;
         }
-        mapper.map(source, destinationObject);
+        this.mapper.map(source, destinationObject);
     }
 
     /**

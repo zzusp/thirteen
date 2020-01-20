@@ -1,6 +1,5 @@
 package org.thirteen.authorization.dozer;
 
-import org.dozer.CustomConverter;
 import org.dozer.DozerBeanMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -8,8 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * @author Aaron.Sun
  * @description dozer配置
- * @date Created in 2018/12/7 17:10
+ * @date Created in 17:10 2018/12/7
  * @modified by
  */
 @Configuration
@@ -29,12 +26,14 @@ public class DozerConfig {
      */
     @Value("${dozer.mapper.base}")
     Resource[] base;
+    @Value("${dozer.mapper.custom.converter}")
+    Resource[] converter;
     @Value("${dozer.mapper.files}")
     Resource[] resources;
 
     @Bean(name = "mapper")
     public DozerBeanMapper dozerBean() {
-        List<String> mappings = Arrays.stream(concat(base, resources)).map(resource -> {
+        List<String> mappings = Arrays.stream(concat(base, concat(converter, resources))).map(resource -> {
             try {
                 return resource.getURL().toString();
             } catch (IOException e) {
@@ -43,10 +42,10 @@ public class DozerConfig {
         }).collect(Collectors.toList());
         DozerBeanMapper dozerBean = new DozerBeanMapper();
         dozerBean.setMappingFiles(mappings);
-        List<CustomConverter> customConverters = new ArrayList<>();
-        CustomConverter customConverter = new LocalDateTimeDozerConverter(LocalDateTime.class, LocalDateTime.class);
-        customConverters.add(customConverter);
-        dozerBean.setCustomConverters(customConverters);
+//        List<CustomConverter> customConverters = new ArrayList<>();
+//        CustomConverter customConverter = new LocalDateTimeDozerConverter();
+//        customConverters.add(customConverter);
+//        dozerBean.setCustomConverters(customConverters);
         return dozerBean;
     }
 
