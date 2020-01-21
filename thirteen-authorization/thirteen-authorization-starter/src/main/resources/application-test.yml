@@ -11,8 +11,8 @@ eureka:
     # 失效时间，默认90s，如果服务在指定的 失效时间 内仍没有发起心跳请求，将会被剔除EurekaServer
     leaseExpirationDurationInSeconds: 90
     # 实例名称显示IP配置（与instance-id配合使用）
-    #prefer-ip-address: true
-    #instance-id: http://localhost:8764/rental  # 将InstanceID设置为 IP:Port 形式
+    # prefer-ip-address: true
+    # instance-id: http://localhost:8764/rental  # 将InstanceID设置为 IP:Port 形式
   client:
     serviceUrl:
       # 设置与Eureka Server交互的地址，默认为http://localhost:8761/eureka，多个地址用逗号（,）分隔
@@ -27,7 +27,7 @@ spring:
     # 端口
     port: 6379
     # 密码
-    password:
+    # password:
     jedis:
       pool:
         # 最大空闲连接数
@@ -41,26 +41,50 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://122.152.221.117:3306/thirteen?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=CTT
+    jdbc-url: jdbc:mysql://122.152.221.117:3306/thirteen?autoReconnect=true
+      &useUnicode=true
+      &createDatabaseIfNotExist=true
+      &characterEncoding=utf8
+      &allowMultiQueries=true
+      &useSSL=false
+      &failOverReadOnly=false
+      &serverTimezone=CTT
     username: root
     password:
-    #hikari数据库连接池
+    # hikari数据库连接池
     hikari:
       pool-name: Auth_HikariCP
-      #最小空闲连接数量
+      # 最小空闲连接数量
       minimum-idle: 5
-      #空闲连接存活最大时间，默认600000（10分钟）
+      # 空闲连接存活最大时间，默认600000（10分钟）
       idle-timeout: 180000
-      #连接池最大连接数，默认是10
+      # 连接池最大连接数，默认是10
       maximum-pool-size: 10
-      #此属性控制从池返回的连接的默认自动提交行为,默认值：true
-      auto-commit: true
-      #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      # 此属性控制从池返回的连接的默认自动提交行为,默认值：true
+      auto-commit: on
+      # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
       max-lifetime: 1800000
-      #数据库连接超时时间,默认30秒，即30000
+      # 数据库连接超时时间,默认30秒，即30000
       connection-timeout: 30000
       # 用来检测连接是否有效的sql，要求是一个查询语句
       connection-test-query: SELECT 1
+  # JPA配置
+  jpa:
+    # 数据库方言
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    # 项目启动时是否执行ddl
+    generate-ddl: on
+    # 是否显示sql
+    show-sql: on
+    # 设置数据库类型
+    database: mysql
+    hibernate:
+      # 自动建表
+      ddl-auto: update
+    properties:
+      hibernate:
+        # sql格式
+        format_sql: true
 
 # 文件上传路径，根据实际情况调整
 upload:
