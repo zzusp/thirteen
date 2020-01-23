@@ -26,7 +26,9 @@ import javax.persistence.Table;
 public class SysDeptPO extends BaseTreeSortPO {
 
     private static final long serialVersionUID = 1L;
-    /** 部门简称 */
+    /**
+     * 部门简称
+     */
     @Column(name = "short_name", columnDefinition = "VARCHAR(20) COMMENT '部门简称'")
     private String shortName;
 

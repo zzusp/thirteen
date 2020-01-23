@@ -26,10 +26,14 @@ import javax.persistence.Table;
 public class SysUserRolePO extends BasePO {
 
     private static final long serialVersionUID = 1L;
-    /** 用户编码 */
+    /**
+     * 用户编码
+     */
     @Column(name = "user_code", columnDefinition = "CHAR(20) COMMENT '用户编码'")
     private String userCode;
-    /** 角色编码 */
+    /**
+     * 角色编码
+     */
     @Column(name = "role_code", columnDefinition = "CHAR(20) COMMENT '角色编码'")
     private String roleCode;
 

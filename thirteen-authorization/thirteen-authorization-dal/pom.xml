@@ -13,6 +13,11 @@
   <groupId>thirteen-authorization</groupId>
 
   <dependencies>
+    <!-- 鉴权授权模块-通用工具 -->
+    <dependency>
+      <groupId>thirteen-authorization</groupId>
+      <artifactId>thirteen-authorization-common</artifactId>
+    </dependency>
     <!-- 引入Spring封装的jdbc-->
     <dependency>
       <groupId>org.springframework.boot</groupId>

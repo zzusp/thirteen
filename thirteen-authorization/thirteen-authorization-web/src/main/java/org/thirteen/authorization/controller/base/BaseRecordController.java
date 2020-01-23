@@ -24,13 +24,13 @@ public abstract class BaseRecordController<VO extends BaseRecordVO, S extends Ba
     @ApiOperation(value = "检查编码是否已存在", notes = "检查编码是否已存在，存在返回true，不存在返回false",
         response = ResponseResult.class)
     @RequestMapping(value = "/checkCode", method = RequestMethod.GET)
-    public ResponseResult checkCode(@ApiParam(required = true, value = "编码") @RequestParam("code") String code) {
+    public ResponseResult<Boolean> checkCode(@ApiParam(required = true, value = "编码") @RequestParam("code") String code) {
         return ResponseResult.ok(this.service.checkCode(code));
     }
 
     @ApiOperation(value = "由编码获取详细信息", notes = "由编码获取详细信息", response = ResponseResult.class)
     @RequestMapping(value = "/findByCode", method = RequestMethod.GET)
-    public ResponseResult findByCode(@ApiParam(required = true, value = "编码") @RequestParam("code") String code) {
+    public ResponseResult<VO> findByCode(@ApiParam(required = true, value = "编码") @RequestParam("code") String code) {
         return ResponseResult.ok(this.service.findByCode(code));
     }
 

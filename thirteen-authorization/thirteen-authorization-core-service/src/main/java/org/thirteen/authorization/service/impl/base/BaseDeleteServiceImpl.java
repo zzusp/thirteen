@@ -47,18 +47,18 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
         Assert.notNull(id, ID_MUST_NOT_BE_NULL);
         // 动态sql
         String sql = String.format("UPDATE %s SET %s = %s WHERE %s = ?%d",
-            this.poInformation.getTableName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE, ID_FIELD, 1);
+            this.poInformation.getClassName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE, ID_FIELD, 1);
         // 创建查询对象，并执行更新语句
-        this.createNativeQuery(sql, id).executeUpdate();
+        this.createQuery(sql, id).executeUpdate();
     }
 
     @Override
     public void deleteInBatch(List<String> ids) {
         Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);
         String sql = this.getDeleteInBatchSql(String.format("UPDATE %s SET %s = %s WHERE",
-            this.poInformation.getTableName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE), ids);
+            this.poInformation.getClassName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE), ids);
         // 创建查询对象，并执行更新语句
-        this.createNativeQuery(sql, ids).executeUpdate();
+        this.createQuery(sql, ids).executeUpdate();
     }
 
     @Override
@@ -80,13 +80,16 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
      */
     @Override
     protected String getUpdateSql(PO model, List<Object> params) {
-        params.add(BaseDeletePO.DEL_FLAG_NORMAL);
-        params.add(model.getVersion());
         // 不可更新删除标记字段
         model.setDelFlag(null);
         model.setVersion(model.getVersion() + 1);
+        // 获取sql
+        String sql = super.getUpdateSql(model, params);
+        // 追加参数
+        params.add(BaseDeletePO.DEL_FLAG_NORMAL);
+        params.add(model.getVersion() - 1);
         // 追加等式（已被删除的数据不可更新）
-        return super.getUpdateSql(model, params)
-            + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1, VERSION_FIELD, params.size());
+        return sql + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1,
+            VERSION_FIELD, params.size());
     }
 }

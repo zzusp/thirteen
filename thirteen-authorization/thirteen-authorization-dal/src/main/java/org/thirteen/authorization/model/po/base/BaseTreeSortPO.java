@@ -25,11 +25,15 @@ import javax.persistence.MappedSuperclass;
 public abstract class BaseTreeSortPO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /** 显示顺序 */
+    /**
+     * 显示顺序
+     */
     @Column(name = "sort", columnDefinition = "INT COMMENT '显示顺序'")
     protected Integer sort;
-    /** 上级编码 */
-    @Column(name = "parent_code", unique = true, columnDefinition = "CHAR(20) NOT NULL COMMENT '上级编码'")
+    /**
+     * 上级编码
+     */
+    @Column(name = "parent_code", columnDefinition = "CHAR(20) NOT NULL COMMENT '上级编码'")
     protected String parentCode;
 
 }

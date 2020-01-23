@@ -8,6 +8,9 @@ import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Aaron.Sun
@@ -17,45 +20,85 @@ import java.lang.reflect.Method;
  */
 public class ModelInformation<T> {
 
-    /** 当前泛型真实类型的Class */
+    /**
+     * 当前泛型真实类型的Class
+     */
     private Class<T> realClass;
-    /** 模型对应的表名，仅PO模型存在表名 */
+    /**
+     * 模型对应的类名
+     */
+    private String className;
+    /**
+     * 模型对应的表名，仅PO模型存在表名
+     */
     private String tableName;
-    /** 当前泛型对象中的所有属性，包含父类中的属性 */
+    /**
+     * 当前泛型对象中的所有属性，包含父类中的属性
+     */
     private Field[] fields;
-    /** 主键ID字段 */
+    /**
+     * 主键ID字段
+     */
     public static final String ID_FIELD = "id";
-    /** 编码字段 */
+    /**
+     * 编码字段
+     */
     public static final String CODE_FIELD = "code";
-    /** 状态字段 */
+    /**
+     * 状态字段
+     */
     public static final String STATUS_FIELD = "status";
-    /** 显示顺序字段 */
+    /**
+     * 显示顺序字段
+     */
     public static final String SORT_FIELD = "sort";
-    /** 上级编码字段 */
+    /**
+     * 上级编码字段
+     */
     public static final String PARENT_CODE_FIELD = "parentCode";
-    /** 创建者字段 */
+    /**
+     * 创建者字段
+     */
     public static final String CREATE_BY_FIELD = "createBy";
-    /** 创建时间字段 */
+    /**
+     * 创建时间字段
+     */
     public static final String CREATE_TIME_FIELD = "createTime";
-    /** 更新者字段 */
+    /**
+     * 更新者字段
+     */
     public static final String UPDATE_BY_FIELD = "updateBy";
-    /** 更新时间字段 */
+    /**
+     * 更新时间字段
+     */
     public static final String UPDATE_TIME_FIELD = "updateTime";
-    /** 逻辑删除字段 */
+    /**
+     * 逻辑删除字段
+     */
     public static final String DEL_FLAG_FIELD = "delFlag";
-    /** 版本号字段 */
+    /**
+     * 版本号字段
+     */
     public static final String VERSION_FIELD = "version";
 
     /**
      * 通过反射获取子类确定的泛型类
      */
     public ModelInformation(Class<T> domainType) {
-        realClass = domainType;
-        Table table = realClass.getAnnotation(Table.class);
+        this.realClass = domainType;
+        this.className = domainType.getSimpleName();
+        Table table = this.realClass.getAnnotation(Table.class);
         if (table != null) {
-            tableName = table.name();
+            this.tableName = table.name();
         }
-        fields = realClass.getFields();
+        // 通过while循环获取所有父类中的属性
+        Class<?> clazz = domainType;
+        List<Field> fieldList = new ArrayList<>();
+        while (clazz != null) {
+            fieldList.addAll(new ArrayList<>(Arrays.asList(clazz.getDeclaredFields())));
+            clazz = clazz.getSuperclass();
+        }
+        this.fields = fieldList.toArray(new Field[0]);
     }
 
     public T newInstance() {
@@ -107,18 +150,17 @@ public class ModelInformation<T> {
     /**
      * 获取指定字段的get方法
      *
-     * @param field          指定字段
-     * @param parameterTypes get方法的入参类型
+     * @param field 指定字段
      * @return 目标类中指定字段的get方法
      * @throws EntityErrorException 目标类中无指定字段异常
      */
-    public Method getGetter(String field, Class<?>... parameterTypes) throws EntityErrorException {
+    public Method getGetter(String field) throws EntityErrorException {
         Assert.notNull(field, "The given field must not be null!");
         Method method;
         // 字段的get方法名
         String getter = "get" + StringUtil.capitalize(field);
         try {
-            method = realClass.getMethod(getter, parameterTypes);
+            method = realClass.getMethod(getter);
         } catch (NoSuchMethodException e) {
             throw new EntityErrorException(e.getMessage());
         }
@@ -142,15 +184,14 @@ public class ModelInformation<T> {
     /**
      * 调用指定的get方法
      *
-     * @param field          指定字段
-     * @param parameterTypes get方法的入参类型
-     * @param obj            目标类对象
-     * @param args           get方法的入参
+     * @param field 指定字段
+     * @param obj   目标类对象
+     * @param args  get方法的入参
      */
-    public Object invokeGet(String field, Class<?>[] parameterTypes, Object obj, Object... args) {
+    public Object invokeGet(String field, Object obj, Object... args) {
         Assert.notNull(field, "The given field must not be null!");
         Assert.notNull(obj, "Object must not be null!");
-        return invokeGet(getGetter(field, parameterTypes), obj, args);
+        return invokeGet(getGetter(field), obj, args);
     }
 
     /**
@@ -195,12 +236,21 @@ public class ModelInformation<T> {
     }
 
     /**
+     * 获取对象的类名
+     *
+     * @return 对象的类名
+     */
+    public String getClassName() {
+        return this.className;
+    }
+
+    /**
      * 获取PO对象@Table对应的表名
      *
      * @return 对应的表名
      */
     public String getTableName() {
-        return tableName;
+        return this.tableName;
     }
 
     /**
@@ -209,6 +259,6 @@ public class ModelInformation<T> {
      * @return 对象的所有字段
      */
     public Field[] getFields() {
-        return fields;
+        return this.fields;
     }
 }

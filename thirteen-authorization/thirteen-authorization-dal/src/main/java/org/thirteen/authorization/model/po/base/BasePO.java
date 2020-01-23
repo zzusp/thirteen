@@ -3,6 +3,7 @@ package org.thirteen.authorization.model.po.base;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -21,8 +22,12 @@ import java.io.Serializable;
 public abstract class BasePO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /** 实体主键（唯一标识） */
+    /**
+     * 实体主键（唯一标识）
+     */
     @Id
+    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.uuid.CustomUuidGenerator")
+    @GeneratedValue(generator = "uuid2")
     @Column(name = "id", unique = true, columnDefinition = "CHAR(32) NOT NULL COMMENT '实体主键（唯一标识）'")
     protected String id;
 

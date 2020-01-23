@@ -29,7 +29,7 @@ import java.util.*;
  * @date Created in 14:50 2020/1/20
  * @modified by
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked"})
 class PropertyContainer {
     private static final CoreMessageLogger LOG = (CoreMessageLogger) Logger.getMessageLogger(CoreMessageLogger.class, PropertyContainer.class.getName());
     private final XClass xClass;
@@ -185,7 +185,7 @@ class PropertyContainer {
     private AccessType determineLocalClassDefinedAccessStrategy() {
         AccessType hibernateDefinedAccessType = AccessType.DEFAULT;
         AccessType jpaDefinedAccessType = AccessType.DEFAULT;
-        org.hibernate.annotations.AccessType accessType = (org.hibernate.annotations.AccessType) this.xClass.getAnnotation(org.hibernate.annotations.AccessType.class);
+        org.hibernate.annotations.AttributeAccessor accessType = (org.hibernate.annotations.AttributeAccessor) this.xClass.getAnnotation(org.hibernate.annotations.AttributeAccessor.class);
         if (accessType != null) {
             hibernateDefinedAccessType = AccessType.getAccessStrategy(accessType.value());
         }

@@ -26,13 +26,19 @@ import javax.persistence.Table;
 public class SysPermissionPO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /** 应用编码 */
+    /**
+     * 应用编码
+     */
     @Column(name = "application_code", columnDefinition = "CHAR(20) COMMENT '应用编码'")
     private String applicationCode;
-    /** 路径 */
+    /**
+     * 路径
+     */
     @Column(name = "url", columnDefinition = "VARCHAR(100) COMMENT '路径'")
     private String url;
-    /** 0：需登录；1：需认证；2：需授权（注：授权需登陆） */
+    /**
+     * 0：需登录；1：需认证；2：需授权（注：授权需登陆）
+     */
     @Column(name = "type", columnDefinition = "CHAR(1) COMMENT '权限类型 " +
         "0：需登录；1：需认证；2：需授权（注：授权需登陆）'")
     private String type;

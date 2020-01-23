@@ -22,13 +22,19 @@ import javax.persistence.*;
 public abstract class BaseDeletePO extends BasePO {
 
     private static final long serialVersionUID = 1L;
-    /** 删除标记（0：正常；1：删除） */
+    /**
+     * 删除标记（0：正常；1：删除）
+     */
     public static final String DEL_FLAG_NORMAL = "0";
     public static final String DEL_FLAG_DELETE = "1";
-    /** 0：正常；1：删除 */
+    /**
+     * 0：正常；1：删除
+     */
     @Column(name = "del_flag", columnDefinition = "CHAR(1) NOT NULL COMMENT '删除标记 0：正常；1：删除'")
     protected String delFlag;
-    /** 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作 */
+    /**
+     * 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作
+     */
     @Version
     @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
     protected Integer version;

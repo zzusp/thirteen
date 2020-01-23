@@ -1,7 +1,6 @@
 package org.thirteen.authorization.dozer;
 
 import org.dozer.DozerBeanMapper;
-import org.dozer.Mapper;
 import org.dozer.loader.api.BeanMappingBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,10 +23,10 @@ import static org.dozer.loader.api.TypeMappingOptions.mapNull;
 @Component("dozerMapper")
 public class DozerMapper {
 
-    private final Mapper mapper;
+    private final DozerBeanMapper mapper;
 
     @Autowired
-    public DozerMapper(Mapper mapper) {
+    public DozerMapper(DozerBeanMapper mapper) {
         this.mapper = mapper;
     }
 

@@ -3,6 +3,7 @@ package org.thirteen.authorization.dozer;
 import org.dozer.DozerConverter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * @author Aaron.Sun
@@ -18,11 +19,11 @@ public class LocalDateTimeDozerConverter extends DozerConverter<LocalDateTime, L
 
     @Override
     public LocalDateTime convertTo(LocalDateTime source, LocalDateTime destination) {
-        return LocalDateTime.of(destination.toLocalDate(), destination.toLocalTime());
+        return Objects.isNull(destination) ? null : LocalDateTime.of(destination.toLocalDate(), destination.toLocalTime());
     }
 
     @Override
     public LocalDateTime convertFrom(LocalDateTime source, LocalDateTime destination) {
-        return LocalDateTime.of(source.toLocalDate(), source.toLocalTime());
+        return Objects.isNull(source) ? null : LocalDateTime.of(source.toLocalDate(), source.toLocalTime());
     }
 }

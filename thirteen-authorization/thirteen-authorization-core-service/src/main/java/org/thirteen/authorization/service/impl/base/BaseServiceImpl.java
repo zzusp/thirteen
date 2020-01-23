@@ -26,6 +26,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -48,19 +49,33 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     protected static final String VO_COLLECTION_MUST_NOT_BE_EMPTY = "VO集合不能为空";
     protected static final String PARAM_MUST_NOT_BE_EMPTY = "查询参数对象不能为null";
     protected static final String CRITERIA_COLLECTION_MUST_NOT_BE_EMPTY = "条件集合不能为空";
-    /** 每层条件的最大值 */
+    /**
+     * 每层条件的最大值
+     */
     private static final Integer MAX_CRITERIA_SIZE = 10;
-    /** 条件最大深度 */
+    /**
+     * 条件最大深度
+     */
     private static final Integer MAX_DEEP = 5;
-    /** baseRepository */
+    /**
+     * baseRepository
+     */
     protected R baseRepository;
-    /** 对象转换器 */
+    /**
+     * 对象转换器
+     */
     protected DozerMapper dozerMapper;
-    /** 实体类管理器 */
+    /**
+     * 实体类管理器
+     */
     protected EntityManager em;
-    /** VO对象信息 */
+    /**
+     * VO对象信息
+     */
     protected ModelInformation<VO> voInformation;
-    /** PO对象信息 */
+    /**
+     * PO对象信息
+     */
     protected ModelInformation<PO> poInformation;
 
     @SuppressWarnings("unchecked")
@@ -78,6 +93,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @Override
     public void insert(VO model) {
         Assert.notNull(model, VO_MUST_NOT_BE_NULL);
+        model.setId(null);
         this.baseRepository.save(this.converToPo(model));
     }
 
@@ -85,6 +101,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @Override
     public void insertAll(List<VO> models) {
         Assert.notEmpty(models, VO_COLLECTION_MUST_NOT_BE_EMPTY);
+        models.forEach(item -> item.setId(null));
         this.baseRepository.saveAll(this.converToPo(models));
     }
 
@@ -96,7 +113,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
         List<Object> params = new ArrayList<>();
         String sql = this.getUpdateSql(this.converToPo(model), params);
         // 创建查询对象，并执行更新语句
-        this.createNativeQuery(sql, params).executeUpdate();
+        this.createQuery(sql, params).executeUpdate();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -117,10 +134,10 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @Override
     public void deleteInBatch(List<String> ids) {
         Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);
-        String sql = this.getDeleteInBatchSql(String.format("DELETE FROM %s WHERE", this.poInformation.getTableName()),
+        String sql = this.getDeleteInBatchSql(String.format("DELETE FROM %s WHERE", this.poInformation.getClassName()),
             ids);
         // 创建查询对象，并执行更新语句
-        this.createNativeQuery(sql, ids).executeUpdate();
+        this.createQuery(sql, ids).executeUpdate();
     }
 
     @Override
@@ -271,15 +288,15 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
         Assert.notNull(params, "params collection must not be null!");
         List<String> equations = new ArrayList<>();
         // 动态sql
-        StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET", this.poInformation.getTableName()));
+        StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET", this.poInformation.getClassName()));
         // 条件序号
         int i = 0;
         // while循环中，临时变量
         Object value;
         // 动态拼接条件
         for (Field field : this.poInformation.getFields()) {
-            if (!ID_FIELD.equals(field.getName())) {
-                value = this.poInformation.invokeGet(field.getName(), new Class[]{field.getType()}, model);
+            if (!ID_FIELD.equals(field.getName()) && !Modifier.isFinal(field.getModifiers())) {
+                value = this.poInformation.invokeGet(field.getName(), model);
                 if (Objects.nonNull(value)) {
                     i++;
                     equations.add(String.format(" %s = ?%d", field.getName(), i));
@@ -300,9 +317,9 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
      * @param param 参数
      * @return 查询对象
      */
-    protected Query createNativeQuery(String sql, Object param) {
+    protected Query createQuery(String sql, Object param) {
         // 创建查询对象
-        Query nativeQuery = this.em.createNativeQuery(sql, this.poInformation.getRealClass());
+        Query nativeQuery = this.em.createQuery(sql);
         nativeQuery.setParameter(1, param);
         return nativeQuery;
     }
@@ -314,9 +331,9 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
      * @param params 参数集合
      * @return 查询对象
      */
-    protected Query createNativeQuery(String sql, List<Object> params) {
+    protected Query createQuery(String sql, List<Object> params) {
         // 创建查询对象
-        Query nativeQuery = this.em.createNativeQuery(sql, this.poInformation.getRealClass());
+        Query nativeQuery = this.em.createQuery(sql);
         Iterator<Object> it = params.iterator();
         int i = 0;
         while (it.hasNext()) {
@@ -376,7 +393,6 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
      * @param deep      条件深度
      * @return jpa查询参数对象
      */
-    @SuppressWarnings("unchecked")
     private Predicate setCriteria(Root<PO> root, CriteriaBuilder cb, List<CriteriaParam> criterias, int deep) {
         Assert.notEmpty(criterias, "条件参数集合不可为空");
         if (criterias.size() > MAX_CRITERIA_SIZE) {
@@ -396,62 +412,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
                 if (item.getCriterias() != null && item.getCriterias().size() > 0) {
                     predicate = this.setCriteria(root, cb, item.getCriterias(), deep);
                 } else {
-                    // 当value不为null和空，或条件为必选时，添加该条件
-                    if (item.getValue() != null || item.isRequired()) {
-                        // 比较操作符默认为equals
-                        if (StringUtil.isEmpty(item.getOperator())) {
-                            item.setOperator(CriteriaParam.EQUAL);
-                        }
-                        try {
-                            switch (item.getOperator()) {
-                                case CriteriaParam.EQUAL:
-                                    predicate = cb.equal(root.get(item.getFeild()), item.getValue());
-                                    break;
-                                case CriteriaParam.NOT_EQUAL:
-                                    predicate = cb.notEqual(root.get(item.getFeild()), item.getValue());
-                                    break;
-                                case CriteriaParam.GT:
-                                    predicate = cb.gt(root.get(item.getFeild()), (Number) item.getValue());
-                                    break;
-                                case CriteriaParam.GE:
-                                    predicate = cb.ge(root.get(item.getFeild()), (Number) item.getValue());
-                                    break;
-                                case CriteriaParam.LT:
-                                    predicate = cb.lt(root.get(item.getFeild()), (Number) item.getValue());
-                                    break;
-                                case CriteriaParam.LE:
-                                    predicate = cb.le(root.get(item.getFeild()), (Number) item.getValue());
-                                    break;
-                                case CriteriaParam.GREATER_THAN:
-                                    predicate = cb.greaterThan(root.get(item.getFeild()), (Comparable) item.getValue());
-                                    break;
-                                case CriteriaParam.GREATER_THAN_OR_EQUAL_TO:
-                                    predicate = cb.greaterThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
-                                    break;
-                                case CriteriaParam.LESS_THEN:
-                                    predicate = cb.lessThan(root.get(item.getFeild()), (Comparable) item.getValue());
-                                    break;
-                                case CriteriaParam.LESS_THAN_OR_EQUAL_TO:
-                                    predicate = cb.lessThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
-                                    break;
-                                case CriteriaParam.LIKE:
-                                    predicate = cb.like(root.get(item.getFeild()), (String) item.getValue());
-                                    break;
-                                case CriteriaParam.NOT_LIKE:
-                                    predicate = cb.notLike(root.get(item.getFeild()), (String) item.getValue());
-                                    break;
-                                case CriteriaParam.IN:
-                                    predicate = cb.in(root.get(item.getFeild())).in(item.getValues());
-                                    break;
-                                default:
-                                    throw new ParamErrorException("非法比较操作符 " + item.getOperator());
-                            }
-                        } catch (ParamErrorException e) {
-                            throw new ParamErrorException(e.getMessage());
-                        } catch (Exception e) {
-                            throw new ParamErrorException("创建条件失败");
-                        }
-                    }
+                    predicate = this.predicateHandle(root, cb, item);
                 }
                 // 判断jpa查询参数是否为空
                 if (result == null) {
@@ -471,5 +432,75 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
             throw new ParamErrorException("条件深度最大为5层");
         }
         return result;
+    }
+
+    /**
+     * 谓语处理
+     *
+     * @param root 实体类root
+     * @param cb   jpa查询参数创建对象
+     * @param item 搜索条件参数
+     * @return 处理后的谓语对象
+     */
+    @SuppressWarnings("unchecked")
+    private Predicate predicateHandle(Root<PO> root, CriteriaBuilder cb, CriteriaParam item) {
+        Predicate predicate = null;
+        // 当value不为null和空，或条件为必选时，添加该条件
+        if (item.getValue() != null || item.isRequired()) {
+            // 比较操作符默认为equals
+            if (StringUtil.isEmpty(item.getOperator())) {
+                item.setOperator(CriteriaParam.EQUAL);
+            }
+            try {
+                switch (item.getOperator()) {
+                    case CriteriaParam.EQUAL:
+                        predicate = cb.equal(root.get(item.getFeild()), item.getValue());
+                        break;
+                    case CriteriaParam.NOT_EQUAL:
+                        predicate = cb.notEqual(root.get(item.getFeild()), item.getValue());
+                        break;
+                    case CriteriaParam.GT:
+                        predicate = cb.gt(root.get(item.getFeild()), (Number) item.getValue());
+                        break;
+                    case CriteriaParam.GE:
+                        predicate = cb.ge(root.get(item.getFeild()), (Number) item.getValue());
+                        break;
+                    case CriteriaParam.LT:
+                        predicate = cb.lt(root.get(item.getFeild()), (Number) item.getValue());
+                        break;
+                    case CriteriaParam.LE:
+                        predicate = cb.le(root.get(item.getFeild()), (Number) item.getValue());
+                        break;
+                    case CriteriaParam.GREATER_THAN:
+                        predicate = cb.greaterThan(root.get(item.getFeild()), (Comparable) item.getValue());
+                        break;
+                    case CriteriaParam.GREATER_THAN_OR_EQUAL_TO:
+                        predicate = cb.greaterThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
+                        break;
+                    case CriteriaParam.LESS_THEN:
+                        predicate = cb.lessThan(root.get(item.getFeild()), (Comparable) item.getValue());
+                        break;
+                    case CriteriaParam.LESS_THAN_OR_EQUAL_TO:
+                        predicate = cb.lessThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
+                        break;
+                    case CriteriaParam.LIKE:
+                        predicate = cb.like(root.get(item.getFeild()), (String) item.getValue());
+                        break;
+                    case CriteriaParam.NOT_LIKE:
+                        predicate = cb.notLike(root.get(item.getFeild()), (String) item.getValue());
+                        break;
+                    case CriteriaParam.IN:
+                        predicate = cb.in(root.get(item.getFeild())).in(item.getValues());
+                        break;
+                    default:
+                        throw new ParamErrorException("非法比较操作符 " + item.getOperator());
+                }
+            } catch (ParamErrorException e) {
+                throw new ParamErrorException(e.getMessage());
+            } catch (Exception e) {
+                throw new ParamErrorException("创建条件失败");
+            }
+        }
+        return predicate;
     }
 }

@@ -24,10 +24,14 @@ import java.util.List;
 public class SysGroupVO extends BaseTreeSortVO {
 
     private static final long serialVersionUID = 1L;
-    /** 组织简称 */
+    /**
+     * 组织简称
+     */
     @ApiModelProperty(value = "组织简称")
     private String shortName;
-    /** 组织拥有的角色 */
+    /**
+     * 组织拥有的角色
+     */
     @ApiModelProperty(value = "组织拥有的角色", hidden = true)
     private List<SysRoleVO> roles;
 
