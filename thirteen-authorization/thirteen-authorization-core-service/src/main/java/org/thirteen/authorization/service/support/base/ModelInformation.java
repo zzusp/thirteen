@@ -117,11 +117,11 @@ public class ModelInformation<T> {
      */
     public boolean contains(String field) {
         Assert.notNull(field, "The given field must not be null!");
-        boolean flag = true;
-        try {
-            realClass.getField(field);
-        } catch (NoSuchFieldException e) {
-            flag = false;
+        boolean flag = false;
+        for (Field f : this.fields) {
+            if (field.equals(f.getName())) {
+                flag = true;
+            }
         }
         return flag;
     }
@@ -260,5 +260,30 @@ public class ModelInformation<T> {
      */
     public Field[] getFields() {
         return this.fields;
+    }
+
+    /**
+     * 判断字段是否不会映射到数据库
+     *
+     * @param field 字段
+     * @return 字段是否不会映射到数据库
+     */
+    public boolean isTransient(Field field) {
+        return field.getAnnotation(javax.persistence.Transient.class) != null;
+    }
+
+    /**
+     * 判断版本号字段是否不会映射到数据库
+     *
+     * @return 版本号字段是否不会映射到数据库
+     */
+    public boolean isTransientOfVersion() {
+        boolean result = false;
+        for (Field field : this.fields) {
+            if (VERSION_FIELD.equals(field.getName())) {
+                result = isTransient(field);
+            }
+        }
+        return result;
     }
 }
