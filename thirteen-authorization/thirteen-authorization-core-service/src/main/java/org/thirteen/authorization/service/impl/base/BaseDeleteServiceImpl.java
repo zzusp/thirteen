@@ -100,7 +100,7 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
             params.add(BaseDeletePO.DEL_FLAG_NORMAL);
             params.add(model.getVersion() - 1);
             // 追加筛选条件（已被删除的数据不可更新，过时数据不可更新）
-            sql =  sql + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1,
+            sql = sql + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1,
                 VERSION_FIELD, params.size());
         }
         return sql;

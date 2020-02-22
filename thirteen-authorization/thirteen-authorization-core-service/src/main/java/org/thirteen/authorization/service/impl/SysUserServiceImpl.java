@@ -18,8 +18,7 @@ import javax.persistence.EntityManager;
  * @modified By
  */
 @Service
-public class SysUserServiceImpl
-    extends BaseRecordServiceImpl<SysUserVO, SysUserPO, SysUserRepository>
+public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUserPO, SysUserRepository>
     implements SysUserService {
 
     @Autowired

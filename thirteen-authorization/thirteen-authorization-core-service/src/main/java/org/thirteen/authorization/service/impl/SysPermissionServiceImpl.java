@@ -6,7 +6,6 @@ import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.model.po.SysPermissionPO;
 import org.thirteen.authorization.model.vo.SysPermissionVO;
 import org.thirteen.authorization.repository.SysPermissionRepository;
-import org.thirteen.authorization.repository.SysUserRepository;
 import org.thirteen.authorization.service.SysPermissionService;
 import org.thirteen.authorization.service.impl.base.BaseRecordServiceImpl;
 

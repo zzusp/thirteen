@@ -4,13 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.model.po.SysBizTypePO;
-import org.thirteen.authorization.model.po.SysDictPO;
 import org.thirteen.authorization.model.vo.SysBizTypeVO;
-import org.thirteen.authorization.model.vo.SysDictVO;
 import org.thirteen.authorization.repository.SysBizTypeRepository;
-import org.thirteen.authorization.repository.SysDictRepository;
 import org.thirteen.authorization.service.SysBizTypeService;
-import org.thirteen.authorization.service.SysDictService;
 import org.thirteen.authorization.service.impl.base.BaseRecordServiceImpl;
 
 import javax.persistence.EntityManager;
