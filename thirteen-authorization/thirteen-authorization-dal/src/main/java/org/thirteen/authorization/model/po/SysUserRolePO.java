@@ -27,10 +27,10 @@ public class SysUserRolePO extends BasePO {
 
     private static final long serialVersionUID = 1L;
     /**
-     * 用户编码
+     * 用户账号
      */
-    @Column(name = "user_code", columnDefinition = "CHAR(20) COMMENT '用户编码'")
-    private String userCode;
+    @Column(name = "account", columnDefinition = "VARCHAR(20) COMMENT '帐号'")
+    private String account;
     /**
      * 角色编码
      */

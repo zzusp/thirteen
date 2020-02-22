@@ -10,4 +10,13 @@ import org.thirteen.authorization.service.base.BaseRecordService;
  * @modified By
  */
 public interface SysUserService extends BaseRecordService<SysUserVO> {
+
+    /**
+     * 检查用户账号是否已存在
+     *
+     * @param account 用户账号
+     * @return 用户账号是否已存在
+     */
+    boolean checkAccount(String account);
+
 }

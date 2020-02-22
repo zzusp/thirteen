@@ -1,5 +1,6 @@
 package org.thirteen.authorization.service.impl.base;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.model.params.base.BaseParam;
@@ -28,6 +29,7 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
         super(baseRepository, dozerMapper, em);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void insert(VO model) {
         Assert.notNull(model, VO_MUST_NOT_BE_NULL);
@@ -35,13 +37,17 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
         super.insert(model);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void insertAll(List<VO> models) {
         Assert.notEmpty(models, VO_COLLECTION_MUST_NOT_BE_EMPTY);
-        models.forEach(item -> item.setDelFlag(BaseDeletePO.DEL_FLAG_NORMAL));
+        models.forEach(item -> {
+            item.setDelFlag(BaseDeletePO.DEL_FLAG_NORMAL);
+        });
         super.insertAll(models);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(String id) {
         Assert.notNull(id, ID_MUST_NOT_BE_NULL);
@@ -52,6 +58,7 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
         this.createQuery(sql, id).executeUpdate();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(List<String> ids) {
         Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);

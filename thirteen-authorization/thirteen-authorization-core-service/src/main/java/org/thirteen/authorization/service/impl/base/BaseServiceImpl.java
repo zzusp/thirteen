@@ -408,6 +408,10 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
             deep++;
             // 遍历条件参数集合
             for (CriteriaParam item : criterias) {
+                // 判断字段名是否包含"."，如果包含则continue
+                if (item.getFeild().contains(".")) {
+                    continue;
+                }
                 // 判断条件组是否为空
                 if (item.getCriterias() != null && item.getCriterias().size() > 0) {
                     predicate = this.setCriteria(root, cb, item.getCriterias(), deep);

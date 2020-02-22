@@ -1,6 +1,9 @@
 package org.thirteen.authorization.service.base;
 
 import org.thirteen.authorization.model.vo.base.BaseRecordVO;
+import org.thirteen.authorization.web.PagerResult;
+
+import java.util.List;
 
 /**
  * @author Aaron.Sun
@@ -25,5 +28,13 @@ public interface BaseRecordService<VO extends BaseRecordVO> extends BaseDeleteSe
      * @return VO对象
      */
     VO findByCode(String code);
+
+    /**
+     * 由编码集合获取所有数据
+     *
+     * @param codes 编码集合
+     * @return VO对象集合
+     */
+    PagerResult<VO> findAllByCodes(List<String> codes);
 
 }
