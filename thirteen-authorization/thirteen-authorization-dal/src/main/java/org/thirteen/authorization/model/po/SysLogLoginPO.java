@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.thirteen.authorization.model.po.base.BaseDeletePO;
+import org.thirteen.authorization.model.po.base.BasePO;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.time.LocalDateTime;
 
 /**
@@ -25,7 +24,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "sys_log_login")
 @org.hibernate.annotations.Table(appliesTo = "sys_log_login", comment = "登录日志信息表")
-public class SysLogLoginPO extends BaseDeletePO {
+public class SysLogLoginPO extends BasePO {
 
     private static final long serialVersionUID = 1L;
     /**
@@ -68,10 +67,5 @@ public class SysLogLoginPO extends BaseDeletePO {
      */
     @Column(name = "city", columnDefinition = "VARCHAR(50) COMMENT '城市'")
     private String city;
-    /**
-     * 不需要版本号
-     */
-    @Transient
-    private Integer version;
 
 }

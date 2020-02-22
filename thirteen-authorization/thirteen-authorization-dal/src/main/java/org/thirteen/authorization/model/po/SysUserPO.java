@@ -9,7 +9,6 @@ import org.thirteen.authorization.model.po.base.BaseRecordPO;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 /**
  * @author Aaron.Sun
@@ -27,11 +26,6 @@ import javax.persistence.Transient;
 public class SysUserPO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 用户已有账号字段，暂不需要编码字段
-     */
-    @Transient
-    protected String code;
     /**
      * 帐号
      */

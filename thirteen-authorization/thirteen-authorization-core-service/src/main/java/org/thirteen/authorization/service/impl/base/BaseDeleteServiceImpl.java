@@ -89,27 +89,14 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     protected String getUpdateSql(PO model, List<Object> params) {
         // 不可更新删除标记字段
         model.setDelFlag(null);
-        // 声明sql
-        String sql;
-        // 判断版本号字段是否映射到数据库
-        if (this.poInformation.isTransientOfVersion()) {
-            // 获取sql
-            sql = super.getUpdateSql(model, params);
-            // 追加筛选条件参数
-            params.add(BaseDeletePO.DEL_FLAG_NORMAL);
-            // 追加筛选条件（已被删除的数据不可更新）
-            sql = sql + String.format(" AND %s = ?%d", DEL_FLAG_FIELD, params.size());
-        } else {
-            model.setVersion(model.getVersion() + 1);
-            // 获取sql
-            sql = super.getUpdateSql(model, params);
-            // 追加筛选条件参数
-            params.add(BaseDeletePO.DEL_FLAG_NORMAL);
-            params.add(model.getVersion() - 1);
-            // 追加筛选条件（已被删除的数据不可更新，过时数据不可更新）
-            sql = sql + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1,
-                VERSION_FIELD, params.size());
-        }
-        return sql;
+        model.setVersion(model.getVersion() + 1);
+        // 获取sql
+        String sql = super.getUpdateSql(model, params);
+        // 追加筛选条件参数
+        params.add(BaseDeletePO.DEL_FLAG_NORMAL);
+        params.add(model.getVersion() - 1);
+        // 追加筛选条件（已被删除的数据不可更新，过时数据不可更新）
+        return sql + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1,
+            VERSION_FIELD, params.size());
     }
 }

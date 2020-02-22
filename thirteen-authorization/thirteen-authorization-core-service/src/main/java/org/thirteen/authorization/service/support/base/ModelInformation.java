@@ -272,18 +272,4 @@ public class ModelInformation<T> {
         return field.getAnnotation(javax.persistence.Transient.class) != null;
     }
 
-    /**
-     * 判断版本号字段是否不会映射到数据库
-     *
-     * @return 版本号字段是否不会映射到数据库
-     */
-    public boolean isTransientOfVersion() {
-        boolean result = false;
-        for (Field field : this.fields) {
-            if (VERSION_FIELD.equals(field.getName())) {
-                result = isTransient(field);
-            }
-        }
-        return result;
-    }
 }

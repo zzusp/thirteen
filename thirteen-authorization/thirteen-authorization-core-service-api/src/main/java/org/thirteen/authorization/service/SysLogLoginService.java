@@ -1,7 +1,7 @@
 package org.thirteen.authorization.service;
 
 import org.thirteen.authorization.model.vo.SysLogLoginVO;
-import org.thirteen.authorization.service.base.BaseDeleteService;
+import org.thirteen.authorization.service.base.BaseService;
 
 /**
  * @author Aaron.Sun
@@ -9,5 +9,5 @@ import org.thirteen.authorization.service.base.BaseDeleteService;
  * @date Created in 13:47 2020/2/22
  * @modified By
  */
-public interface SysLogLoginService extends BaseDeleteService<SysLogLoginVO> {
+public interface SysLogLoginService extends BaseService<SysLogLoginVO> {
 }
