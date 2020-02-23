@@ -4,7 +4,7 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.thirteen.authorization.controller.base.BaseController;
+import org.thirteen.authorization.controller.base.BaseDeleteController;
 import org.thirteen.authorization.model.vo.SysLogOperationVO;
 import org.thirteen.authorization.service.SysLogOperationService;
 
@@ -17,7 +17,7 @@ import org.thirteen.authorization.service.SysLogOperationService;
 @Api(tags = "操作日志信息接口")
 @RestController
 @RequestMapping(value = "/sys-log-operation")
-public class SysLogOperationController extends BaseController<SysLogOperationVO, SysLogOperationService> {
+public class SysLogOperationController extends BaseDeleteController<SysLogOperationVO, SysLogOperationService> {
 
     @Autowired
     public SysLogOperationController(SysLogOperationService service) {

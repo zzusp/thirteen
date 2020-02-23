@@ -7,7 +7,7 @@ import org.thirteen.authorization.model.po.SysLogOperationPO;
 import org.thirteen.authorization.model.vo.SysLogOperationVO;
 import org.thirteen.authorization.repository.SysLogOperationRepository;
 import org.thirteen.authorization.service.SysLogOperationService;
-import org.thirteen.authorization.service.impl.base.BaseServiceImpl;
+import org.thirteen.authorization.service.impl.base.BaseDeleteServiceImpl;
 
 import javax.persistence.EntityManager;
 
@@ -19,7 +19,7 @@ import javax.persistence.EntityManager;
  */
 @Service
 public class SysLogOperationServiceImpl
-    extends BaseServiceImpl<SysLogOperationVO, SysLogOperationPO, SysLogOperationRepository>
+    extends BaseDeleteServiceImpl<SysLogOperationVO, SysLogOperationPO, SysLogOperationRepository>
     implements SysLogOperationService {
 
     @Autowired

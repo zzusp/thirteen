@@ -46,7 +46,7 @@
     <commons-io.version>2.6</commons-io.version><!-- io处理 -->
     <commons-net.version>3.6</commons-net.version><!-- 下载功能 -->
     <commons-fileupload.version>1.4</commons-fileupload.version><!-- 文件上传 -->
-    <commons-codec.version>1.13</commons-codec.version><!-- 加密库 -->
+    <commons-codec.version>1.12</commons-codec.version><!-- 加密库 -->
     <javax.servlet.version>4.0.1</javax.servlet.version><!-- javax.servlet -->
     <javax.persistence.version>1.0.2</javax.persistence.version><!-- javax.persistence -->
     <poi.version>4.1.1</poi.version><!-- excel导出 -->

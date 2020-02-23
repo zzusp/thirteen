@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.thirteen.authorization.service.support.base.ModelInformation.CODE_FIELD;
-import static org.thirteen.authorization.service.support.base.ModelInformation.DEL_FLAG_FIELD;
+import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_ON;
+import static org.thirteen.authorization.service.support.base.ModelInformation.*;
 
 /**
  * @author Aaron.Sun
@@ -42,7 +42,7 @@ public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends 
         if (this.checkCode(model.getCode())) {
             throw new BusinessException(String.format("编码已存在，%s", model.getCode()));
         }
-        model.setActive(BaseRecordPO.ACTIVE_ON);
+        model.setActive(ACTIVE_ON);
         model.setCreateBy("");
         model.setCreateTime(LocalDateTime.now());
         super.insert(model);
@@ -61,7 +61,7 @@ public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends 
             if (this.checkCode(item.getCode())) {
                 existsCodes.add(item.getCode());
             }
-            item.setActive(BaseRecordPO.ACTIVE_ON);
+            item.setActive(ACTIVE_ON);
             item.setCreateBy(createBy);
             item.setCreateTime(now);
         });
@@ -116,5 +116,23 @@ public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends 
         BaseParam param = BaseParam.of().add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseRecordPO.DEL_FLAG_NORMAL).and())
             .add(CriteriaParam.in(CODE_FIELD, codes).and());
         return this.findAllByParam(param);
+    }
+
+    /**
+     * 获取更新语句（不包含值为null的字段）
+     *
+     * @param model  PO对象
+     * @param params 参数
+     * @return 更新语句
+     */
+    @Override
+    protected String getUpdateSql(PO model, List<Object> params) {
+        model.setVersion(model.getVersion() + 1);
+        // 获取sql
+        String sql = super.getUpdateSql(model, params);
+        // 追加筛选条件参数
+        params.add(model.getVersion() - 1);
+        // 追加筛选条件
+        return sql + String.format(" AND %s = ?%d", VERSION_FIELD, params.size());
     }
 }

@@ -14,7 +14,8 @@ import org.thirteen.authorization.web.PagerResult;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static org.thirteen.authorization.service.support.base.ModelInformation.*;
+import static org.thirteen.authorization.service.support.base.ModelInformation.DEL_FLAG_FIELD;
+import static org.thirteen.authorization.service.support.base.ModelInformation.ID_FIELD;
 
 /**
  * @author Aaron.Sun
@@ -69,6 +70,12 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     }
 
     @Override
+    public PagerResult<VO> findAll() {
+        return super.findAllByParam(BaseParam.of()
+            .add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and()));
+    }
+
+    @Override
     public VO findOneByParam(BaseParam param) {
         return super.findOneByParam(param.add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and()));
     }
@@ -89,14 +96,11 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     protected String getUpdateSql(PO model, List<Object> params) {
         // 不可更新删除标记字段
         model.setDelFlag(null);
-        model.setVersion(model.getVersion() + 1);
         // 获取sql
         String sql = super.getUpdateSql(model, params);
         // 追加筛选条件参数
         params.add(BaseDeletePO.DEL_FLAG_NORMAL);
-        params.add(model.getVersion() - 1);
-        // 追加筛选条件（已被删除的数据不可更新，过时数据不可更新）
-        return sql + String.format(" AND %s = ?%d AND %s = ?%d", DEL_FLAG_FIELD, params.size() - 1,
-            VERSION_FIELD, params.size());
+        // 追加筛选条件
+        return sql + String.format(" AND %s = ?%d", DEL_FLAG_FIELD, params.size());
     }
 }

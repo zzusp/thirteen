@@ -20,6 +20,16 @@ public class GlobalConstants {
     public static final String COOKIE_KEY = "RENTALJSESSIONID";
     /** 超管角色Code */
     public static final String ADMIN_CODE = "admin";
+    /** 启用标记 0：禁用；1启用 */
+    public static final String ACTIVE_OFF = "0";
+    public static final String ACTIVE_ON = "1";
+    /**
+     * 权限类型（0：需登录；1：需认证；2：需授权）
+     * 注：授权需登陆
+     */
+    public static final String PERMISSION_LOGIN = "0";
+    public static final String PERMISSION_AUTHOR = "1";
+    public static final String PERMISSION_PERMS = "2";
 
 
 }

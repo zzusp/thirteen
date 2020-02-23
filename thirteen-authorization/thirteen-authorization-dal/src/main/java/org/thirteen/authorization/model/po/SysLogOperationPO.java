@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.thirteen.authorization.model.po.base.BasePO;
+import org.thirteen.authorization.model.po.base.BaseDeletePO;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "sys_log_operation")
 @org.hibernate.annotations.Table(appliesTo = "sys_log_operation", comment = "操作日志信息表")
-public class SysLogOperationPO extends BasePO {
+public class SysLogOperationPO extends BaseDeletePO {
 
     private static final long serialVersionUID = 1L;
     /**

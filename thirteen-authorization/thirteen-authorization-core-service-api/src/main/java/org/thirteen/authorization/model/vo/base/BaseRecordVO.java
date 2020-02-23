@@ -80,5 +80,10 @@ public abstract class BaseRecordVO extends BaseDeleteVO {
      */
     @ApiModelProperty(notes = "备注")
     protected String remark;
+    /**
+     * 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作
+     */
+    @ApiModelProperty(value = "版本号")
+    protected Integer version;
 
 }

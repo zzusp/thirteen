@@ -4,8 +4,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.thirteen.authorization.web.ResponseResult;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Aaron.Sun
@@ -19,7 +22,8 @@ public class AuthorityController {
 
     @ApiOperation(value = "权限验证", notes = "验证对应请求路径是否允许访问", response = ResponseResult.class)
     @GetMapping(value = "/validate")
-    public ResponseResult validate(@ApiParam(required = true, value = "需验证的请求路径") String url) {
+    public ResponseResult validate(@ApiParam(required = true, value = "需验证的请求路径") @RequestParam("url") String url,
+                                   HttpServletRequest request) {
         return ResponseResult.ok();
     }
 

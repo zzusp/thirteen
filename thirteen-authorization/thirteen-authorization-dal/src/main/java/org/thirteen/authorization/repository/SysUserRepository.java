@@ -12,4 +12,13 @@ import org.thirteen.authorization.repository.base.BaseRepository;
  */
 @Repository
 public interface SysUserRepository extends BaseRepository<SysUserPO, String> {
+
+    /**
+     * 由用户账号获取用户信息
+     *
+     * @param account 用户账号
+     * @return 用户信息
+     */
+    SysUserPO findByAccount(String account);
+
 }

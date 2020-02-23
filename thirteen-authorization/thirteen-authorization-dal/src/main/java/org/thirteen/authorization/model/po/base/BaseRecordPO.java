@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
@@ -26,11 +23,6 @@ import java.time.LocalDateTime;
 public abstract class BaseRecordPO extends BaseDeletePO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 启用标记 0：禁用；1启用
-     */
-    public static final String ACTIVE_OFF = "0";
-    public static final String ACTIVE_ON = "1";
     /**
      * 编码唯一，非空且不可更改
      */
@@ -71,5 +63,11 @@ public abstract class BaseRecordPO extends BaseDeletePO {
      */
     @Column(name = "remark", columnDefinition = "VARCHAR(255) COMMENT '备注'")
     protected String remark;
+    /**
+     * 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作
+     */
+    @Version
+    @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
+    protected Integer version;
 
 }

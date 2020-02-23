@@ -11,22 +11,28 @@ import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.BusinessException;
 import org.thirteen.authorization.model.params.base.BaseParam;
 import org.thirteen.authorization.model.params.base.CriteriaParam;
+import org.thirteen.authorization.model.po.SysDeptRolePO;
 import org.thirteen.authorization.model.po.SysUserPO;
 import org.thirteen.authorization.model.po.SysUserRolePO;
 import org.thirteen.authorization.model.po.base.BaseRecordPO;
+import org.thirteen.authorization.model.vo.SysRoleVO;
 import org.thirteen.authorization.model.vo.SysUserVO;
+import org.thirteen.authorization.repository.SysDeptRoleRepository;
 import org.thirteen.authorization.repository.SysUserRepository;
 import org.thirteen.authorization.repository.SysUserRoleRepository;
+import org.thirteen.authorization.service.SysApplicationService;
+import org.thirteen.authorization.service.SysPermissionService;
 import org.thirteen.authorization.service.SysRoleService;
 import org.thirteen.authorization.service.SysUserService;
 import org.thirteen.authorization.service.impl.base.BaseRecordServiceImpl;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_ON;
+import static org.thirteen.authorization.service.support.base.ModelInformation.ACTIVE_FIELD;
 import static org.thirteen.authorization.service.support.base.ModelInformation.DEL_FLAG_FIELD;
 
 /**
@@ -40,14 +46,22 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
     implements SysUserService {
 
     private final SysUserRoleRepository sysUserRoleRepository;
+    private final SysDeptRoleRepository sysDeptRoleRepository;
     private final SysRoleService sysRoleService;
+    private final SysApplicationService sysApplicationService;
+    private final SysPermissionService sysPermissionService;
 
     @Autowired
     public SysUserServiceImpl(SysUserRepository baseRepository, DozerMapper dozerMapper, EntityManager em,
-                              SysUserRoleRepository sysUserRoleRepository, SysRoleService sysRoleService) {
+                              SysUserRoleRepository sysUserRoleRepository, SysDeptRoleRepository sysDeptRoleRepository,
+                              SysRoleService sysRoleService, SysApplicationService sysApplicationService,
+                              SysPermissionService sysPermissionService) {
         super(baseRepository, dozerMapper, em);
         this.sysUserRoleRepository = sysUserRoleRepository;
+        this.sysDeptRoleRepository = sysDeptRoleRepository;
         this.sysRoleService = sysRoleService;
+        this.sysApplicationService = sysApplicationService;
+        this.sysPermissionService = sysPermissionService;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -61,7 +75,7 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
         // 用户暂无编码字段
         model.setCode(null);
         // 设置默认状态为启用
-        model.setActive(BaseRecordPO.ACTIVE_ON);
+        model.setActive(ACTIVE_ON);
         model.setCreateBy("");
         model.setCreateTime(LocalDateTime.now());
         // 设置盐
@@ -110,6 +124,48 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
         BaseParam param = BaseParam.of().add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseRecordPO.DEL_FLAG_NORMAL).and())
             .add(CriteriaParam.equal("account", account).and());
         return this.baseRepository.findOne(this.createSpecification(param.getCriterias())).isPresent();
+    }
+
+    /**
+     * 由用户账号获取用户信息详情（包含用户角色、用户权限等信息）
+     *
+     * @param account 用户账号
+     * @return 用户信息详情（包含用户角色、用户权限等信息）
+     */
+    @Override
+    public SysUserVO findDetailByAccount(String account) {
+        // 由账号获取用户基本信息
+        SysUserVO user = this.findOneByParam(BaseParam.of().add(CriteriaParam.equal("account", account).and()));
+        // 判断用户信息是否为null
+        if (user != null) {
+            // 清空密码
+            user.setPassword(null);
+            // 清空盐
+            user.setSalt(null);
+            // 角色ID去重临时变量
+            Set<String> roleCodeSet = new HashSet<>();
+            // 获取所有与用户关联的角色编码
+            roleCodeSet.addAll(this.sysUserRoleRepository.findAllByAccount(account).stream()
+                .map(SysUserRolePO::getRoleCode).collect(Collectors.toList()));
+            // 获取所有与用户所属部门关联的角色编码
+            roleCodeSet.addAll(this.sysDeptRoleRepository.findAllByDeptCode(user.getDept().getCode()).stream()
+                .map(SysDeptRolePO::getRoleCode).collect(Collectors.toList()));
+            // 判断角色ID集合大小是否大于0
+            if (roleCodeSet.size() > 0) {
+                // 添加用户及用户所属部门拥有的启用角色
+                user.setRoles(this.sysRoleService.findAllByCodes(new ArrayList<>(roleCodeSet)).getList());
+                BaseParam param = BaseParam.of().add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and());
+                // 验证用户是否拥有超级管理员角色
+                if (!checkAdmin(user)) {
+                    param.add(CriteriaParam.in("roleCode", Collections.singletonList(roleCodeSet)).and());
+                }
+                // 获取角色下的启用应用信息
+                user.setApplications(this.sysApplicationService.findAllByParam(param).getList());
+                // 获取角色下的启用权限信息
+                user.setPermissions(this.sysPermissionService.findAllByParam(param).getList());
+            }
+        }
+        return user;
     }
 
     /**
@@ -164,5 +220,27 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
             }
         }
         return model;
+    }
+
+    /**
+     * 验证用户是否拥有超级管理员角色
+     *
+     * @param user 用户及角色信息
+     * @return 用户是否拥有超级管理员角色
+     */
+    private static boolean checkAdmin(SysUserVO user) {
+        // 标识
+        boolean flag = false;
+        // 判断用户信息及用户角色信息是否为空
+        if (user != null && user.getRoles() != null && user.getRoles().size() > 0) {
+            // 遍历用户所有角色信息
+            for (SysRoleVO role : user.getRoles()) {
+                if (GlobalConstants.ADMIN_CODE.equals(role.getCode())) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        return flag;
     }
 }

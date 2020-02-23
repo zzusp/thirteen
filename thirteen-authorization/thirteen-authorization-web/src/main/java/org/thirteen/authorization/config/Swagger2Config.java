@@ -4,12 +4,17 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.thirteen.authorization.interceptor.JwtInterceptor;
+import org.thirteen.authorization.service.AuthorityService;
+import org.thirteen.authorization.service.SysPermissionService;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -35,6 +40,22 @@ import java.util.List;
 @EnableSwagger2
 @Configuration
 public class Swagger2Config extends WebMvcConfigurationSupport {
+
+    @Autowired
+    private SysPermissionService sysPermissionService;
+    @Autowired
+    private AuthorityService authorityService;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor())
+            .addPathPatterns("/**");
+    }
+
+    @Bean
+    public JwtInterceptor jwtInterceptor() {
+        return new JwtInterceptor(sysPermissionService, authorityService);
+    }
 
     /**
      * 这个地方要重新注入一下资源文件，不然不会注入资源的，也没有注入requestHandlerMappping,相当于xml配置的
@@ -93,6 +114,7 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
             .apiInfo(apiInfo())
+            .globalOperationParameters(globalOperationParameters())
             .groupName("v1")
             .select()
             .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
@@ -141,12 +163,12 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
         List<Parameter> aParameters = new ArrayList<Parameter>();
         Parameter parameter = new ParameterBuilder()
             // 参数类型支持header, cookie, body, query etc
-            .parameterType("header")
+            .parameterType("query")
             // 参数名
             .name("token")
             // 默认值
             .defaultValue("token")
-            .description("header中token字段测试")
+            .description("query中token字段测试")
             // 指定参数值的类型
             .modelRef(new ModelRef("string"))
             // 非必需，这里是全局配置，然而在登陆的时候是不用验证的

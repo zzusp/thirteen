@@ -5,7 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
 
 /**
  * @author Aaron.Sun
@@ -32,12 +35,6 @@ public abstract class BaseDeletePO extends BasePO {
      */
     @Column(name = "del_flag", columnDefinition = "CHAR(1) NOT NULL COMMENT '删除标记 0：正常；1：删除'")
     protected String delFlag;
-    /**
-     * 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作
-     */
-    @Version
-    @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
-    protected Integer version;
 
     /**
      * 判断当前对象是否为未被删除

@@ -55,6 +55,12 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
     </dependency>
+    <!-- javax.servlet -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <!-- 对象转换工具 -->
     <dependency>
       <groupId>net.sf.dozer</groupId>

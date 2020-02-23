@@ -47,7 +47,7 @@ public class ModelInformation<T> {
     /**
      * 状态字段
      */
-    public static final String STATUS_FIELD = "status";
+    public static final String ACTIVE_FIELD = "active";
     /**
      * 显示顺序字段
      */

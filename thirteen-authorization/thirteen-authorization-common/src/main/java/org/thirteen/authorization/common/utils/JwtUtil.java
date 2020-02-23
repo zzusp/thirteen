@@ -8,6 +8,8 @@ import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
+import java.security.SignatureException;
 import java.util.Date;
 
 /**
@@ -78,6 +80,76 @@ public class JwtUtil {
      */
     public static Jws<Claims> verify(String token) {
         return Jwts.parser().setSigningKey(generalKey()).parseClaimsJws(token);
+    }
+
+    /**
+     * 获取token中注册信息
+     *
+     * @param token token
+     * @return token中注册信息
+     */
+    public static Claims getTokenClaim(String token) {
+        return verify(token).getBody();
+    }
+
+    /**
+     * 获取token失效时间
+     *
+     * @param token token
+     * @return token失效时间
+     */
+    public static Date getExpirationDateFromToken(String token) {
+        return getTokenClaim(token).getExpiration();
+    }
+
+    /**
+     * 获取用户名从token中
+     *
+     * @param token token
+     * @return 用户名
+     */
+    public static String getSubjectFromToken(String token) {
+        return getTokenClaim(token).getSubject();
+    }
+
+    /**
+     * 获取jwt发布时间
+     *
+     * @param token token
+     * @return jwt发布时间
+     */
+    public static Date getIssuedAtDateFromToken(String token) {
+        return getTokenClaim(token).getIssuedAt();
+    }
+
+    /**
+     * 获取token
+     *
+     * @param request 请求
+     * @return token
+     * @throws SignatureException 签名错误异常
+     */
+    public static String getTokenFromRequest(HttpServletRequest request) throws SignatureException {
+        // Token 验证
+        String token = request.getHeader("Authorization");
+        if (StringUtil.isEmpty(token)) {
+            token = request.getParameter("token");
+        }
+        if (StringUtil.isEmpty(token)) {
+            throw new SignatureException("token不能为空");
+        }
+        return token;
+    }
+
+    /**
+     * 获取用户名
+     *
+     * @param request 请求
+     * @return 用户名
+     * @throws Exception 异常
+     */
+    public static String getSubjectFromRequest(HttpServletRequest request) throws Exception {
+        return getSubjectFromToken(getTokenFromRequest(request));
     }
 
     /**
