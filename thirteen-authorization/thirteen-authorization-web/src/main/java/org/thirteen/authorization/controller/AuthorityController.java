@@ -3,9 +3,12 @@ package org.thirteen.authorization.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.thirteen.authorization.interceptor.JwtInterceptor;
+import org.thirteen.authorization.service.AuthorityService;
 import org.thirteen.authorization.web.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,16 +23,24 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class AuthorityController {
 
-    @ApiOperation(value = "权限验证", notes = "验证对应请求路径是否允许访问", response = ResponseResult.class)
-    @GetMapping(value = "/validate")
-    public ResponseResult validate(@ApiParam(required = true, value = "需验证的请求路径") @RequestParam("url") String url,
-                                   HttpServletRequest request) {
-        return ResponseResult.ok();
+    private final AuthorityService authorityService;
+    private final JwtInterceptor jwtInterceptor;
+
+    public AuthorityController(AuthorityService authorityService, JwtInterceptor jwtInterceptor) {
+        this.authorityService = authorityService;
+        this.jwtInterceptor = jwtInterceptor;
     }
 
-    @ApiOperation(value = "重新加载过滤链", notes = "重新加载shiro过滤链", response = ResponseResult.class)
+    @ApiOperation(value = "权限验证", notes = "验证对应请求路径是否允许访问", response = ResponseResult.class)
+    @GetMapping(value = "/validate")
+    public ResponseResult validate(@ApiParam(required = true, value = "需验证的请求路径") @RequestParam("url") String url) {
+        return ResponseResult.ok(this.authorityService.validate(url));
+    }
+
+    @ApiOperation(value = "重新加载过滤链", notes = "重新加载过滤链", response = ResponseResult.class)
     @GetMapping(value = "/reloadFilterChains")
     public ResponseResult reloadFilterChains() {
+        this.jwtInterceptor.initFilterChains();
         return ResponseResult.ok();
     }
 

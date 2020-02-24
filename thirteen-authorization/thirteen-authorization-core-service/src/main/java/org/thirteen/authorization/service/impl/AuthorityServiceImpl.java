@@ -2,6 +2,7 @@ package org.thirteen.authorization.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.thirteen.authorization.common.utils.JwtUtil;
+import org.thirteen.authorization.exceptions.BusinessException;
 import org.thirteen.authorization.model.vo.SysPermissionVO;
 import org.thirteen.authorization.model.vo.SysUserVO;
 import org.thirteen.authorization.service.AuthorityService;
@@ -31,23 +32,27 @@ public class AuthorityServiceImpl implements AuthorityService {
      *
      * @param url 需验证的请求路径
      * @return 是否拥有权限
-     * @throws Exception 异常
      */
     @Override
-    public boolean validate(String url) throws Exception {
+    public boolean validate(String url) {
         boolean flag = false;
         // 解析token获取账号
-        String account = JwtUtil.getSubjectFromRequest(request);
-        // 获取用户详细信息（包含用户角色、用户权限等信息）
-        SysUserVO user = this.sysUserService.findDetailByAccount(account);
-        if (user != null && user.getPermissions() != null && user.getPermissions().size() > 0) {
-            for (SysPermissionVO perm : user.getPermissions()) {
-                // 判断请求路径是否与权限中的路径匹配
-                if (url.equals(perm.getUrl())) {
-                    flag = true;
-                    break;
+        String account = null;
+        try {
+            account = JwtUtil.getSubjectFromRequest(request);
+            // 获取用户详细信息（包含用户角色、用户权限等信息）
+            SysUserVO user = this.sysUserService.findDetailByAccount(account);
+            if (user != null && user.getPermissions() != null && user.getPermissions().size() > 0) {
+                for (SysPermissionVO perm : user.getPermissions()) {
+                    // 判断请求路径是否与权限中的路径匹配
+                    if (url.equals(perm.getUrl())) {
+                        flag = true;
+                        break;
+                    }
                 }
             }
+        } catch (Exception e) {
+            throw new BusinessException("鉴权失败");
         }
         return flag;
     }

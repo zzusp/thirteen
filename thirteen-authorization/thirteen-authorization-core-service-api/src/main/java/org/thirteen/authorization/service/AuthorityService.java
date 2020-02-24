@@ -13,8 +13,7 @@ public interface AuthorityService {
      *
      * @param url 需验证的请求路径
      * @return 是否拥有权限
-     * @throws Exception 异常
      */
-    boolean validate(String url) throws Exception;
+    boolean validate(String url);
 
 }

@@ -38,7 +38,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     public JwtInterceptor(SysPermissionService sysPermissionService, AuthorityService authorityService) {
         this.sysPermissionService = sysPermissionService;
         this.authorityService = authorityService;
-        this.init();
+        this.initFilterChains();
     }
 
     @Override
@@ -68,9 +68,9 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     }
 
     /**
-     * 初始化
+     * 初始化过滤链
      */
-    private void init() {
+    public void initFilterChains() {
         // 初始化地址集合
         this.openUrlList = Arrays.asList("/swagger-ui.html", "/login");
         this.loginUrlList = new ArrayList<>();
