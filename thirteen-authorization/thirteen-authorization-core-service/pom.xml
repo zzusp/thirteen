@@ -72,4 +72,15 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <!-- 指定资源文件路径 -->
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
+
 </project>
