@@ -8,8 +8,6 @@ import org.thirteen.authorization.model.vo.SysUserVO;
 import org.thirteen.authorization.service.AuthorityService;
 import org.thirteen.authorization.service.SysUserService;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author Aaron.Sun
  * @description 权限校验服务接口实现类
@@ -20,11 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthorityServiceImpl implements AuthorityService {
 
     private final SysUserService sysUserService;
-    private final HttpServletRequest request;
 
-    public AuthorityServiceImpl(SysUserService sysUserService, HttpServletRequest request) {
+    public AuthorityServiceImpl(SysUserService sysUserService) {
         this.sysUserService = sysUserService;
-        this.request = request;
     }
 
     /**
@@ -36,12 +32,9 @@ public class AuthorityServiceImpl implements AuthorityService {
     @Override
     public boolean validate(String url) {
         boolean flag = false;
-        // 解析token获取账号
-        String account = null;
         try {
-            account = JwtUtil.getSubjectFromRequest(request);
             // 获取用户详细信息（包含用户角色、用户权限等信息）
-            SysUserVO user = this.sysUserService.findDetailByAccount(account);
+            SysUserVO user = this.sysUserService.findDetailByAccount(JwtUtil.getAccount());
             if (user != null && user.getPermissions() != null && user.getPermissions().size() > 0) {
                 for (SysPermissionVO perm : user.getPermissions()) {
                     // 判断请求路径是否与权限中的路径匹配

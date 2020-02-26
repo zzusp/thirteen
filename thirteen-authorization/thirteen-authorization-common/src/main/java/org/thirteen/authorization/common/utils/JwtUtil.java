@@ -19,18 +19,14 @@ import java.util.Date;
  * @modified By
  */
 public class JwtUtil {
-    /**
-     * 签发者
-     */
+    /** 签发者 */
     private static final String ISSUER = "thrirteen.auth";
-    /**
-     * 原密钥
-     */
+    /** 原密钥 */
     private static final String SECRET = "thrirteen.jwt.secret";
-    /**
-     * 默认过期时间30分钟
-     */
+    /** 默认过期时间30分钟 */
     private static final long EXPIRE_TIME = 30 * 60 * 1000L;
+    /** local线程，用来存储获取当前登录用户 */
+    private static ThreadLocal<String> threadLocal = new ThreadLocal<>();
 
     /**
      * 生成JWT token，默认过期时间30分钟
@@ -142,17 +138,6 @@ public class JwtUtil {
     }
 
     /**
-     * 获取用户名
-     *
-     * @param request 请求
-     * @return 用户名
-     * @throws Exception 异常
-     */
-    public static String getSubjectFromRequest(HttpServletRequest request) throws Exception {
-        return getSubjectFromToken(getTokenFromRequest(request));
-    }
-
-    /**
      * 获取密钥
      *
      * @return 密钥
@@ -162,4 +147,28 @@ public class JwtUtil {
         return new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
     }
 
+    /**
+     * 设置用户账号到threadLocal
+     *
+     * @param account 用户账号
+     */
+    public static void setAccount(String account) {
+        threadLocal.set(account);
+    }
+
+    /**
+     * 从threadLocal中获取用户账号
+     *
+     * @return 用户账号
+     */
+    public static String getAccount() {
+        return threadLocal.get();
+    }
+
+    /**
+     * 删除threadLocal中存储的用户账号
+     */
+    public static void removeAccount() {
+        threadLocal.remove();
+    }
 }

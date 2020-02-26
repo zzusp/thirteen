@@ -44,7 +44,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
         throws Exception {
-        boolean flag = false;
+        boolean flag;
         // 地址过滤
         String uri = request.getRequestURI();
         if (this.openUrlList.contains(uri)) {
@@ -55,7 +55,10 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
             // Token 验证
             String token = JwtUtil.getTokenFromRequest(request);
             try {
-                JwtUtil.verify(token);
+                // 获取token中的用户账号，并设置到threadLocal中
+                // getSubjectFromToken方法包含token有效性校验
+                JwtUtil.setAccount(JwtUtil.getSubjectFromToken(token));
+                flag = true;
             } catch (Exception e) {
                 throw new SignatureException("token失效，请重新登录");
             }
@@ -81,6 +84,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         for (SysPermissionVO permission : allPermissionList) {
             // 判断权限是否启用
             if (ACTIVE_ON.equals(permission.getActive())) {
+                // 根据不同的权限类型，设置不同的拦截链
                 if (PERMISSION_LOGIN.equals(permission.getType())) {
                     this.loginUrlList.add(permission.getUrl());
                 } else if (PERMISSION_AUTHOR.equals(permission.getType())) {
