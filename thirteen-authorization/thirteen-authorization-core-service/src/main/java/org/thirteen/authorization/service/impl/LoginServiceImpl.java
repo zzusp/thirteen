@@ -20,8 +20,8 @@ import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_OFF;
 @Service
 public class LoginServiceImpl implements LoginService {
 
-    /** 登录后分发token的过期时间，单位毫秒，默认12小时 */
-    private final static long SIGN_EXPIRE = 12 * 60 * 60 * 1000;
+    /** 登录后分发token的过期时间，单位毫秒，默认1小时 */
+    private final static long SIGN_EXPIRE = 60 * 60 * 1000;
     private final SysUserRepository sysUserRepository;
 
     @Autowired
