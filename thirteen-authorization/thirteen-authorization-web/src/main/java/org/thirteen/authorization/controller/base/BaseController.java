@@ -21,9 +21,7 @@ import java.util.List;
  */
 public abstract class BaseController<VO extends BaseVO, S extends BaseService<VO>> {
 
-    /**
-     * service声明
-     */
+    /** service声明 */
     protected final S service;
 
     public BaseController(S service) {

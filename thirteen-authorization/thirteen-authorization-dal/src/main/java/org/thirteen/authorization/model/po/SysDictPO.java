@@ -26,9 +26,6 @@ import javax.persistence.Table;
 public class SysDictPO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 业务类型编码
-     */
     @Column(name = "biz_type_code", columnDefinition = "CHAR(20) COMMENT '业务类型编码'")
     private String bizTypeCode;
 

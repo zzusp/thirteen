@@ -24,24 +24,12 @@ import java.time.LocalDateTime;
 public abstract class BaseRecordVO extends BaseDeleteVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 编码唯一，非空且不可更改
-     */
     @ApiModelProperty(notes = "编码")
     protected String code;
-    /**
-     * 名称
-     */
     @ApiModelProperty(notes = "名称")
     protected String name;
-    /**
-     * 0：禁用；1启用
-     */
     @ApiModelProperty(value = "启用标记 0：禁用；1启用", example = "1")
     protected String active;
-    /**
-     * 创建者ID/账号/编码（推荐账号）
-     */
     @ApiModelProperty(notes = "创建者", hidden = true)
     protected String createBy;
     /**
@@ -57,9 +45,6 @@ public abstract class BaseRecordVO extends BaseDeleteVO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected LocalDateTime createTime;
-    /**
-     * 更新者ID/账号/编码（推荐账号）
-     */
     @ApiModelProperty(notes = "更新者", hidden = true)
     protected String updateBy;
     /**
@@ -75,14 +60,8 @@ public abstract class BaseRecordVO extends BaseDeleteVO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected LocalDateTime updateTime;
-    /**
-     * 备注
-     */
     @ApiModelProperty(notes = "备注")
     protected String remark;
-    /**
-     * 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作
-     */
     @ApiModelProperty(value = "版本号")
     protected Integer version;
 

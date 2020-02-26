@@ -22,9 +22,6 @@ import java.io.Serializable;
 public abstract class BasePO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 实体主键（唯一标识）
-     */
     @Id
     @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.uuid.CustomUuidGenerator")
     @GeneratedValue(generator = "uuid2")

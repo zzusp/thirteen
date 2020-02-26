@@ -21,19 +21,10 @@ import java.util.List;
 public abstract class BaseTreeSortVO extends BaseRecordVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 显示顺序
-     */
     @ApiModelProperty(notes = "显示顺序")
     protected Integer sort;
-    /**
-     * 上级编码
-     */
     @ApiModelProperty(notes = "上级编码")
     protected String parentCode;
-    /**
-     * 下级节点
-     */
     @ApiModelProperty(notes = "上级编码", hidden = true)
     protected List<BaseTreeSortVO> children;
 

@@ -22,20 +22,11 @@ import org.thirteen.authorization.model.vo.base.BaseRecordVO;
 public class SysPermissionVO extends BaseRecordVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 所属应用
-     */
     @ApiModelProperty(value = "所属应用")
     private SysApplicationVO application;
-    /**
-     * 路径
-     */
     @ApiModelProperty(value = "路径")
     private String url;
-    /**
-     * 0：需登录；1：需认证；2：需授权（注：授权需登陆）
-     */
-    @ApiModelProperty(value = "权限类型")
+    @ApiModelProperty(value = "权限类型 0：需登录；1：需认证；2：需授权（注：授权需登陆）")
     private String type;
 
 }

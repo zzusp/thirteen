@@ -24,14 +24,8 @@ import java.util.List;
 public class SysBizTypeVO extends BaseRecordVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 业务类型名称
-     */
     @ApiModelProperty(value = "名称")
     private String name;
-    /**
-     * 业务类型下的数据字典
-     */
     @ApiModelProperty(value = "业务类型下的数据字典", hidden = true)
     private List<SysDictVO> dicts;
 

@@ -14,20 +14,13 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class AesEncryptUtil {
 
-    /**
-     * 使用AES-128-CBC加密模式，key需要为16位,key和iv可以相同！
-     */
+    /** 使用AES-128-CBC加密模式，key需要为16位,key和iv可以相同！ */
     private final static String KEY = "thirteen.aes";
     private final static String IV = "thirteen.aes";
-    /**
-     * 密码转换类型
-     */
+    /** 密码转换类型 */
     private final static String CIPHER_TRANSFORMATION = "AES/CBC/NoPadding";
-    /**
-     * 加密算法
-     */
+    /** 加密算法 */
     private final static String CIPHER_ALGORITHM = "AES";
-
 
     /**
      * 加密方法

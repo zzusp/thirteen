@@ -26,14 +26,8 @@ import javax.persistence.Table;
 public class SysDeptRolePO extends BasePO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 部门编码
-     */
     @Column(name = "dept_code", columnDefinition = "CHAR(20) COMMENT '部门编码'")
     private String deptCode;
-    /**
-     * 角色编码
-     */
     @Column(name = "role_code", columnDefinition = "CHAR(20) COMMENT '角色编码'")
     private String roleCode;
 

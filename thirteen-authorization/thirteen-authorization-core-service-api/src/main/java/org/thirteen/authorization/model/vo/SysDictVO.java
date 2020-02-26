@@ -22,9 +22,6 @@ import org.thirteen.authorization.model.vo.base.BaseRecordVO;
 public class SysDictVO extends BaseRecordVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 业务类型
-     */
     @ApiModelProperty(value = "业务类型")
     private SysBizTypeVO bizType;
 

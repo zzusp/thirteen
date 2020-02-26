@@ -23,49 +23,22 @@ import java.time.LocalDateTime;
 public abstract class BaseRecordPO extends BaseDeletePO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 编码唯一，非空且不可更改
-     */
     @Column(name = "code", columnDefinition = "CHAR(20) NOT NULL COMMENT '编码唯一，非空且不可更改'")
     protected String code;
-    /**
-     * 名称
-     */
     @Column(name = "name", columnDefinition = "VARCHAR(50) NOT NULL COMMENT '名称'")
     protected String name;
-    /**
-     * 0：禁用；1启用
-     */
     @Column(name = "active", columnDefinition = "CHAR(1) NOT NULL COMMENT '启用标记 0：禁用；1启用'")
     protected String active;
-    /**
-     * 创建者ID/账号/编码（推荐账号）
-     */
     @Column(name = "create_by", columnDefinition = "VARCHAR(50) COMMENT '创建者ID/账号/编码（推荐账号）'")
     protected String createBy;
-    /**
-     * 创建时间
-     */
     @Column(name = "create_time", columnDefinition = "DATETIME COMMENT '创建时间'")
     protected LocalDateTime createTime;
-    /**
-     * 更新者ID/账号/编码（推荐账号）
-     */
     @Column(name = "update_by", columnDefinition = "VARCHAR(50) COMMENT '更新者ID/账号/编码（推荐账号）'")
     protected String updateBy;
-    /**
-     * 更新时间
-     */
     @Column(name = "update_time", columnDefinition = "DATETIME COMMENT '更新时间'")
     protected LocalDateTime updateTime;
-    /**
-     * 备注
-     */
     @Column(name = "remark", columnDefinition = "VARCHAR(255) COMMENT '备注'")
     protected String remark;
-    /**
-     * 版本号，使用删除标记字段时，必须添加版本号字段，避免误操作
-     */
     @Version
     @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
     protected Integer version;

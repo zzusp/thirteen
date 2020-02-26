@@ -22,19 +22,10 @@ import org.thirteen.authorization.model.vo.base.BaseTreeSortVO;
 public class SysApplicationVO extends BaseTreeSortVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 图标
-     */
     @ApiModelProperty(value = "图标")
     private String icon;
-    /**
-     * 路径
-     */
     @ApiModelProperty(value = "路径")
     private String url;
-    /**
-     * 0：微服务应用；1：应用接口；2：应用菜单；3：应用菜单组
-     */
     @ApiModelProperty(value = "应用类型", example = "1")
     private String type;
 

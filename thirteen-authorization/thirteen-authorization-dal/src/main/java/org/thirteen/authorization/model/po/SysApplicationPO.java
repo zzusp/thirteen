@@ -26,19 +26,10 @@ import javax.persistence.Table;
 public class SysApplicationPO extends BaseTreeSortPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 图标
-     */
     @Column(name = "icon", columnDefinition = "VARCHAR(50) COMMENT '图标'")
     private String icon;
-    /**
-     * 路径
-     */
     @Column(name = "url", columnDefinition = "VARCHAR(255) COMMENT '路径'")
     private String url;
-    /**
-     * 0：微服务应用；1：应用接口；2：应用菜单；3：应用菜单组
-     */
     @Column(name = "type", columnDefinition = "CHAR(1) COMMENT '应用类型 " +
         "0：微服务应用；1：应用接口；2：应用菜单；3：应用菜单组'")
     private String type;

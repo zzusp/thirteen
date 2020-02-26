@@ -24,19 +24,10 @@ import java.util.List;
 public class SysRoleVO extends BaseRecordVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 所属组织
-     */
     @ApiModelProperty(value = "所属组织", hidden = true)
     private SysGroupVO group;
-    /**
-     * 角色下的应用
-     */
     @ApiModelProperty(value = "角色下的应用", hidden = true)
     private List<SysApplicationVO> applications;
-    /**
-     * 角色下的权限
-     */
     @ApiModelProperty(value = "角色下的权限", hidden = true)
     private List<SysPermissionVO> permissions;
 

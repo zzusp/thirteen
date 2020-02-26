@@ -27,44 +27,20 @@ import java.time.LocalDateTime;
 public class SysLogLoginPO extends BaseDeletePO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 请求地址
-     */
     @Column(name = "request_path", columnDefinition = "VARCHAR(500) COMMENT '请求地址'")
     private String requestPath;
-    /**
-     * 登陆时间
-     */
     @Column(name = "login_time", columnDefinition = "DATETIME COMMENT '登陆时间'")
     private LocalDateTime loginTime;
-    /**
-     * 账号
-     */
     @Column(name = "account", columnDefinition = "VARCHAR(20) COMMENT '账号'")
     private String account;
-    /**
-     * 状态码
-     */
     @Column(name = "status", columnDefinition = "INT COMMENT '状态码'")
     private Integer status;
-    /**
-     * 信息
-     */
     @Column(name = "message", columnDefinition = "VARCHAR(1000) COMMENT '信息'")
     private String message;
-    /**
-     * 国家
-     */
     @Column(name = "country", columnDefinition = "VARCHAR(50) COMMENT '国家'")
     private String country;
-    /**
-     * 省份
-     */
     @Column(name = "province", columnDefinition = "VARCHAR(50) COMMENT '省份'")
     private String province;
-    /**
-     * 城市
-     */
     @Column(name = "city", columnDefinition = "VARCHAR(50) COMMENT '城市'")
     private String city;
 

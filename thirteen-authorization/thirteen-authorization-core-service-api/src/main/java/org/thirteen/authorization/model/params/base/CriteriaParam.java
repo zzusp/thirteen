@@ -23,66 +23,36 @@ public class CriteriaParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * feild = value
-     */
+    /** feild = value */
     public static final String EQUAL = "equal";
-    /**
-     * filed != value
-     */
+    /** filed != value */
     public static final String NOT_EQUAL = "notEqual";
-    /**
-     * filed > value  value为Number类型数据
-     */
+    /** filed > value  value为Number类型数据 */
     public static final String GT = "gt";
-    /**
-     * filed >= value  value为Number类型数据
-     */
+    /** filed >= value  value为Number类型数据 */
     public static final String GE = "ge";
-    /**
-     * filed < value  value为Number类型数据
-     */
+    /** filed < value  value为Number类型数据 */
     public static final String LT = "lt";
-    /**
-     * filed <= value  value为Number类型数据
-     */
+    /** filed <= value  value为Number类型数据 */
     public static final String LE = "le";
-    /**
-     * filed > value  value为Comparable类型数据
-     */
+    /** filed > value  value为Comparable类型数据 */
     public static final String GREATER_THAN = "greaterThan";
-    /**
-     * filed >= value  value为Comparable类型数据
-     */
+    /** filed >= value  value为Comparable类型数据 */
     public static final String GREATER_THAN_OR_EQUAL_TO = "greaterThanOrEqualTo";
-    /**
-     * filed < value  value为Comparable类型数据
-     */
+    /** filed < value  value为Comparable类型数据 */
     public static final String LESS_THEN = "lessThan";
-    /**
-     * filed <= value  value为Comparable类型数据
-     */
+    /** filed <= value  value为Comparable类型数据 */
     public static final String LESS_THAN_OR_EQUAL_TO = "lessThanOrEqualTo";
-    /**
-     * filed like value
-     */
+    /** filed like value */
     public static final String LIKE = "like";
-    /**
-     * filed not like value
-     */
+    /** filed not like value */
     public static final String NOT_LIKE = "notLike";
-    /**
-     * filed in (...values)
-     */
+    /** filed in (...values) */
     public static final String IN = "in";
 
-    /**
-     * filed != value and filed like value
-     */
+    /** filed != value and filed like value */
     public static final String AND = "and";
-    /**
-     * filed != value or filed like value
-     */
+    /** filed != value or filed like value */
     public static final String OR = "or";
 
     @ApiParam(value = "字段")

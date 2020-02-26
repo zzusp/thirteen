@@ -19,9 +19,6 @@ import lombok.NoArgsConstructor;
 public class BaseDeleteVO extends BaseVO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 0：正常；1：删除
-     */
     @ApiModelProperty(value = "删除标志 0：正常；1：删除", example = "0")
     protected String delFlag;
 

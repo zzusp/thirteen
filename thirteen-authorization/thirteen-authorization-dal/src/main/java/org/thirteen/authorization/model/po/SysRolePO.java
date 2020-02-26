@@ -26,9 +26,6 @@ import javax.persistence.Table;
 public class SysRolePO extends BaseRecordPO {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * 所属组织编码
-     */
     @Column(name = "group_code", columnDefinition = "CHAR(20) COMMENT '所属组织编码'")
     private String groupCode;
 
