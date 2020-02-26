@@ -1,7 +1,11 @@
 package org.thirteen.authorization.config;
 
+import com.maxmind.geoip2.DatabaseReader;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.io.File;
 
 /**
  * @author Aaron.Sun
@@ -18,8 +22,8 @@ public class Geolite2Config {
     /**
      * 初始化geolite2数据库读取对象
      */
-/*    @Bean
+    @Bean
     public DatabaseReader geolite2CityDb() throws Exception {
         return new DatabaseReader.Builder(new File(geolite2CityDbPath)).build();
-    }*/
+    }
 }
