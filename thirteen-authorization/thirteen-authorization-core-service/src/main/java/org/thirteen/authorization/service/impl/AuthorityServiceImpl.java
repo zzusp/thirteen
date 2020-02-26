@@ -45,7 +45,7 @@ public class AuthorityServiceImpl implements AuthorityService {
                 }
             }
         } catch (Exception e) {
-            throw new BusinessException("鉴权失败");
+            throw new BusinessException("鉴权失败", e.getCause());
         }
         return flag;
     }

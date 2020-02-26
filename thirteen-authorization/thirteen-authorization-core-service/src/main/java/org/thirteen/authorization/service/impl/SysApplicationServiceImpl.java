@@ -63,7 +63,7 @@ public class SysApplicationServiceImpl
             // 删除所有关联
             optional.ifPresent(model -> this.sysRoleApplicationRepository.deleteByApplicationCode(model.getCode()));
         } catch (Exception e) {
-            throw new BusinessException("删除所有应用关联失败，{}" + e.getCause());
+            throw new BusinessException("删除所有应用关联失败", e.getCause());
         }
     }
 }

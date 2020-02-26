@@ -183,7 +183,7 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
                 // 新增所有关联
                 this.sysUserRoleRepository.saveAll(userRoleList);
             } catch (Exception e) {
-                throw new BusinessException("新增用户角色关联失败，{}" + e.getCause());
+                throw new BusinessException("新增用户角色关联失败", e.getCause());
             }
         }
     }
@@ -199,7 +199,7 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
             // 删除所有关联
             optional.ifPresent(model -> this.sysUserRoleRepository.deleteByAccount(model.getCode()));
         } catch (Exception e) {
-            throw new BusinessException("删除所有用户关联失败，{}" + e.getCause());
+            throw new BusinessException("删除所有用户关联失败", e.getCause());
         }
     }
 

@@ -60,6 +60,8 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
                 JwtUtil.setAccount(JwtUtil.getSubjectFromToken(token));
                 flag = true;
             } catch (Exception e) {
+                // 如果token失效或非法，则删除threadLocal中的用户账号
+                JwtUtil.removeAccount();
                 throw new SignatureException("token失效，请重新登录");
             }
         } else if (this.permsUrlList.contains(uri)) {

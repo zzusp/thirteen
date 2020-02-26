@@ -63,7 +63,7 @@ public class SysPermissionServiceImpl
             // 删除所有关联
             optional.ifPresent(model -> this.sysRolePermissionRepository.deleteByPermissionCode(model.getCode()));
         } catch (Exception e) {
-            throw new BusinessException("删除所有权限关联失败，{}" + e.getCause());
+            throw new BusinessException("删除所有权限关联失败", e.getCause());
         }
     }
 }

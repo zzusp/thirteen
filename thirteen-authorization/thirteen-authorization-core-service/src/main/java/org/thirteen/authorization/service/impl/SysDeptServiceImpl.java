@@ -95,7 +95,7 @@ public class SysDeptServiceImpl extends BaseTreeSortServiceImpl<SysDeptVO, SysDe
                 // 新增所有关联
                 this.sysDeptRoleRepository.saveAll(deptRoleList);
             } catch (Exception e) {
-                throw new BusinessException("新增部门角色关联失败，{}" + e.getCause());
+                throw new BusinessException("新增部门角色关联失败", e.getCause());
             }
         }
     }
@@ -111,7 +111,7 @@ public class SysDeptServiceImpl extends BaseTreeSortServiceImpl<SysDeptVO, SysDe
             // 删除所有关联
             optional.ifPresent(model -> this.sysDeptRoleRepository.deleteByDeptCode(model.getCode()));
         } catch (Exception e) {
-            throw new BusinessException("删除所有部门关联失败，{}" + e.getCause());
+            throw new BusinessException("删除所有部门关联失败", e.getCause());
         }
     }
 

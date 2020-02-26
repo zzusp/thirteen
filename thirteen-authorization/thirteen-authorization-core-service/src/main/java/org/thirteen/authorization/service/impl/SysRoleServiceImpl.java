@@ -76,7 +76,7 @@ public class SysRoleServiceImpl extends BaseRecordServiceImpl<SysRoleVO, SysRole
                 this.sysUserRoleRepository.deleteByRoleCode(model.getCode());
             });
         } catch (Exception e) {
-            throw new BusinessException("删除所有角色关联失败，{}" + e.getCause());
+            throw new BusinessException("删除所有角色关联失败", e.getCause());
         }
     }
 }
