@@ -142,7 +142,7 @@ public class ModelInformation<T> {
         try {
             method = realClass.getMethod(setter, parameterTypes);
         } catch (NoSuchMethodException e) {
-            throw new EntityErrorException(e.getMessage());
+            throw new EntityErrorException(e.getMessage(), e.getCause());
         }
         return method;
     }
@@ -162,7 +162,7 @@ public class ModelInformation<T> {
         try {
             method = realClass.getMethod(getter);
         } catch (NoSuchMethodException e) {
-            throw new EntityErrorException(e.getMessage());
+            throw new EntityErrorException(e.getMessage(), e.getCause());
         }
         return method;
     }
