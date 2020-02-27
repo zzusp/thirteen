@@ -1,6 +1,8 @@
 package org.thirteen.authorization.aop;
 
-import io.swagger.annotations.Api;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.model.CityResponse;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -10,10 +12,12 @@ import org.springframework.stereotype.Component;
 import org.thirteen.authorization.common.utils.LogUtil;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.common.utils.WebUtil;
+import org.thirteen.authorization.model.vo.SysLogLoginVO;
+import org.thirteen.authorization.service.SysLogLoginService;
 import org.thirteen.authorization.web.ResponseResult;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 
 /**
@@ -26,10 +30,15 @@ import java.time.LocalDateTime;
 @Component
 public class LogLoginAspect {
 
+    private final SysLogLoginService sysLogLoginService;
+    private final DatabaseReader databaseReader;
     private final HttpServletRequest request;
 
     @Autowired
-    public LogLoginAspect(HttpServletRequest request) {
+    public LogLoginAspect(SysLogLoginService sysLogLoginService, DatabaseReader databaseReader,
+                          HttpServletRequest request) {
+        this.sysLogLoginService = sysLogLoginService;
+        this.databaseReader = databaseReader;
         this.request = request;
     }
 
@@ -49,81 +58,45 @@ public class LogLoginAspect {
     @Around("loginAspect()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         LogUtil.getLogger().debug("=====开始执行环绕通知=====");
-        // 目标类名
-        String targetName = joinPoint.getTarget().getClass().getName();
-        // 方法名
-        String methodName = joinPoint.getSignature().getName();
-        // 参数
-        Object[] arguments = joinPoint.getArgs();
-        // 目标类标识
-        String targetTags = "";
-        // 操作类型
-        String operationValue = "";
-        // 操作描述
-        String operationNotes = "";
-        // 操作标识
-        String operationTags = "";
+        // 登录日志对象
+        SysLogLoginVO logLogin = new SysLogLoginVO();
         // 请求来源IP地址
-        String requestPath = WebUtil.getIpAddr(request);
-        // 当前用户ID
-       //  String userId = getUserId();
-        // 当前应用ID
-        // String applicationId = getApplicationId();
-        // 方法执行开始时间
-        LocalDateTime startTime;
-        // 方法执行结束时间
-        LocalDateTime endTime;
-        // 方法返回信息
-        String message = "";
-        // 通过java反射机制获取当前执行方法的说明及描述
-        try {
-            // 目标类
-            Class targetClass = Class.forName(targetName);
-            // 目标类注解
-            Api api = (Api) targetClass.getAnnotation(io.swagger.annotations.Api.class);
-            // 目标类标识
-            targetTags = api.tags()[0];
-            // 目标类中所有方法
-            Method[] methods = targetClass.getMethods();
-            for (Method method : methods) {
-                if (method.getName().equals(methodName)) {
-                    Class[] clazzs = method.getParameterTypes();
-                    if (clazzs.length == arguments.length) {
-                        operationValue = method.getAnnotation(io.swagger.annotations.ApiOperation.class).value();
-                        operationNotes = method.getAnnotation(io.swagger.annotations.ApiOperation.class).notes();
-                        operationTags = method.getAnnotation(io.swagger.annotations.ApiOperation.class).tags()[0];
-                        if (StringUtil.isNotEmpty(operationTags)) {
-                            targetTags = operationTags;
-                        }
-                        break;
-                    }
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            /*==========记录本地异常日志==========*/
-            LogUtil.getLogger().error("获取当前执行方法信息失败，异常方法:{} 异常代码:{} 异常信息:{}",
-                targetName + "." + methodName,
-                e.getClass().getName(),
-                e.getMessage());
-        }
+        logLogin.setRequestPath(WebUtil.getIpAddr(this.request));
+        // 当前用户账号
+        logLogin.setAccount((String) joinPoint.getArgs()[0]);
+        // 登录时间
+        logLogin.setLoginTime(LocalDateTime.now());
         // 执行被拦截方法
-        ResponseResult result = new ResponseResult();
-        // 记录方法执行的开始时间
-        startTime = LocalDateTime.now();
+        ResponseResult result;
         try {
             result = (ResponseResult) joinPoint.proceed();
-            message = result.getMessage();
         } catch (Exception e) {
-//            setResultMessage(result, e);
-            message = result.getMessage() + e.getCause();
+            result = ResponseResult.error(e.getMessage() + e.getCause());
         }
-        // 记录方法执行的结束时间
-        endTime = LocalDateTime.now();
+        logLogin.setMessage(result.getMessage());
+        logLogin.setStatus(result.getStatus());
+        // 获取国家省份城市
+        try {
+            CityResponse cityResponse = this.databaseReader.city(InetAddress.getByName(logLogin.getRequestPath()));
+            logLogin.setCountry(cityResponse.getCountry().getNames().get("zh-CN"));
+            logLogin.setProvince(cityResponse.getMostSpecificSubdivision().getNames().get("zh-CN"));
+            logLogin.setCity(cityResponse.getCity().getNames().get("zh-CN"));
+            // 直辖市获取的城市为null，需单独处理
+            if (StringUtil.isEmpty(logLogin.getCity())) {
+                logLogin.setCity(logLogin.getProvince());
+            }
+        } catch (Exception e) {
+            LogUtil.getLogger().error("获取国家省份城市信息失败", ExceptionUtils.getStackTrace(e));
+            logLogin.setCountry("未知");
+            logLogin.setProvince("未知");
+            logLogin.setCity("未知");
+        }
         // 记录日志到数据库
-//        saveLogOperation(userId, applicationId, requestPath, startTime,
-//            endTime, targetTags + "-" + operationValue, operationNotes,
-//            targetName + "." + methodName + "()", JsonUtil.toString(arguments),
-//            JsonUtil.toString(result), result.getStatus(), message);
+        try {
+            this.sysLogLoginService.insert(logLogin);
+        } catch (Exception e) {
+            LogUtil.getLogger().error(String.format("记录登录日志失败，%s", e.getMessage()), e.getCause());
+        }
         return result;
     }
 
