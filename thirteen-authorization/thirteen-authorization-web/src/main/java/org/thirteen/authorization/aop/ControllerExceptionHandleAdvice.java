@@ -24,30 +24,21 @@ public class ControllerExceptionHandleAdvice {
     /**
      * 可以直接写@ExceptionHandler,不指明异常类，会自动映射
      */
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseResult handlerUnauthorized(UnauthorizedException e) {
+    @ExceptionHandler({SignatureException.class, UnauthorizedException.class})
+    public ResponseResult handlerUnauthorized() {
         return ResponseResult.unauthorized();
     }
 
-    /**
-     * 可以直接写@ExceptionHandler,不指明异常类，会自动映射
-     */
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseResult handlerForbidden(ForbiddenException e) {
+    public ResponseResult handlerForbidden() {
         return ResponseResult.forbidden();
     }
 
-    /**
-     * 可以直接写@ExceptionHandler,不指明异常类，会自动映射
-     */
     @ExceptionHandler(NotFoundException.class)
     public ResponseResult handlerNotFound(NotFoundException e) {
         return ResponseResult.notFind(e.getMessage());
     }
 
-    /**
-     * 可以直接写@ExceptionHandler,不指明异常类，会自动映射
-     */
     @ExceptionHandler(BusinessException.class)
     public ResponseResult handlerBusiness(BusinessException e) {
         return ResponseResult.error(e.getMessage());
@@ -67,8 +58,6 @@ public class ControllerExceptionHandleAdvice {
             return ResponseResult.bad("请求参数类型不匹配");
         } else if (e instanceof SQLException) {
             return ResponseResult.error("数据库访问异常");
-        } else if (e instanceof SignatureException) {
-            return ResponseResult.error(e.getMessage());
         } else if (e instanceof DataNotFoundException) {
             return ResponseResult.error(e.getMessage());
         } else if (e instanceof ParamErrorException) {
