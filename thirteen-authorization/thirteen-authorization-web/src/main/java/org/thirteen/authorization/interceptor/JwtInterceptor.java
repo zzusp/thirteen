@@ -84,7 +84,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     public void initFilterChains() {
         // 初始化地址集合
         this.openUrlList = Arrays.asList("/swagger-ui.html", "/login");
-        this.loginUrlList = new ArrayList<>();
+        this.loginUrlList = Arrays.asList("/getCurrentUser");
         this.authUrlList = new ArrayList<>();
         this.permsUrlList = new ArrayList<>();
         // 所有未删除的权限集合

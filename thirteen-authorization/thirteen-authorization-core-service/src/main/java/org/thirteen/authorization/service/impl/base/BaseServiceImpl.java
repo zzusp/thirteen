@@ -6,6 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.thirteen.authorization.common.utils.JsonUtil;
+import org.thirteen.authorization.common.utils.LogUtil;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.ParamErrorException;
@@ -168,6 +170,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @Override
     public PagerResult<VO> findAllByParam(BaseParam param) {
         Assert.notNull(param, PARAM_MUST_NOT_BE_EMPTY);
+        LogUtil.getLogger().debug(String.format("查询参数：%s", JsonUtil.toString(param)));
         PagerResult<VO> result;
         Specification<PO> specification = null;
         Sort sort = null;
@@ -449,8 +452,10 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @SuppressWarnings("unchecked")
     private Predicate predicateHandle(Root<PO> root, CriteriaBuilder cb, CriteriaParam item) {
         Predicate predicate = null;
+        boolean hasValue = item.getValue() != null;
+        boolean hasValues = item.getValues() != null && item.getValues().size() > 0;
         // 当value不为null和空，或条件为必选时，添加该条件
-        if (item.getValue() != null || item.isRequired()) {
+        if (hasValue || hasValues || item.isRequired()) {
             // 比较操作符默认为equals
             if (StringUtil.isEmpty(item.getOperator())) {
                 item.setOperator(CriteriaParam.EQUAL);
@@ -494,15 +499,19 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
                         predicate = cb.notLike(root.get(item.getFeild()), (String) item.getValue());
                         break;
                     case CriteriaParam.IN:
-                        predicate = cb.in(root.get(item.getFeild())).in(item.getValues());
+                        CriteriaBuilder.In<Object> in = cb.in(root.get(item.getFeild()));
+                        for (Object object : item.getValues()) {
+                            in.value(object);
+                        }
+                        predicate = in;
                         break;
                     default:
                         throw new ParamErrorException("非法比较操作符 " + item.getOperator());
                 }
             } catch (ParamErrorException e) {
-                throw new ParamErrorException(e.getMessage());
+                throw new ParamErrorException(e.getMessage(), e.getCause());
             } catch (Exception e) {
-                throw new ParamErrorException("创建条件失败");
+                throw new ParamErrorException(String.format("创建条件失败，%s", e.getMessage()), e.getCause());
             }
         }
         return predicate;

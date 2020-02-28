@@ -2,6 +2,7 @@ package org.thirteen.authorization.aop;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.thirteen.authorization.common.utils.LogUtil;
@@ -52,7 +53,9 @@ public class ControllerExceptionHandleAdvice {
         }
         LogUtil.getLogger().error("请求异常：", ExceptionUtils.getStackTrace(e));
         // 针对不同的异常类型，返回对应的信息
-        if (e instanceof NullPointerException) {
+        if (e instanceof HttpRequestMethodNotSupportedException) {
+            return ResponseResult.error(e.getMessage());
+        } else if (e instanceof NullPointerException) {
             return ResponseResult.error("发生空指针异常");
         } else if (e instanceof IllegalArgumentException) {
             return ResponseResult.bad("请求参数类型不匹配");

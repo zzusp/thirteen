@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.thirteen.authorization.common.utils.JsonUtil;
 import org.thirteen.authorization.model.params.base.BaseParam;
 import org.thirteen.authorization.model.vo.base.BaseVO;
 import org.thirteen.authorization.service.base.BaseService;
@@ -92,14 +93,14 @@ public abstract class BaseController<VO extends BaseVO, S extends BaseService<VO
     @ApiOperation(value = "由条件查询单条信息", notes = "由条件查询单条信息", response = ResponseResult.class)
     @RequestMapping(value = "/findOneByParam", method = RequestMethod.GET)
     public ResponseResult findOneByParam(
-        @ApiParam(required = true, value = "条件") @RequestParam("param") BaseParam param) {
-        return ResponseResult.ok(this.service.findOneByParam(param));
+        @ApiParam(required = true, value = "条件") @RequestParam("param") String param) {
+        return ResponseResult.ok(this.service.findOneByParam(JsonUtil.parseObject(param, BaseParam.class)));
     }
 
     @ApiOperation(value = "由条件查询多条信息", notes = "由条件查询多条信息", response = ResponseResult.class)
     @RequestMapping(value = "/findAllByParam", method = RequestMethod.GET)
     public ResponseResult findAllByParam(
-        @ApiParam(required = true, value = "条件") @RequestParam("param") BaseParam param) {
-        return ResponseResult.ok(this.service.findAllByParam(param));
+        @ApiParam(required = true, value = "条件") @RequestParam("param") String param) {
+        return ResponseResult.ok(this.service.findAllByParam(JsonUtil.parseObject(param, BaseParam.class)));
     }
 }

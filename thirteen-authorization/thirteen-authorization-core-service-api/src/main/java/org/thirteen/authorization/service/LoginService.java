@@ -1,5 +1,7 @@
 package org.thirteen.authorization.service;
 
+import org.thirteen.authorization.model.vo.SysUserVO;
+
 /**
  * @author Aaron.Sun
  * @description 登录服务接口
@@ -16,5 +18,12 @@ public interface LoginService {
      * @return token
      */
     String login(String account, String password);
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return 当前登录用户信息
+     */
+    SysUserVO getCurrentUser();
 
 }

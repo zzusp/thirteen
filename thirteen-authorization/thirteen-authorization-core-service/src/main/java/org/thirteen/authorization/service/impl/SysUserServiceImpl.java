@@ -157,7 +157,7 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
                 BaseParam param = BaseParam.of().add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and());
                 // 验证用户是否拥有超级管理员角色
                 if (!checkAdmin(user)) {
-                    param.add(CriteriaParam.in("roleCode", Collections.singletonList(roleCodeSet)).and());
+                    param.add(CriteriaParam.in("roleCode", new ArrayList<>(roleCodeSet)).and());
                 }
                 // 获取角色下的启用应用信息
                 user.setApplications(this.sysApplicationService.findAllByParam(param).getList());

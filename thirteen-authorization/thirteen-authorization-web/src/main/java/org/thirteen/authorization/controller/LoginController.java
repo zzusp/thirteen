@@ -33,7 +33,7 @@ public class LoginController {
     public ResponseResult login(
         @ApiParam(required = true, value = "用户账号") @RequestParam("account") String account,
         @ApiParam(required = true, value = "用户密码") @RequestParam("password") String password) {
-        return ResponseResult.ok(loginService.login(account, password));
+        return ResponseResult.ok(this.loginService.login(account, password));
     }
 
     @ApiOperation(value = "登出", notes = "用户登出", response = ResponseResult.class)
@@ -45,7 +45,7 @@ public class LoginController {
     @ApiOperation(value = "获取当前登陆用户信息", notes = "获取当前登陆用户信息", response = ResponseResult.class)
     @GetMapping(value = "/getCurrentUser")
     public ResponseResult getCurrentUser() {
-        return ResponseResult.ok();
+        return ResponseResult.ok(this.loginService.getCurrentUser());
     }
 
 }

@@ -106,15 +106,13 @@ public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends 
 
     @Override
     public VO findByCode(String code) {
-        BaseParam param = BaseParam.of().add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseRecordPO.DEL_FLAG_NORMAL).and())
-            .add(CriteriaParam.equal(CODE_FIELD, code).and());
+        BaseParam param = BaseParam.of().add(CriteriaParam.equal(CODE_FIELD, code).and());
         return this.findOneByParam(param);
     }
 
     @Override
     public PagerResult<VO> findAllByCodes(List<String> codes) {
-        BaseParam param = BaseParam.of().add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseRecordPO.DEL_FLAG_NORMAL).and())
-            .add(CriteriaParam.in(CODE_FIELD, codes).and());
+        BaseParam param = BaseParam.of().add(CriteriaParam.in(CODE_FIELD, codes).and());
         return this.findAllByParam(param);
     }
 
