@@ -19,9 +19,9 @@ public class WebUtil {
      * @return 请求来源的ip地址
      */
     public static String getIpAddr(HttpServletRequest request) {
-        // 先从nginx自定义配置获取，需要nginx配置 proxy_set_header X-real-ip           $remote_addr;
+        // 先从nginx自定义配置获取，需要nginx配置 proxy_set_header X-real-ip $remote_addr;
         String ip = request.getHeader("X-real-ip");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader("x-forwarded-for");
         }
         if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {

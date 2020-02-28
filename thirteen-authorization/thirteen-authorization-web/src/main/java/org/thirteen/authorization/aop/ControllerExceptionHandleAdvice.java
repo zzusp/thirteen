@@ -9,6 +9,7 @@ import org.thirteen.authorization.exceptions.*;
 import org.thirteen.authorization.web.ResponseResult;
 
 import javax.servlet.http.HttpServletResponse;
+import java.security.SignatureException;
 import java.sql.SQLException;
 
 /**
@@ -66,6 +67,8 @@ public class ControllerExceptionHandleAdvice {
             return ResponseResult.bad("请求参数类型不匹配");
         } else if (e instanceof SQLException) {
             return ResponseResult.error("数据库访问异常");
+        } else if (e instanceof SignatureException) {
+            return ResponseResult.error(e.getMessage());
         } else if (e instanceof DataNotFoundException) {
             return ResponseResult.error(e.getMessage());
         } else if (e instanceof ParamErrorException) {

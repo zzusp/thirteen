@@ -49,9 +49,9 @@ public class JwtUtil {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
         if (expire <= 0) {
-            expire = nowMillis + EXPIRE_TIME;
+            expire = EXPIRE_TIME;
         }
-        Date exp = new Date(expire);
+        Date exp = new Date(nowMillis + expire);
         return Jwts.builder()
             // 设置签发时间
             .setIssuedAt(now)

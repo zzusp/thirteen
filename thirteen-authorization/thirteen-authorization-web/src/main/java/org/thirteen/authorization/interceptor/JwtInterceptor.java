@@ -2,6 +2,7 @@ package org.thirteen.authorization.interceptor;
 
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.thirteen.authorization.common.utils.JwtUtil;
+import org.thirteen.authorization.exceptions.ForbiddenException;
 import org.thirteen.authorization.model.vo.SysPermissionVO;
 import org.thirteen.authorization.service.AuthorityService;
 import org.thirteen.authorization.service.SysPermissionService;
@@ -51,7 +52,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
             flag = true;
         }
         // TODO 需登录判断与需认证判断暂用同一逻辑，待后续拆分
-        else if (this.loginUrlList.contains(uri) || this.authUrlList.contains(uri)) {
+        else if (this.loginUrlList.contains(uri) || this.authUrlList.contains(uri) || this.permsUrlList.contains(uri)) {
             // Token 验证
             String token = JwtUtil.getTokenFromRequest(request);
             try {
@@ -64,8 +65,13 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
                 JwtUtil.removeAccount();
                 throw new SignatureException("token失效，请重新登录");
             }
-        } else if (this.permsUrlList.contains(uri)) {
-            flag = this.authorityService.validate(uri);
+            // 校验权限
+            if (this.permsUrlList.contains(uri)) {
+                flag = this.authorityService.validate(uri);
+                if (!flag) {
+                    throw new ForbiddenException();
+                }
+            }
         } else {
             flag = true;
         }
