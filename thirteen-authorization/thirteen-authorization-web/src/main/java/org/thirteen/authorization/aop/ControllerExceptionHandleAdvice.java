@@ -1,6 +1,5 @@
 package org.thirteen.authorization.aop;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +29,11 @@ public class ControllerExceptionHandleAdvice {
         return ResponseResult.unauthorized();
     }
 
+    @ExceptionHandler(LockedAccountException.class)
+    public ResponseResult handlerLockedAccount(LockedAccountException e) {
+        return ResponseResult.unauthorized(e.getMessage());
+    }
+
     @ExceptionHandler(ForbiddenException.class)
     public ResponseResult handlerForbidden() {
         return ResponseResult.forbidden();
@@ -51,7 +55,7 @@ public class ControllerExceptionHandleAdvice {
         if (res.getStatus() == HttpStatus.BAD_REQUEST.value()) {
             res.setStatus(HttpStatus.OK.value());
         }
-        LogUtil.getLogger().error("请求异常：", ExceptionUtils.getStackTrace(e));
+        LogUtil.getLogger().error("请求异常：", e);
         // 针对不同的异常类型，返回对应的信息
         if (e instanceof HttpRequestMethodNotSupportedException) {
             return ResponseResult.error(e.getMessage());

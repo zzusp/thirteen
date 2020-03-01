@@ -2,7 +2,6 @@ package org.thirteen.authorization.aop;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -71,7 +70,7 @@ public class LogLoginAspect {
         try {
             result = (ResponseResult) joinPoint.proceed();
         } catch (Exception e) {
-            result = ResponseResult.error(e.getMessage() + e.getCause());
+            result = ResponseResult.error(e.getMessage());
         }
         logLogin.setMessage(result.getMessage());
         logLogin.setStatus(result.getStatus());
@@ -86,7 +85,7 @@ public class LogLoginAspect {
                 logLogin.setCity(logLogin.getProvince());
             }
         } catch (Exception e) {
-            LogUtil.getLogger().error("获取国家省份城市信息失败", ExceptionUtils.getStackTrace(e));
+            LogUtil.getLogger().error("获取国家省份城市信息失败", e);
             logLogin.setCountry("未知");
             logLogin.setProvince("未知");
             logLogin.setCity("未知");
@@ -95,7 +94,7 @@ public class LogLoginAspect {
         try {
             this.sysLogLoginService.insert(logLogin);
         } catch (Exception e) {
-            LogUtil.getLogger().error(String.format("记录登录日志失败，%s", e.getMessage()), e.getCause());
+            LogUtil.getLogger().error(String.format("记录登录日志失败，%s", e.getMessage()), e);
         }
         return result;
     }

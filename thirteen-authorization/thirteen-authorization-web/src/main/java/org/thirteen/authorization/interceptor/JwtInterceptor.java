@@ -2,6 +2,7 @@ package org.thirteen.authorization.interceptor;
 
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.thirteen.authorization.common.utils.JwtUtil;
+import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.exceptions.ForbiddenException;
 import org.thirteen.authorization.model.vo.SysPermissionVO;
 import org.thirteen.authorization.service.AuthorityService;
@@ -45,7 +46,15 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
         throws Exception {
-        boolean flag;
+        boolean flag = false;
+        try {
+            // 获取token中的用户账号，并设置到threadLocal中
+            // getSubjectFromToken方法包含token有效性校验
+            JwtUtil.setAccount(JwtUtil.getSubjectFromToken(JwtUtil.getTokenFromRequest(request)));
+        } catch (Exception e) {
+            // 如果token失效或非法，则删除threadLocal中的用户账号
+            JwtUtil.removeAccount();
+        }
         // 地址过滤
         String uri = request.getRequestURI();
         if (this.openUrlList.contains(uri)) {
@@ -53,18 +62,10 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         }
         // TODO 需登录判断与需认证判断暂用同一逻辑，待后续拆分
         else if (this.loginUrlList.contains(uri) || this.authUrlList.contains(uri) || this.permsUrlList.contains(uri)) {
-            // Token 验证
-            String token = JwtUtil.getTokenFromRequest(request);
-            try {
-                // 获取token中的用户账号，并设置到threadLocal中
-                // getSubjectFromToken方法包含token有效性校验
-                JwtUtil.setAccount(JwtUtil.getSubjectFromToken(token));
-                flag = true;
-            } catch (Exception e) {
-                // 如果token失效或非法，则删除threadLocal中的用户账号
-                JwtUtil.removeAccount();
+            if (StringUtil.isEmpty(JwtUtil.getAccount())) {
                 throw new SignatureException("token失效，请重新登录");
             }
+            flag = true;
             // 校验权限
             if (this.permsUrlList.contains(uri)) {
                 flag = this.authorityService.validate(uri);

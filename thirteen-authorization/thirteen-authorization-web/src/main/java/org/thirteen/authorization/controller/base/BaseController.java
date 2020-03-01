@@ -85,7 +85,7 @@ public abstract class BaseController<VO extends BaseVO, S extends BaseService<VO
     }
 
     @ApiOperation(value = "查询所有信息", notes = "查询所有信息", response = ResponseResult.class)
-    @RequestMapping(value = "/listAll", method = RequestMethod.GET)
+    @RequestMapping(value = "/findAll", method = RequestMethod.GET)
     public ResponseResult findAll() {
         return ResponseResult.ok(this.service.findAll());
     }

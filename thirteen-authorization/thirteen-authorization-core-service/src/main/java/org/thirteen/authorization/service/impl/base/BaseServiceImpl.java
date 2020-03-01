@@ -191,8 +191,12 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
             } else {
                 pageRequest = PageRequest.of(param.getPage().getPageNum(), param.getPage().getPageSize());
             }
-            page = this.baseRepository.findAll(pageRequest);
-            result = PagerResult.of(page.getTotalPages(), this.converToVo(page.getContent()));
+            if (specification != null) {
+                page = this.baseRepository.findAll(specification, pageRequest);
+            } else {
+                page = this.baseRepository.findAll(pageRequest);
+            }
+            result = PagerResult.of(page.getTotalElements(), this.converToVo(page.getContent()));
         } else {
             if (specification != null && sort != null) {
                 result = PagerResult.of(this.converToVo(this.baseRepository.findAll(specification, sort)));
@@ -376,12 +380,14 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
         Assert.notEmpty(sorts, "排序参数集合不可为空");
         List<Sort.Order> orders = new ArrayList<>();
         for (SortParam item : sorts) {
-            if (StringUtil.isEmpty(item.getOrderBy()) || SortParam.ASC.equals(item.getOrderBy())) {
-                orders.add(Sort.Order.asc(item.getOrderBy()));
-            } else if (SortParam.DESC.equals(item.getOrderBy())) {
-                orders.add(Sort.Order.desc(item.getOrderBy()));
-            } else {
-                throw new ParamErrorException("非法排序关键字 " + item.getOrderBy());
+            if (StringUtil.isNotEmpty(item.getField())) {
+                if (StringUtil.isEmpty(item.getOrderBy()) || SortParam.ASC.equals(item.getOrderBy())) {
+                    orders.add(Sort.Order.asc(item.getField()));
+                } else if (SortParam.DESC.equals(item.getOrderBy())) {
+                    orders.add(Sort.Order.desc(item.getField()));
+                } else {
+                    throw new ParamErrorException("非法排序关键字 " + item.getOrderBy());
+                }
             }
         }
         return Sort.by(orders);
@@ -424,7 +430,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
                 // 判断jpa查询参数是否为空
                 if (result == null) {
                     result = predicate;
-                } else {
+                } else if (predicate != null) {
                     // 判断条件间关系（默认关系为AND）
                     if (StringUtil.isEmpty(item.getRelation()) || CriteriaParam.AND.equals(item.getRelation())) {
                         result = cb.and(result, predicate);
@@ -452,7 +458,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @SuppressWarnings("unchecked")
     private Predicate predicateHandle(Root<PO> root, CriteriaBuilder cb, CriteriaParam item) {
         Predicate predicate = null;
-        boolean hasValue = item.getValue() != null;
+        boolean hasValue = item.getValue() != null && !"".equals(String.valueOf(item.getValue()));
         boolean hasValues = item.getValues() != null && item.getValues().size() > 0;
         // 当value不为null和空，或条件为必选时，添加该条件
         if (hasValue || hasValues || item.isRequired()) {

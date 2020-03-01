@@ -124,7 +124,7 @@ public class SysDeptServiceImpl extends BaseTreeSortServiceImpl<SysDeptVO, SysDe
     private SysDeptVO queryAllRoleCascaded(SysDeptVO model) {
         if (model != null) {
             // 获取所有与部门关联的角色编码
-            List<String> roleCodes = this.sysDeptRoleRepository.findAllByRoleCode(model.getCode()).stream()
+            List<String> roleCodes = this.sysDeptRoleRepository.findAllByDeptCode(model.getCode()).stream()
                 .map(SysDeptRolePO::getRoleCode).collect(Collectors.toList());
             if (roleCodes.size() > 0) {
                 // 获取部门下的角色信息

@@ -29,4 +29,30 @@ public class SortParam implements Serializable {
     @ApiParam(value = "排序 asc（升序）/desc（降序）")
     private String orderBy;
 
+    public static SortParam of() {
+        return new SortParam();
+    }
+
+    public static SortParam asc(String field) {
+        return of().field(field).asc();
+    }
+
+    public static SortParam desc(String field) {
+        return of().field(field).desc();
+    }
+
+    public SortParam field(String field) {
+        this.field = field;
+        return this;
+    }
+
+    public SortParam asc() {
+        this.orderBy = ASC;
+        return this;
+    }
+
+    public SortParam desc() {
+        this.orderBy = DESC;
+        return this;
+    }
 }

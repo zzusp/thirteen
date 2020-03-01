@@ -3,6 +3,7 @@ package org.thirteen.authorization.service.impl.base;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.BusinessException;
 import org.thirteen.authorization.model.params.base.BaseParam;
@@ -42,7 +43,9 @@ public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends 
         if (this.checkCode(model.getCode())) {
             throw new BusinessException(String.format("编码已存在，%s", model.getCode()));
         }
-        model.setActive(ACTIVE_ON);
+        if (StringUtil.isEmpty(model.getActive())) {
+            model.setActive(ACTIVE_ON);
+        }
         model.setCreateBy("");
         model.setCreateTime(LocalDateTime.now());
         super.insert(model);
@@ -61,7 +64,9 @@ public abstract class BaseRecordServiceImpl<VO extends BaseRecordVO, PO extends 
             if (this.checkCode(item.getCode())) {
                 existsCodes.add(item.getCode());
             }
-            item.setActive(ACTIVE_ON);
+            if (StringUtil.isEmpty(item.getActive())) {
+                item.setActive(ACTIVE_ON);
+            }
             item.setCreateBy(createBy);
             item.setCreateTime(now);
         });

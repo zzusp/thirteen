@@ -12,14 +12,9 @@ import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
  */
 public class JsonUtil {
 
-    /**
-     * 序列化配置
-     */
+    /** 序列化配置 */
     private static final SerializeConfig CONFIG;
-
-    /**
-     * 默认日期格式
-     */
+    /** 默认日期格式 */
     private static String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
     static {

@@ -11,7 +11,7 @@ import org.thirteen.authorization.repository.SysUserRepository;
 import org.thirteen.authorization.service.LoginService;
 import org.thirteen.authorization.service.SysUserService;
 
-import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_OFF;
+import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_ON;
 
 /**
  * @author Aaron.Sun
@@ -46,7 +46,7 @@ public class LoginServiceImpl implements LoginService {
         if (null == user) {
             throw new BusinessException("账号不存在");
         }
-        if (ACTIVE_OFF.equals(user.getActive())) {
+        if (!ACTIVE_ON.equals(user.getActive())) {
             throw new BusinessException("账号已被冻结，请联系管理员");
         }
         if (!Md5Util.encrypt(user.getAccount(), password, user.getSalt()).equals(user.getPassword())) {

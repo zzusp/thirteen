@@ -22,7 +22,7 @@ public class PagerResult<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @ApiModelProperty(example = "10", notes = "总记录数")
-    private int total;
+    private long total;
     @ApiModelProperty(notes = "结果集")
     private List<T> list;
 
@@ -34,11 +34,11 @@ public class PagerResult<T> implements Serializable {
         return of(list.size(), list);
     }
 
-    public static <T> PagerResult<T> of(int total, List<T> list) {
+    public static <T> PagerResult<T> of(long total, List<T> list) {
         return new PagerResult<T>().total(total).list(list);
     }
 
-    public PagerResult<T> total(int total) {
+    public PagerResult<T> total(long total) {
         this.total = total;
         return this;
     }

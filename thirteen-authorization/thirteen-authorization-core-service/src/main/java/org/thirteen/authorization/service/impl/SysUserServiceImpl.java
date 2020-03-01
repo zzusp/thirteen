@@ -9,17 +9,15 @@ import org.thirteen.authorization.common.utils.RandomUtil;
 import org.thirteen.authorization.constant.GlobalConstants;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.BusinessException;
+import org.thirteen.authorization.exceptions.LockedAccountException;
 import org.thirteen.authorization.model.params.base.BaseParam;
 import org.thirteen.authorization.model.params.base.CriteriaParam;
-import org.thirteen.authorization.model.po.SysDeptRolePO;
-import org.thirteen.authorization.model.po.SysUserPO;
-import org.thirteen.authorization.model.po.SysUserRolePO;
+import org.thirteen.authorization.model.params.base.SortParam;
+import org.thirteen.authorization.model.po.*;
 import org.thirteen.authorization.model.po.base.BaseRecordPO;
 import org.thirteen.authorization.model.vo.SysRoleVO;
 import org.thirteen.authorization.model.vo.SysUserVO;
-import org.thirteen.authorization.repository.SysDeptRoleRepository;
-import org.thirteen.authorization.repository.SysUserRepository;
-import org.thirteen.authorization.repository.SysUserRoleRepository;
+import org.thirteen.authorization.repository.*;
 import org.thirteen.authorization.service.SysApplicationService;
 import org.thirteen.authorization.service.SysPermissionService;
 import org.thirteen.authorization.service.SysRoleService;
@@ -27,13 +25,11 @@ import org.thirteen.authorization.service.SysUserService;
 import org.thirteen.authorization.service.impl.base.BaseRecordServiceImpl;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_ON;
-import static org.thirteen.authorization.service.support.base.ModelInformation.ACTIVE_FIELD;
-import static org.thirteen.authorization.service.support.base.ModelInformation.DEL_FLAG_FIELD;
+import static org.thirteen.authorization.service.support.base.ModelInformation.*;
 
 /**
  * @author Aaron.Sun
@@ -50,18 +46,24 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
     private final SysRoleService sysRoleService;
     private final SysApplicationService sysApplicationService;
     private final SysPermissionService sysPermissionService;
+    private final SysRoleApplicationRepository sysRoleApplicationRepository;
+    private final SysRolePermissionRepository sysRolePermissionRepository;
 
     @Autowired
     public SysUserServiceImpl(SysUserRepository baseRepository, DozerMapper dozerMapper, EntityManager em,
                               SysUserRoleRepository sysUserRoleRepository, SysDeptRoleRepository sysDeptRoleRepository,
                               SysRoleService sysRoleService, SysApplicationService sysApplicationService,
-                              SysPermissionService sysPermissionService) {
+                              SysPermissionService sysPermissionService,
+                              SysRoleApplicationRepository sysRoleApplicationRepository,
+                              SysRolePermissionRepository sysRolePermissionRepository) {
         super(baseRepository, dozerMapper, em);
         this.sysUserRoleRepository = sysUserRoleRepository;
         this.sysDeptRoleRepository = sysDeptRoleRepository;
         this.sysRoleService = sysRoleService;
         this.sysApplicationService = sysApplicationService;
         this.sysPermissionService = sysPermissionService;
+        this.sysRoleApplicationRepository = sysRoleApplicationRepository;
+        this.sysRolePermissionRepository = sysRolePermissionRepository;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -72,19 +74,13 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
         if (this.checkAccount(model.getAccount())) {
             throw new BusinessException("用户账号已存在");
         }
-        // 用户暂无编码字段
-        model.setCode(null);
-        // 设置默认状态为启用
-        model.setActive(ACTIVE_ON);
-        model.setCreateBy("");
-        model.setCreateTime(LocalDateTime.now());
         // 设置盐
         model.setSalt(RandomUtil.randomChar(GlobalConstants.SALT_LENGTH));
         // 设置密码
         model.setPassword(Md5Util.encrypt(model.getAccount(), GlobalConstants.DEFAULT_PASSWORD, model.getSalt()));
         // 添加用户角色关联
         this.addUserRole(model);
-        this.baseRepository.save(this.converToPo(model));
+        super.insert(model);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -138,6 +134,10 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
         SysUserVO user = this.findOneByParam(BaseParam.of().add(CriteriaParam.equal("account", account).and()));
         // 判断用户信息是否为null
         if (user != null) {
+            // 如果账号被锁则抛出异常
+            if (!ACTIVE_ON.equals(user.getActive())) {
+                throw new LockedAccountException("账号已被冻结，请联系管理员");
+            }
             // 清空密码
             user.setPassword(null);
             // 清空盐
@@ -152,17 +152,52 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
                 .map(SysDeptRolePO::getRoleCode).collect(Collectors.toList()));
             // 判断角色ID集合大小是否大于0
             if (roleCodeSet.size() > 0) {
+                BaseParam roleParam = BaseParam.of()
+                    .add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and())
+                    .add(CriteriaParam.in(CODE_FIELD, new ArrayList<>(roleCodeSet)).and());
                 // 添加用户及用户所属部门拥有的启用角色
-                user.setRoles(this.sysRoleService.findAllByCodes(new ArrayList<>(roleCodeSet)).getList());
-                BaseParam param = BaseParam.of().add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and());
-                // 验证用户是否拥有超级管理员角色
-                if (!checkAdmin(user)) {
-                    param.add(CriteriaParam.in("roleCode", new ArrayList<>(roleCodeSet)).and());
+                user.setRoles(this.sysRoleService.findAllByParam(roleParam).getList());
+                // 判断用户下启用的角色是否为空
+                if (user.getRoles() != null && user.getRoles().size() > 0) {
+                    List<String> roleCodes = user.getRoles().stream()
+                        .map(SysRoleVO::getCode).collect(Collectors.toList());
+                    BaseParam applicationParam = BaseParam.of()
+                        .add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and())
+                        .add(SortParam.asc(SORT_FIELD));
+                    ;
+                    BaseParam permissionParam = BaseParam.of().add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and());
+                    // 验证用户是否拥有超级管理员角色
+                    if (!checkAdmin(user)) {
+                        // 获取角色应用关联
+                        List<SysRoleApplicationPO> roleApplications = this.sysRoleApplicationRepository
+                            .findAllByRoleCodeIn(roleCodes);
+                        // 如果角色应用关联不为空，添加查询条件
+                        if (roleApplications != null && roleApplications.size() > 0) {
+                            List<String> applicationCodes = roleApplications.stream()
+                                .map(SysRoleApplicationPO::getApplicationCode).collect(Collectors.toList());
+                            applicationParam.add(CriteriaParam.in(CODE_FIELD, applicationCodes).and());
+                            applicationParam.add(SortParam.asc(SORT_FIELD));
+                            // 获取角色下的启用应用信息
+                            user.setApplications(this.sysApplicationService.findAllByParam(applicationParam).getList());
+                        }
+                        // 获取角色权限关联
+                        List<SysRolePermissionPO> rolePermissions = this.sysRolePermissionRepository
+                            .findAllByRoleCodeIn(roleCodes);
+                        // 如果角色应用关联不为空，添加查询条件
+                        if (rolePermissions != null && rolePermissions.size() > 0) {
+                            List<String> permissionCodes = rolePermissions.stream()
+                                .map(SysRolePermissionPO::getPermissionCode).collect(Collectors.toList());
+                            permissionParam.add(CriteriaParam.in(CODE_FIELD, permissionCodes).and());
+                            // 获取角色下的启用权限信息
+                            user.setPermissions(this.sysPermissionService.findAllByParam(permissionParam).getList());
+                        }
+                    } else {
+                        // 获取角色下的启用应用信息
+                        user.setApplications(this.sysApplicationService.findAllByParam(applicationParam).getList());
+                        // 获取角色下的启用权限信息
+                        user.setPermissions(this.sysPermissionService.findAllByParam(permissionParam).getList());
+                    }
                 }
-                // 获取角色下的启用应用信息
-                user.setApplications(this.sysApplicationService.findAllByParam(param).getList());
-                // 获取角色下的启用权限信息
-                user.setPermissions(this.sysPermissionService.findAllByParam(param).getList());
             }
         }
         return user;

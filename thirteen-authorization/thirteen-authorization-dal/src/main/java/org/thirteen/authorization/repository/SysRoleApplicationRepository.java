@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import org.thirteen.authorization.model.po.SysRoleApplicationPO;
 import org.thirteen.authorization.repository.base.BaseRepository;
 
+import java.util.List;
+
 /**
  * @author Aaron.Sun
  * @description 角色应用关联数据操作层接口
@@ -32,5 +34,13 @@ public interface SysRoleApplicationRepository extends BaseRepository<SysRoleAppl
     @Modifying
     @Query("delete from SysRoleApplicationPO where applicationCode = ?1")
     void deleteByApplicationCode(String applicationCode);
+
+    /**
+     * 由角色编码集合获取角色下的应用信息集合
+     *
+     * @param roleCodes 角色编码集合
+     * @return 角色下的应用信息集合
+     */
+    List<SysRoleApplicationPO> findAllByRoleCodeIn(List<String> roleCodes);
 
 }

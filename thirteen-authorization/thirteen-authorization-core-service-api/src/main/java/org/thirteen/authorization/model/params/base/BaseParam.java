@@ -50,6 +50,14 @@ public class BaseParam implements Serializable {
         return this;
     }
 
+    public BaseParam add(SortParam sort) {
+        if (this.sorts == null) {
+            this.sorts = new ArrayList<>();
+        }
+        this.sorts.add(sort);
+        return this;
+    }
+
     public BaseParam page(PageParam page) {
         this.page = page;
         return this;
