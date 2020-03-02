@@ -56,7 +56,7 @@ public class LogLoginAspect {
      */
     @Around("loginAspect()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        LogUtil.getLogger().debug("=====开始执行环绕通知=====");
+        LogUtil.getLogger().debug("=====开始执行登录日志环绕通知=====");
         // 登录日志对象
         SysLogLoginVO logLogin = new SysLogLoginVO();
         // 请求来源IP地址
@@ -66,9 +66,9 @@ public class LogLoginAspect {
         // 登录时间
         logLogin.setLoginTime(LocalDateTime.now());
         // 执行被拦截方法
-        ResponseResult result;
+        ResponseResult<?> result;
         try {
-            result = (ResponseResult) joinPoint.proceed();
+            result = (ResponseResult<?>) joinPoint.proceed();
         } catch (Exception e) {
             result = ResponseResult.error(e.getMessage());
         }

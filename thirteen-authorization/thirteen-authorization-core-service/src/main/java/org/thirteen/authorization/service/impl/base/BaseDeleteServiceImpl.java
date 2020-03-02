@@ -24,7 +24,7 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.I
  * @modified by
  */
 public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends BaseDeletePO, R extends BaseRepository<PO, String>>
-    extends BaseServiceImpl<VO, PO, R> implements BaseDeleteService<VO> {
+        extends BaseServiceImpl<VO, PO, R> implements BaseDeleteService<VO> {
 
     public BaseDeleteServiceImpl(R baseRepository, DozerMapper dozerMapper, EntityManager em) {
         super(baseRepository, dozerMapper, em);
@@ -54,7 +54,7 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
         Assert.notNull(id, ID_MUST_NOT_BE_NULL);
         // 动态sql
         String sql = String.format("UPDATE %s SET %s = %s WHERE %s = ?%d",
-            this.poInformation.getClassName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE, ID_FIELD, 1);
+                this.poInformation.getClassName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE, ID_FIELD, 1);
         // 创建查询对象，并执行更新语句
         this.createQuery(sql, id).executeUpdate();
     }
@@ -64,7 +64,7 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     public void deleteInBatch(List<String> ids) {
         Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);
         String sql = this.getDeleteInBatchSql(String.format("UPDATE %s SET %s = %s WHERE",
-            this.poInformation.getClassName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE), ids);
+                this.poInformation.getClassName(), DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_DELETE), ids);
         // 创建查询对象，并执行更新语句
         this.createQuery(sql, ids).executeUpdate();
     }
@@ -72,7 +72,7 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     @Override
     public PagerResult<VO> findAll() {
         return super.findAllByParam(BaseParam.of()
-            .add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and()));
+                .add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and()));
     }
 
     @Override
