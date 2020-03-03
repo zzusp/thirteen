@@ -115,8 +115,8 @@ public class LogOperationAspect {
         } catch (Exception e) {
             result = ResponseResult.error(e.getMessage());
         }
-        logOperation.setMessage(result.getMessage());
         logOperation.setStatus(result.getStatus());
+        logOperation.setMessage(result.getMessage());
         // 记录方法执行的结束时间
         logOperation.setEndTime(LocalDateTime.now());
         logOperation.setOperationValue(targetTags + "-" + operationValue);
@@ -129,7 +129,7 @@ public class LogOperationAspect {
             this.sysLogOperationService.insert(logOperation);
         } catch (Exception e) {
             LogUtil.getLogger().error("新增操作日志失败", e);
-            LogUtil.getLogger().error("日志内容：{}", JsonUtil.toString(logOperation));
+            LogUtil.getLogger().error(String.format("日志内容：%s", JsonUtil.toString(logOperation)));
         }
         return result;
     }
