@@ -23,6 +23,7 @@ public class ResponseResult<T> implements Serializable {
     public static final String SUCCESS_MESSAGE = "请求成功";
     public static final String BAD_MESSAGE = "请求参数类型不匹配！";
     public static final String UNAUTHORIZED_MESSAGE = "您尚未登录或无操作时间过长，请重新登录！";
+    public static final String LOCKED_MESSAGE = "账号已被冻结，请联系管理员！";
     public static final String FORBIDDEN_MESSAGE = "您没有足够的权限执行该操作！";
 
     @ApiModelProperty(example = "200", notes = "状态码")
@@ -83,6 +84,16 @@ public class ResponseResult<T> implements Serializable {
      */
     public static <T> ResponseResult<T> unauthorized(String message) {
         return error(401, message);
+    }
+
+    /**
+     * 请求失败（如：账号被冻结）
+     *
+     * @param <T> 泛型对象
+     * @return 响应结果对象
+     */
+    public static <T> ResponseResult<T> locked() {
+        return error(401, LOCKED_MESSAGE);
     }
 
     /**

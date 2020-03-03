@@ -4,13 +4,13 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.thirteen.authorization.common.utils.JwtUtil;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.exceptions.ForbiddenException;
+import org.thirteen.authorization.exceptions.UnauthorizedException;
 import org.thirteen.authorization.model.vo.SysPermissionVO;
 import org.thirteen.authorization.service.AuthorityService;
 import org.thirteen.authorization.service.SysPermissionService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +63,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         // TODO 需登录判断与需认证判断暂用同一逻辑，待后续拆分
         else if (this.loginUrlList.contains(uri) || this.authUrlList.contains(uri) || this.permsUrlList.contains(uri)) {
             if (StringUtil.isEmpty(JwtUtil.getAccount())) {
-                throw new SignatureException("token失效，请重新登录");
+                throw new UnauthorizedException();
             }
             flag = true;
             // 校验权限

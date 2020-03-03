@@ -63,6 +63,6 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     public SysUserVO getCurrentUser() {
-        return this.sysUserService.findDetailByAccount(JwtUtil.getAccount());
+        return this.sysUserService.findDetailByAccount(this.sysUserService.getCurrentAccount());
     }
 }

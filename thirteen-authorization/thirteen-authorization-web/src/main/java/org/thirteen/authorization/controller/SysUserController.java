@@ -4,8 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.thirteen.authorization.controller.base.BaseRecordController;
@@ -31,7 +31,7 @@ public class SysUserController extends BaseRecordController<SysUserVO, SysUserSe
 
     @ApiOperation(value = "检查账号是否已存在", notes = "检查账号是否已存在，存在返回true，不存在返回false",
         response = ResponseResult.class)
-    @RequestMapping(value = "/checkAccount", method = RequestMethod.GET)
+    @GetMapping(value = "/checkAccount")
     public ResponseResult<Boolean> checkAccount(
         @ApiParam(required = true, value = "账号") @RequestParam("account") String account) {
         return ResponseResult.ok(this.service.checkAccount(account));

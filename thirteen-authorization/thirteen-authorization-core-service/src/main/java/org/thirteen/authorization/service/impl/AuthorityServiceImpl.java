@@ -1,7 +1,6 @@
 package org.thirteen.authorization.service.impl;
 
 import org.springframework.stereotype.Service;
-import org.thirteen.authorization.common.utils.JwtUtil;
 import org.thirteen.authorization.exceptions.BusinessException;
 import org.thirteen.authorization.model.vo.SysPermissionVO;
 import org.thirteen.authorization.model.vo.SysUserVO;
@@ -32,9 +31,9 @@ public class AuthorityServiceImpl implements AuthorityService {
     @Override
     public boolean validate(String url) {
         boolean flag = false;
+        // 获取用户详细信息（包含用户角色、用户权限等信息）
+        SysUserVO user = this.sysUserService.findDetail();
         try {
-            // 获取用户详细信息（包含用户角色、用户权限等信息）
-            SysUserVO user = this.sysUserService.findDetailByAccount(JwtUtil.getAccount());
             if (user != null && user.getPermissions() != null && user.getPermissions().size() > 0) {
                 for (SysPermissionVO perm : user.getPermissions()) {
                     // 判断请求路径是否与权限中的路径匹配

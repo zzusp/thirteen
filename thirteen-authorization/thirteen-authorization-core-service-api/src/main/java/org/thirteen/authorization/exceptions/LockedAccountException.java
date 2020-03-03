@@ -10,6 +10,10 @@ public class LockedAccountException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
+    public LockedAccountException() {
+        super();
+    }
+
     public LockedAccountException(String message) {
         super(message);
     }

@@ -25,32 +25,32 @@ public class ControllerExceptionHandleAdvice {
      * 可以直接写@ExceptionHandler,不指明异常类，会自动映射
      */
     @ExceptionHandler({SignatureException.class, UnauthorizedException.class})
-    public ResponseResult handlerUnauthorized() {
+    public ResponseResult<String> handlerUnauthorized() {
         return ResponseResult.unauthorized();
     }
 
     @ExceptionHandler(LockedAccountException.class)
-    public ResponseResult handlerLockedAccount(LockedAccountException e) {
-        return ResponseResult.unauthorized(e.getMessage());
+    public ResponseResult<String> handlerLockedAccount() {
+        return ResponseResult.locked();
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseResult handlerForbidden() {
+    public ResponseResult<String> handlerForbidden() {
         return ResponseResult.forbidden();
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseResult handlerNotFound(NotFoundException e) {
+    public ResponseResult<String> handlerNotFound(NotFoundException e) {
         return ResponseResult.notFind(e.getMessage());
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseResult handlerBusiness(BusinessException e) {
+    public ResponseResult<String> handlerBusiness(BusinessException e) {
         return ResponseResult.error(e.getMessage());
     }
 
     @ExceptionHandler
-    public ResponseResult handler(HttpServletResponse res, Exception e) {
+    public ResponseResult<String> handler(HttpServletResponse res, Exception e) {
         LogUtil.getLogger().info("Restful Http请求发生异常");
         if (res.getStatus() == HttpStatus.BAD_REQUEST.value()) {
             res.setStatus(HttpStatus.OK.value());

@@ -69,26 +69,26 @@ public abstract class BaseTreeSortServiceImpl<VO extends BaseTreeSortVO, PO exte
     }
 
     @Override
-    public List<VO> findAllParent(String code) {
+    public PagerResult<VO> findAllParent(String code) {
         List<VO> parents = new ArrayList<>();
         VO model = this.findOneByParam(BaseParam.of().add(CriteriaParam.equal(CODE_FIELD, code).and()));
         while (model != null) {
             parents.add(model);
             model = this.findOneByParam(BaseParam.of().add(CriteriaParam.equal(CODE_FIELD, model.getParentCode()).and()));
         }
-        return parents;
+        return PagerResult.of(parents);
     }
 
     @Override
-    public List<VO> findAllChildren(String code) {
+    public PagerResult<VO> findAllChildren(String code) {
         List<VO> children = this.findAllByParam(BaseParam.of()
             .add(CriteriaParam.equal(PARENT_CODE_FIELD, code).and())).getList();
         if (children != null && children.size() > 0) {
             for (VO obj : children) {
-                children.addAll(this.findAllChildren(obj.getCode()));
+                children.addAll(this.findAllChildren(obj.getCode()).getList());
             }
         }
-        return children;
+        return PagerResult.of(children);
     }
 
 }

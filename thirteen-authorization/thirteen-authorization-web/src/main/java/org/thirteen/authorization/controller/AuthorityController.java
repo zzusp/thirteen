@@ -30,13 +30,13 @@ public class AuthorityController {
 
     @ApiOperation(value = "权限验证", notes = "验证对应请求路径是否允许访问", response = ResponseResult.class)
     @GetMapping(value = "/validate")
-    public ResponseResult validate(@ApiParam(required = true, value = "需验证的请求路径") @RequestParam("url") String url) {
+    public ResponseResult<Boolean> validate(@ApiParam(required = true, value = "需验证的请求路径") @RequestParam("url") String url) {
         return ResponseResult.ok(this.authorityService.validate(url));
     }
 
     @ApiOperation(value = "重新加载过滤链", notes = "重新加载过滤链", response = ResponseResult.class)
     @GetMapping(value = "/reloadFilterChains")
-    public ResponseResult reloadFilterChains() {
+    public ResponseResult<String> reloadFilterChains() {
         this.jwtInterceptor.initFilterChains();
         return ResponseResult.ok();
     }

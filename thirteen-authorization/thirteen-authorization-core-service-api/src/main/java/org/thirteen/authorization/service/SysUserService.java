@@ -20,6 +20,35 @@ public interface SysUserService extends BaseRecordService<SysUserVO> {
     boolean checkAccount(String account);
 
     /**
+     * 获取当前登录用户的账号
+     *
+     * @return 当前登录用户的账号
+     */
+    String getCurrentAccount();
+
+    /**
+     * 获取当前登录的用户基本信息（不包含用户角色、用户权限等信息）
+     *
+     * @return 用户基本信息（不包含用户角色、用户权限等信息）
+     */
+    SysUserVO findInfo();
+
+    /**
+     * 由用户账号获取用户基本信息（不包含用户角色、用户权限等信息）
+     *
+     * @param account 用户账号
+     * @return 用户基本信息（不包含用户角色、用户权限等信息）
+     */
+    SysUserVO findInfoByAccount(String account);
+
+    /**
+     * 获取当前登录的用户信息详情（包含用户角色、用户权限等信息）
+     *
+     * @return 用户信息详情（包含用户角色、用户权限等信息）
+     */
+    SysUserVO findDetail();
+
+    /**
      * 由用户账号获取用户信息详情（包含用户角色、用户权限等信息）
      *
      * @param account 用户账号

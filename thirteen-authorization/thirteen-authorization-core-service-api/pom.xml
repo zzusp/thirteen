@@ -13,6 +13,11 @@
   <groupId>thirteen-authorization</groupId>
 
   <dependencies>
+    <!-- spring web -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
     <!-- spring data jpa commons -->
     <dependency>
       <groupId>org.springframework.data</groupId>

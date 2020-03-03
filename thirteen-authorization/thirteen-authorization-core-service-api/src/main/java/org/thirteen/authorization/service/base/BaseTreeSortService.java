@@ -1,8 +1,7 @@
 package org.thirteen.authorization.service.base;
 
 import org.thirteen.authorization.model.vo.base.BaseTreeSortVO;
-
-import java.util.List;
+import org.thirteen.authorization.web.PagerResult;
 
 /**
  * @author Aaron.Sun
@@ -26,7 +25,7 @@ public interface BaseTreeSortService<VO extends BaseTreeSortVO> extends BaseReco
      * @param code 编码
      * @return 所有上级节点信息（包括传入节点信息）
      */
-    List<VO> findAllParent(String code);
+    PagerResult<VO> findAllParent(String code);
 
     /**
      * 通过编码获取所有下级节点信息
@@ -34,6 +33,6 @@ public interface BaseTreeSortService<VO extends BaseTreeSortVO> extends BaseReco
      * @param code 编码
      * @return 所有下级节点信息（不包括传入节点信息）,非树形结构
      */
-    List<VO> findAllChildren(String code);
+    PagerResult<VO> findAllChildren(String code);
 
 }
