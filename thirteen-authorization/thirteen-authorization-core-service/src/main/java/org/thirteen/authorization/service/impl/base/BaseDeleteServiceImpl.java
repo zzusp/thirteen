@@ -70,6 +70,22 @@ public abstract class BaseDeleteServiceImpl<VO extends BaseDeleteVO, PO extends 
     }
 
     @Override
+    public VO findById(String id) {
+        Assert.notNull(id, ID_MUST_NOT_BE_NULL);
+        return this.findOneByParam(BaseParam.of()
+            .add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and())
+            .add(CriteriaParam.equal(ID_FIELD, id).and()));
+    }
+
+    @Override
+    public PagerResult<VO> findByIds(List<String> ids) {
+        Assert.notEmpty(ids, ID_COLLECTION_MUST_NOT_BE_EMPTY);
+        return this.findAllByParam(BaseParam.of()
+            .add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and())
+            .add(CriteriaParam.in(ID_FIELD, ids).and()));
+    }
+
+    @Override
     public PagerResult<VO> findAll() {
         return super.findAllByParam(BaseParam.of()
             .add(CriteriaParam.equal(DEL_FLAG_FIELD, BaseDeletePO.DEL_FLAG_NORMAL).and()));

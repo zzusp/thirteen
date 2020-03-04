@@ -14,7 +14,6 @@ import org.thirteen.authorization.service.impl.base.BaseTreeSortServiceImpl;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Aaron.Sun
@@ -40,7 +39,7 @@ public class SysApplicationServiceImpl
     @Override
     public void delete(String id) {
         // 删除所有应用关联
-        this.removeAllRelation(id);
+        this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getCode()));
         super.delete(id);
     }
 
@@ -48,20 +47,20 @@ public class SysApplicationServiceImpl
     @Override
     public void deleteInBatch(List<String> ids) {
         // 删除所有应用关联
-        ids.forEach(this::removeAllRelation);
+        ids.forEach(id -> {
+            this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getCode()));
+        });
         super.deleteInBatch(ids);
     }
 
     /**
      * 删除所有应用关联（方法名remove开头，与delete区分开，沿用调用方法的事务）
      *
-     * @param applicationId 应用ID
+     * @param applicationCode 应用编码
      */
-    private void removeAllRelation(String applicationId) throws BusinessException {
+    private void removeAllRelation(String applicationCode) throws BusinessException {
         try {
-            Optional<SysApplicationPO> optional = this.baseRepository.findById(applicationId);
-            // 删除所有关联
-            optional.ifPresent(model -> this.sysRoleApplicationRepository.deleteByApplicationCode(model.getCode()));
+            this.sysRoleApplicationRepository.deleteByApplicationCode(applicationCode);
         } catch (Exception e) {
             throw new BusinessException("删除所有应用关联失败", e.getCause());
         }

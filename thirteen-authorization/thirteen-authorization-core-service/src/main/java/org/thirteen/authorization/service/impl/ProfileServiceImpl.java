@@ -3,6 +3,7 @@ package org.thirteen.authorization.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.thirteen.authorization.common.utils.DateUtil;
 import org.thirteen.authorization.common.utils.Md5Util;
@@ -47,6 +48,7 @@ public class ProfileServiceImpl implements ProfileService {
      *
      * @param avatar 用户头像
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void uploadAvatar(MultipartFile avatar) {
         if (avatar.isEmpty()) {
@@ -88,6 +90,7 @@ public class ProfileServiceImpl implements ProfileService {
      *
      * @param model 个人信息
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void profileSetting(SysUserVO model) {
         SysUserPO user = this.sysUserRepository.findByAccount(this.sysUserService.getCurrentAccount());
@@ -106,6 +109,7 @@ public class ProfileServiceImpl implements ProfileService {
      * @param newPassword 新密码
      * @param confirm     密码确认
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void passwordEdit(String oldPassword, String newPassword, String confirm) {
         SysUserPO user = this.sysUserRepository.findByAccount(this.sysUserService.getCurrentAccount());

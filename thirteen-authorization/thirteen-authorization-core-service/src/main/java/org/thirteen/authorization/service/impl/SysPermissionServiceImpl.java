@@ -14,7 +14,6 @@ import org.thirteen.authorization.service.impl.base.BaseRecordServiceImpl;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Aaron.Sun
@@ -40,7 +39,7 @@ public class SysPermissionServiceImpl
     @Override
     public void delete(String id) {
         // 删除所有权限关联
-        this.removeAllRelation(id);
+        this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getCode()));
         super.delete(id);
     }
 
@@ -48,20 +47,20 @@ public class SysPermissionServiceImpl
     @Override
     public void deleteInBatch(List<String> ids) {
         // 删除所有权限关联
-        ids.forEach(this::removeAllRelation);
+        ids.forEach(id -> {
+            this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getCode()));
+        });
         super.deleteInBatch(ids);
     }
 
     /**
      * 删除所有权限关联（方法名remove开头，与delete区分开，沿用调用方法的事务）
      *
-     * @param permissionId 权限ID
+     * @param permissionCode 权限编码
      */
-    private void removeAllRelation(String permissionId) throws BusinessException {
+    private void removeAllRelation(String permissionCode) throws BusinessException {
         try {
-            Optional<SysPermissionPO> optional = this.baseRepository.findById(permissionId);
-            // 删除所有关联
-            optional.ifPresent(model -> this.sysRolePermissionRepository.deleteByPermissionCode(model.getCode()));
+            this.sysRolePermissionRepository.deleteByPermissionCode(permissionCode);
         } catch (Exception e) {
             throw new BusinessException("删除所有权限关联失败", e.getCause());
         }

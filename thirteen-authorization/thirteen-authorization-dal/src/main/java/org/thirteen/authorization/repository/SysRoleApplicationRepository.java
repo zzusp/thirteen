@@ -38,6 +38,14 @@ public interface SysRoleApplicationRepository extends BaseRepository<SysRoleAppl
     /**
      * 由角色编码集合获取角色下的应用信息集合
      *
+     * @param roleCode 角色编码
+     * @return 角色下的应用信息集合
+     */
+    List<SysRoleApplicationPO> findAllByRoleCode(String roleCode);
+
+    /**
+     * 由角色编码集合获取角色下的应用信息集合
+     *
      * @param roleCodes 角色编码集合
      * @return 角色下的应用信息集合
      */

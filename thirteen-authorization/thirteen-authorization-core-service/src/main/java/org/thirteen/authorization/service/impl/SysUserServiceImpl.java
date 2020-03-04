@@ -28,7 +28,10 @@ import org.thirteen.authorization.service.SysUserService;
 import org.thirteen.authorization.service.impl.base.BaseRecordServiceImpl;
 
 import javax.persistence.EntityManager;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_ON;
@@ -90,7 +93,7 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
     @Override
     public void update(SysUserVO model) {
         // 删除用户角色关联
-        this.removeAllRelation(model.getId());
+        this.removeAllRelation(model.getAccount());
         // 添加用户角色关联
         this.addUserRole(model);
         super.update(model);
@@ -100,7 +103,7 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
     @Override
     public void delete(String id) {
         // 删除所有用户关联
-        this.removeAllRelation(id);
+        this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getAccount()));
         super.delete(id);
     }
 
@@ -108,8 +111,29 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
     @Override
     public void deleteInBatch(List<String> ids) {
         // 删除所有用户关联
-        ids.forEach(this::removeAllRelation);
+        ids.forEach(id -> {
+            this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getAccount()));
+        });
         super.deleteInBatch(ids);
+    }
+
+    @Override
+    public SysUserVO findById(String id) {
+        SysUserVO model = super.findById(id);
+        if (model != null) {
+            // 获取所有用户角色的关联
+            List<SysUserRolePO> userRoles = this.sysUserRoleRepository.findAllByAccount(model.getAccount());
+            if (userRoles != null && userRoles.size() > 0) {
+                List<String> roleCodes = userRoles.stream()
+                    .map(SysUserRolePO::getRoleCode).collect(Collectors.toList());
+                BaseParam roleParam = BaseParam.of()
+                    .add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and())
+                    .add(CriteriaParam.in(CODE_FIELD, roleCodes).and());
+                // 添加用户拥有的启用角色
+                model.setRoles(this.sysRoleService.findAllByParam(roleParam).getList());
+            }
+        }
+        return model;
     }
 
     /**
@@ -163,10 +187,6 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
         SysUserVO user = this.findOneByParam(BaseParam.of().add(CriteriaParam.equal("account", account).and()));
         // 判断用户信息是否为null
         if (user != null) {
-            // 如果账号被锁则抛出异常
-            if (!ACTIVE_ON.equals(user.getActive())) {
-                throw new LockedAccountException();
-            }
             // 清空密码
             user.setPassword(null);
             // 清空盐
@@ -197,6 +217,10 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
     public SysUserVO findDetailByAccount(String account) {
         // 由账号获取用户基本信息
         SysUserVO user = this.findInfoByAccount(account);
+        // 如果账号被锁则抛出异常
+        if (!ACTIVE_ON.equals(user.getActive())) {
+            throw new LockedAccountException();
+        }
         // 角色ID去重临时变量
         Set<String> roleCodeSet = new HashSet<>();
         // 获取所有与用户关联的角色编码
@@ -219,7 +243,6 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
                 BaseParam applicationParam = BaseParam.of()
                     .add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and())
                     .add(SortParam.asc(SORT_FIELD));
-                ;
                 BaseParam permissionParam = BaseParam.of().add(CriteriaParam.equal(ACTIVE_FIELD, ACTIVE_ON).and());
                 // 验证用户是否拥有超级管理员角色
                 if (!checkAdmin(user)) {
@@ -231,7 +254,6 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
                         List<String> applicationCodes = roleApplications.stream()
                             .map(SysRoleApplicationPO::getApplicationCode).collect(Collectors.toList());
                         applicationParam.add(CriteriaParam.in(CODE_FIELD, applicationCodes).and());
-                        applicationParam.add(SortParam.asc(SORT_FIELD));
                         // 获取角色下的启用应用信息
                         user.setApplications(this.sysApplicationService.findAllByParam(applicationParam).getList());
                     }
@@ -280,13 +302,11 @@ public class SysUserServiceImpl extends BaseRecordServiceImpl<SysUserVO, SysUser
     /**
      * 删除所有用户关联（方法名remove开头，与delete区分开，沿用调用方法的事务）
      *
-     * @param userId 用户ID
+     * @param account 用户账号
      */
-    private void removeAllRelation(String userId) throws BusinessException {
+    private void removeAllRelation(String account) throws BusinessException {
         try {
-            Optional<SysUserPO> optional = this.baseRepository.findById(userId);
-            // 删除所有关联
-            optional.ifPresent(model -> this.sysUserRoleRepository.deleteByAccount(model.getCode()));
+            this.sysUserRoleRepository.deleteByAccount(account);
         } catch (Exception e) {
             throw new BusinessException("删除所有用户关联失败", e.getCause());
         }

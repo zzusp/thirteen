@@ -16,7 +16,6 @@ import org.thirteen.authorization.service.impl.base.BaseTreeSortServiceImpl;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +61,7 @@ public class SysDeptServiceImpl extends BaseTreeSortServiceImpl<SysDeptVO, SysDe
     @Override
     public void delete(String id) {
         // 删除所有部门关联
-        this.removeAllRelation(id);
+        this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getCode()));
         super.delete(id);
     }
 
@@ -70,7 +69,9 @@ public class SysDeptServiceImpl extends BaseTreeSortServiceImpl<SysDeptVO, SysDe
     @Override
     public void deleteInBatch(List<String> ids) {
         // 删除所有部门关联
-        ids.forEach(this::removeAllRelation);
+        ids.forEach(id -> {
+            this.baseRepository.findById(id).ifPresent(item -> this.removeAllRelation(item.getCode()));
+        });
         super.deleteInBatch(ids);
     }
 
@@ -103,13 +104,12 @@ public class SysDeptServiceImpl extends BaseTreeSortServiceImpl<SysDeptVO, SysDe
     /**
      * 删除所有部门关联（方法名remove开头，与delete区分开，沿用调用方法的事务）
      *
-     * @param deptId 部门ID
+     * @param deptCode 部门编码
      */
-    private void removeAllRelation(String deptId) throws BusinessException {
+    private void removeAllRelation(String deptCode) throws BusinessException {
         try {
-            Optional<SysDeptPO> optional = this.baseRepository.findById(deptId);
             // 删除所有关联
-            optional.ifPresent(model -> this.sysDeptRoleRepository.deleteByDeptCode(model.getCode()));
+            this.sysDeptRoleRepository.deleteByDeptCode(deptCode);
         } catch (Exception e) {
             throw new BusinessException("删除所有部门关联失败", e.getCause());
         }

@@ -38,6 +38,14 @@ public interface SysRolePermissionRepository extends BaseRepository<SysRolePermi
     /**
      * 由角色编码集合获取角色下的权限信息集合
      *
+     * @param roleCode 角色编码
+     * @return 角色下的权限信息集合
+     */
+    List<SysRolePermissionPO> findAllByRoleCode(String roleCode);
+
+    /**
+     * 由角色编码集合获取角色下的权限信息集合
+     *
      * @param roleCodes 角色编码集合
      * @return 角色下的权限信息集合
      */

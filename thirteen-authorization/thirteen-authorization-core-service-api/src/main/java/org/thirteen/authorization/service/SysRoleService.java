@@ -10,4 +10,20 @@ import org.thirteen.authorization.service.base.BaseRecordService;
  * @modified By
  */
 public interface SysRoleService extends BaseRecordService<SysRoleVO> {
+
+    /**
+     * 由角色ID获取角色信息包含拥有的模块及权限
+     *
+     * @param id 角色ID
+     * @return 角色信息包含拥有的模块及权限
+     */
+    SysRoleVO findDetailById(String id);
+
+    /**
+     * 角色授权
+     *
+     * @param model 角色信息（包含应用权限信息）
+     */
+    void authorize(SysRoleVO model);
+
 }
