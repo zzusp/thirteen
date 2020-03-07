@@ -86,6 +86,9 @@ spring:
         # sql格式
         format_sql: true
 
+# redisToken过期时间（6h），类似于session过期时间，在这段时间内token过期会自动续签
+redis-token-expire: 21600
+
 # 文件上传路径，根据实际情况调整
 upload:
   tmp: C:\tmp\

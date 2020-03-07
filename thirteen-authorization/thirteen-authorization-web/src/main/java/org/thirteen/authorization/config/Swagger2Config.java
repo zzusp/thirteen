@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.thirteen.authorization.interceptor.JwtInterceptor;
+import org.thirteen.authorization.redis.service.RedisTokenService;
 import org.thirteen.authorization.service.AuthorityService;
 import org.thirteen.authorization.service.SysPermissionService;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -45,6 +46,8 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
     private SysPermissionService sysPermissionService;
     @Autowired
     private AuthorityService authorityService;
+    @Autowired
+    private RedisTokenService redisTokenService;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -54,7 +57,7 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
 
     @Bean
     public JwtInterceptor jwtInterceptor() {
-        return new JwtInterceptor(sysPermissionService, authorityService);
+        return new JwtInterceptor(sysPermissionService, authorityService, redisTokenService);
     }
 
     /**
