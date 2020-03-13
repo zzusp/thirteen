@@ -27,7 +27,7 @@ spring:
     # 端口
     port: 6379
     # 密码
-    # password:
+    password: V6ZuPvR1M2UA
     jedis:
       pool:
         # 最大空闲连接数
@@ -50,7 +50,7 @@ spring:
       &failOverReadOnly=false
       &serverTimezone=CTT
     username: root
-    password:
+    password: GoGP8De3jMy&
     # hikari数据库连接池
     hikari:
       pool-name: Auth_HikariCP
@@ -91,11 +91,11 @@ redis-token-expire: 21600
 
 # 文件上传路径，根据实际情况调整
 upload:
-  tmp: /usr/local/soft/jenkins/thirteen-authority/tmp/
-  path: /usr/local/soft/jenkins/thirteen-authority/upload/
+  tmp: /usr/local/soft/jenkins/thirteen-authorization/tmp/
+  path: /usr/local/soft/jenkins/thirteen-authorization/upload/
 
 # GeoLite2 数据库目标路径
 geolite2:
   city:
     db:
-      path: /usr/local/soft/jenkins/thirteen-authority/geolite2_db/GeoLite2-City.mmdb
+      path: /usr/local/soft/jenkins/thirteen-authorization/geolite2_db/GeoLite2-City.mmdb
