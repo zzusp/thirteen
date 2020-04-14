@@ -39,21 +39,8 @@ public class RedisTokenServiceImpl implements RedisTokenService {
      */
     @Override
     public void put(String token, RedisToken redisToken) {
+        // TODO 只有顶级Key上可以配置过期，过期自动删除待完善
         this.redisTemplate.boundHashOps(RedisKey.REDIS_TKONE_GROUP).put(token, redisToken);
-        // 设置失效时间为1小时
-        this.redisTemplate.expire(redisToken.getToken(), redisTokenExpire, TimeUnit.SECONDS);
-    }
-
-    /**
-     * 重新设置redisToken，先删除后插入
-     *
-     * @param token      token
-     * @param redisToken redisToken
-     */
-    @Override
-    public void rePut(String token, RedisToken redisToken) {
-        this.delete(token);
-        this.put(token, redisToken);
     }
 
     /**

@@ -28,8 +28,6 @@ import static org.thirteen.authorization.constant.GlobalConstants.ACTIVE_ON;
 @Service
 public class LoginServiceImpl implements LoginService {
 
-    /** jwt分发token的过期时间，单位毫秒，默认1小时 */
-    private final static long SIGN_EXPIRE = 60 * 60 * 1000;
     private final SysUserService sysUserService;
     private final SysUserRepository sysUserRepository;
     private final RedisTokenService redisTokenService;
@@ -64,7 +62,7 @@ public class LoginServiceImpl implements LoginService {
             throw new BusinessException("账号或密码错误");
         }
         // 分配token
-        String token = JwtUtil.sign(account, SIGN_EXPIRE);
+        String token = JwtUtil.sign(account);
         // 存储token到redis
         try {
             RedisToken redisToken = new RedisToken();

@@ -22,14 +22,6 @@ public interface RedisTokenService {
     void put(String token, RedisToken redisToken);
 
     /**
-     * 重新设置redisToken，先删除后插入
-     *
-     * @param token      token
-     * @param redisToken redisToken
-     */
-    void rePut(String token, RedisToken redisToken);
-
-    /**
      * 由token获取redisToken
      *
      * @param token token

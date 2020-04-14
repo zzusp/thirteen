@@ -94,7 +94,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
                     JwtUtil.verify(redisToken.getToken());
                     // 更新最后一次访问时间
                     redisToken.setLastAccessTime(now);
-                    this.redisTokenService.rePut(token, redisToken);
+                    this.redisTokenService.put(token, redisToken);
                     // 如果未过期，设置当前用户账号到threadLocal
                     JwtUtil.setAccount(redisToken.getAccount());
                 } catch (Exception e) {
@@ -105,7 +105,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
                         redisToken.setReSignTime(JwtUtil.getIssuedAtDateFromToken(redisToken.getToken()));
                         redisToken.setLastAccessTime(redisToken.getReSignTime());
                         // 续签
-                        this.redisTokenService.rePut(token, redisToken);
+                        this.redisTokenService.put(token, redisToken);
                         // 设置当前用户账号到threadLocal
                         JwtUtil.setAccount(redisToken.getAccount());
                     } else {
