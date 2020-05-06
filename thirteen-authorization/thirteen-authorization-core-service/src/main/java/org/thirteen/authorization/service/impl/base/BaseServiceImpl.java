@@ -199,14 +199,15 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
             result = PagerResult.of(page.getTotalElements(), this.converToVo(page.getContent()));
         } else {
             if (specification != null && sort != null) {
-                result = PagerResult.of(this.converToVo(this.baseRepository.findAll(specification, sort)));
-            } else if (specification != null) {
-                result = PagerResult.of(this.converToVo(this.baseRepository.findAll(specification)));
-            } else if (sort != null) {
-                result = PagerResult.of(this.converToVo(this.baseRepository.findAll(sort)));
-            } else {
-                result = PagerResult.of(this.converToVo(this.baseRepository.findAll()));
+                return PagerResult.of(this.converToVo(this.baseRepository.findAll(specification, sort)));
             }
+            if (specification != null) {
+                return PagerResult.of(this.converToVo(this.baseRepository.findAll(specification)));
+            }
+            if (sort != null) {
+                return PagerResult.of(this.converToVo(this.baseRepository.findAll(sort)));
+            }
+            result = PagerResult.of(this.converToVo(this.baseRepository.findAll()));
         }
         return result;
     }
@@ -383,11 +384,13 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
             if (StringUtil.isNotEmpty(item.getField())) {
                 if (StringUtil.isEmpty(item.getOrderBy()) || SortParam.ASC.equals(item.getOrderBy())) {
                     orders.add(Sort.Order.asc(item.getField()));
-                } else if (SortParam.DESC.equals(item.getOrderBy())) {
-                    orders.add(Sort.Order.desc(item.getField()));
-                } else {
-                    throw new ParamErrorException("非法排序关键字 " + item.getOrderBy());
+                    continue;
                 }
+                if (SortParam.DESC.equals(item.getOrderBy())) {
+                    orders.add(Sort.Order.desc(item.getField()));
+                    continue;
+                }
+                throw new ParamErrorException("非法排序关键字 " + item.getOrderBy());
             }
         }
         return Sort.by(orders);
@@ -412,37 +415,40 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
         // 循环中的变量
         Predicate predicate = null;
         // 防止恶意攻击，导致栈溢出，限制深度最多为5层
-        if (deep < MAX_DEEP) {
-            // 深度加1
-            deep++;
-            // 遍历条件参数集合
-            for (CriteriaParam item : criterias) {
-                // 判断字段名是否包含"."，如果包含则continue
-                if (item.getFeild().contains(".")) {
+        if (deep >= MAX_DEEP) {
+            throw new ParamErrorException("条件深度最大为5层");
+        }
+        // 深度加1
+        deep++;
+        // 遍历条件参数集合
+        for (CriteriaParam item : criterias) {
+            // 判断字段名是否包含"."，如果包含则continue
+            if (item.getFeild().contains(".")) {
+                continue;
+            }
+            // 判断条件组是否为空
+            if (item.getCriterias() != null && item.getCriterias().size() > 0) {
+                predicate = this.setCriteria(root, cb, item.getCriterias(), deep);
+            } else {
+                predicate = this.predicateHandle(root, cb, item);
+            }
+            // 判断jpa查询参数是否为空
+            if (result == null) {
+                result = predicate;
+                continue;
+            }
+            if (predicate != null) {
+                // 判断条件间关系（默认关系为AND）
+                if (StringUtil.isEmpty(item.getRelation()) || CriteriaParam.AND.equals(item.getRelation())) {
+                    result = cb.and(result, predicate);
                     continue;
                 }
-                // 判断条件组是否为空
-                if (item.getCriterias() != null && item.getCriterias().size() > 0) {
-                    predicate = this.setCriteria(root, cb, item.getCriterias(), deep);
-                } else {
-                    predicate = this.predicateHandle(root, cb, item);
+                if (CriteriaParam.OR.equals(item.getRelation())) {
+                    result = cb.or(result, predicate);
+                    continue;
                 }
-                // 判断jpa查询参数是否为空
-                if (result == null) {
-                    result = predicate;
-                } else if (predicate != null) {
-                    // 判断条件间关系（默认关系为AND）
-                    if (StringUtil.isEmpty(item.getRelation()) || CriteriaParam.AND.equals(item.getRelation())) {
-                        result = cb.and(result, predicate);
-                    } else if (CriteriaParam.OR.equals(item.getRelation())) {
-                        result = cb.or(result, predicate);
-                    } else {
-                        throw new ParamErrorException("非法关系 " + item.getRelation());
-                    }
-                }
+                throw new ParamErrorException("非法关系 " + item.getRelation());
             }
-        } else {
-            throw new ParamErrorException("条件深度最大为5层");
         }
         return result;
     }

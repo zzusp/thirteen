@@ -59,21 +59,26 @@ public class ControllerExceptionHandleAdvice {
         // 针对不同的异常类型，返回对应的信息
         if (e instanceof HttpRequestMethodNotSupportedException) {
             return ResponseResult.error(e.getMessage());
-        } else if (e instanceof NullPointerException) {
-            return ResponseResult.error("发生空指针异常");
-        } else if (e instanceof IllegalArgumentException) {
-            return ResponseResult.bad("请求参数类型不匹配");
-        } else if (e instanceof SQLException) {
-            return ResponseResult.error("数据库访问异常");
-        } else if (e instanceof DataNotFoundException) {
-            return ResponseResult.error(e.getMessage());
-        } else if (e instanceof ParamErrorException) {
-            return ResponseResult.error(e.getMessage());
-        } else if (e instanceof EntityErrorException) {
-            return ResponseResult.error("实体类异常");
-        } else {
-            return ResponseResult.error("请求失败,请联系管理员");
         }
+        if (e instanceof NullPointerException) {
+            return ResponseResult.error("发生空指针异常");
+        }
+        if (e instanceof IllegalArgumentException) {
+            return ResponseResult.bad("请求参数类型不匹配");
+        }
+        if (e instanceof SQLException) {
+            return ResponseResult.error("数据库访问异常");
+        }
+        if (e instanceof DataNotFoundException) {
+            return ResponseResult.error(e.getMessage());
+        }
+        if (e instanceof ParamErrorException) {
+            return ResponseResult.error(e.getMessage());
+        }
+        if (e instanceof EntityErrorException) {
+            return ResponseResult.error("实体类异常");
+        }
+        return ResponseResult.error("请求失败,请联系管理员");
     }
 
 }

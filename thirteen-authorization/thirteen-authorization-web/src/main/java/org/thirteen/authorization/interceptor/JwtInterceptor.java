@@ -136,12 +136,17 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
             // 判断权限是否启用
             if (ACTIVE_ON.equals(permission.getActive())) {
                 // 根据不同的权限类型，设置不同的拦截链
-                if (PERMISSION_LOGIN.equals(permission.getType())) {
-                    this.loginUrlList.add(permission.getUrl());
-                } else if (PERMISSION_AUTHOR.equals(permission.getType())) {
-                    this.authUrlList.add(permission.getUrl());
-                } else if (PERMISSION_PERMS.equals(permission.getType())) {
-                    this.permsUrlList.add(permission.getUrl());
+                switch (permission.getType()) {
+                    case PERMISSION_LOGIN:
+                        this.loginUrlList.add(permission.getUrl());
+                        break;
+                    case PERMISSION_AUTHOR:
+                        this.authUrlList.add(permission.getUrl());
+                        break;
+                    case PERMISSION_PERMS:
+                        this.permsUrlList.add(permission.getUrl());
+                        break;
+                    default:
                 }
             }
         }

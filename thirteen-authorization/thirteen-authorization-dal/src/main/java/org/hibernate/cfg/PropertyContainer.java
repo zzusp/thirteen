@@ -212,25 +212,29 @@ class PropertyContainer {
     private static boolean discoverTypeWithoutReflection(XProperty p) {
         if (p.isAnnotationPresent(OneToOne.class) && !((OneToOne) p.getAnnotation(OneToOne.class)).targetEntity().equals(Void.TYPE)) {
             return true;
-        } else if (p.isAnnotationPresent(OneToMany.class) && !((OneToMany) p.getAnnotation(OneToMany.class)).targetEntity().equals(Void.TYPE)) {
+        }
+        if (p.isAnnotationPresent(OneToMany.class) && !((OneToMany) p.getAnnotation(OneToMany.class)).targetEntity().equals(Void.TYPE)) {
             return true;
-        } else if (p.isAnnotationPresent(ManyToOne.class) && !((ManyToOne) p.getAnnotation(ManyToOne.class)).targetEntity().equals(Void.TYPE)) {
+        }
+        if (p.isAnnotationPresent(ManyToOne.class) && !((ManyToOne) p.getAnnotation(ManyToOne.class)).targetEntity().equals(Void.TYPE)) {
             return true;
-        } else if (p.isAnnotationPresent(ManyToMany.class) && !((ManyToMany) p.getAnnotation(ManyToMany.class)).targetEntity().equals(Void.TYPE)) {
+        }
+        if (p.isAnnotationPresent(ManyToMany.class) && !((ManyToMany) p.getAnnotation(ManyToMany.class)).targetEntity().equals(Void.TYPE)) {
             return true;
-        } else if (p.isAnnotationPresent(Any.class)) {
+        }
+        if (p.isAnnotationPresent(Any.class)) {
             return true;
-        } else if (p.isAnnotationPresent(ManyToAny.class)) {
+        }
+        if (p.isAnnotationPresent(ManyToAny.class)) {
             if (!p.isCollection() && !p.isArray()) {
                 throw new AnnotationException("@ManyToAny used on a non collection non array property: " + p.getName());
-            } else {
-                return true;
             }
-        } else if (p.isAnnotationPresent(Type.class)) {
             return true;
-        } else {
-            return p.isAnnotationPresent(Target.class);
         }
+        if (p.isAnnotationPresent(Type.class)) {
+            return true;
+        }
+        return p.isAnnotationPresent(Target.class);
     }
 
     private static boolean mustBeSkipped(XProperty property) {
