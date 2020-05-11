@@ -1,5 +1,7 @@
 package org.thirteen.authorization.service.impl.base;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -7,7 +9,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.thirteen.authorization.common.utils.JsonUtil;
-import org.thirteen.authorization.common.utils.LogUtil;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.dozer.DozerMapper;
 import org.thirteen.authorization.exceptions.ParamErrorException;
@@ -45,6 +46,7 @@ import static org.thirteen.authorization.service.support.base.ModelInformation.I
 public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R extends BaseRepository<PO, String>>
     implements BaseService<VO> {
 
+    private static final Logger logger = LoggerFactory.getLogger(BaseServiceImpl.class);
     protected static final String ID_MUST_NOT_BE_NULL = "ID不能为null";
     protected static final String ID_COLLECTION_MUST_NOT_BE_EMPTY = "ID集合不能为空";
     protected static final String VO_MUST_NOT_BE_NULL = "VO对象不能为null";
@@ -170,7 +172,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @Override
     public PagerResult<VO> findAllByParam(BaseParam param) {
         Assert.notNull(param, PARAM_MUST_NOT_BE_EMPTY);
-        LogUtil.getLogger().debug(String.format("查询参数：%s", JsonUtil.toString(param)));
+        logger.debug(String.format("查询参数：%s", JsonUtil.toString(param)));
         PagerResult<VO> result;
         Specification<PO> specification = null;
         Sort sort = null;

@@ -10,7 +10,6 @@ import org.thirteen.authorization.redis.token.RedisToken;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Aaron.Sun

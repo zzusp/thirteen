@@ -1,5 +1,8 @@
 package org.thirteen.authorization.common.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -11,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class Md5Util {
 
+    private static final Logger logger = LoggerFactory.getLogger(Md5Util.class);
     private static MessageDigest digest = null;
 
     /**
@@ -27,7 +31,7 @@ public class Md5Util {
             try {
                 digest = MessageDigest.getInstance("MD5");
             } catch (NoSuchAlgorithmException nsae) {
-                LogUtil.getLogger().error("Failed to load the MD5 MessageDigest. " + "Epx will be unable to function normally.", nsae);
+                logger.error("Failed to load the MD5 MessageDigest. " + "Epx will be unable to function normally.", nsae);
             }
         }
         // 计算哈希

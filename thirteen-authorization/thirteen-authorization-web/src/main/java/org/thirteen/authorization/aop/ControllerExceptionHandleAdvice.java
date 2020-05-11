@@ -1,10 +1,11 @@
 package org.thirteen.authorization.aop;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.thirteen.authorization.common.utils.LogUtil;
 import org.thirteen.authorization.exceptions.*;
 import org.thirteen.authorization.web.ResponseResult;
 
@@ -20,6 +21,8 @@ import java.sql.SQLException;
  */
 @RestControllerAdvice
 public class ControllerExceptionHandleAdvice {
+
+    private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandleAdvice.class);
 
     /**
      * 可以直接写@ExceptionHandler,不指明异常类，会自动映射
@@ -51,11 +54,11 @@ public class ControllerExceptionHandleAdvice {
 
     @ExceptionHandler
     public ResponseResult<String> handler(HttpServletResponse res, Exception e) {
-        LogUtil.getLogger().info("Restful Http请求发生异常");
+        logger.info("Restful Http请求发生异常");
         if (res.getStatus() == HttpStatus.BAD_REQUEST.value()) {
             res.setStatus(HttpStatus.OK.value());
         }
-        LogUtil.getLogger().error("请求异常：", e);
+        logger.error("请求异常：", e);
         // 针对不同的异常类型，返回对应的信息
         if (e instanceof HttpRequestMethodNotSupportedException) {
             return ResponseResult.error(e.getMessage());

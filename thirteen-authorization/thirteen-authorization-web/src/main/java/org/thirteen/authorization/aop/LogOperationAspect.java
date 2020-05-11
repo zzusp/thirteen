@@ -5,9 +5,14 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.thirteen.authorization.common.utils.*;
+import org.thirteen.authorization.common.utils.JsonUtil;
+import org.thirteen.authorization.common.utils.JwtUtil;
+import org.thirteen.authorization.common.utils.StringUtil;
+import org.thirteen.authorization.common.utils.WebUtil;
 import org.thirteen.authorization.model.vo.SysLogOperationVO;
 import org.thirteen.authorization.service.SysLogOperationService;
 import org.thirteen.authorization.web.ResponseResult;
@@ -26,6 +31,7 @@ import java.time.LocalDateTime;
 @Component
 public class LogOperationAspect {
 
+    private static final Logger logger = LoggerFactory.getLogger(LogOperationAspect.class);
     private final SysLogOperationService sysLogOperationService;
     private final HttpServletRequest request;
 
@@ -55,7 +61,7 @@ public class LogOperationAspect {
      */
     @Around("operationAspect()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        LogUtil.getLogger().debug("=====开始执行操作环绕通知=====");
+        logger.debug("=====开始执行操作环绕通知=====");
         SysLogOperationVO logOperation = new SysLogOperationVO();
         // 目标类名
         String targetName = joinPoint.getTarget().getClass().getName();
@@ -103,7 +109,7 @@ public class LogOperationAspect {
             }
         } catch (ClassNotFoundException e) {
             // 记录本地异常日志
-            LogUtil.getLogger().error(String.format("获取当前执行方法信息失败，异常方法:%s 异常代码:%s 异常信息:%s",
+            logger.error(String.format("获取当前执行方法信息失败，异常方法:%s 异常代码:%s 异常信息:%s",
                 targetName + "." + methodName, e.getClass().getName(), e.getMessage()), e);
         }
         // 执行被拦截方法
@@ -128,8 +134,8 @@ public class LogOperationAspect {
         try {
             this.sysLogOperationService.insert(logOperation);
         } catch (Exception e) {
-            LogUtil.getLogger().error("新增操作日志失败", e);
-            LogUtil.getLogger().error(String.format("日志内容：%s", JsonUtil.toString(logOperation)));
+            logger.error("新增操作日志失败", e);
+            logger.error(String.format("日志内容：%s", JsonUtil.toString(logOperation)));
         }
         return result;
     }

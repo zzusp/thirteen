@@ -6,9 +6,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.thirteen.authorization.common.utils.LogUtil;
+import org.thirteen.authorization.common.utils.Md5Util;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.common.utils.WebUtil;
 import org.thirteen.authorization.model.vo.SysLogLoginVO;
@@ -29,6 +31,7 @@ import java.time.LocalDateTime;
 @Component
 public class LogLoginAspect {
 
+    private static final Logger logger = LoggerFactory.getLogger(LogLoginAspect.class);
     private final SysLogLoginService sysLogLoginService;
     private final DatabaseReader databaseReader;
     private final HttpServletRequest request;
@@ -56,7 +59,7 @@ public class LogLoginAspect {
      */
     @Around("loginAspect()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        LogUtil.getLogger().debug("=====开始执行登录日志环绕通知=====");
+        logger.debug("=====开始执行登录日志环绕通知=====");
         // 登录日志对象
         SysLogLoginVO logLogin = new SysLogLoginVO();
         // 请求来源IP地址
@@ -85,7 +88,7 @@ public class LogLoginAspect {
                 logLogin.setCity(logLogin.getProvince());
             }
         } catch (Exception e) {
-            LogUtil.getLogger().error("获取国家省份城市信息失败", e);
+            logger.error("获取国家省份城市信息失败", e);
             logLogin.setCountry("未知");
             logLogin.setProvince("未知");
             logLogin.setCity("未知");
@@ -94,7 +97,7 @@ public class LogLoginAspect {
         try {
             this.sysLogLoginService.insert(logLogin);
         } catch (Exception e) {
-            LogUtil.getLogger().error(String.format("记录登录日志失败，%s", e.getMessage()), e);
+            logger.error(String.format("记录登录日志失败，%s", e.getMessage()), e);
         }
         return result;
     }
