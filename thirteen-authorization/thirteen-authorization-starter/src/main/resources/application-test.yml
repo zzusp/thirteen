@@ -3,23 +3,13 @@ server:
   # 端口
   port: 8770
 
-# spring cloud 配置
-eureka:
-  instance:
-    # 心跳间隔（秒），默认30s
-    leaseRenewalIntervalInSeconds: 30
-    # 失效时间，默认90s，如果服务在指定的 失效时间 内仍没有发起心跳请求，将会被剔除EurekaServer
-    leaseExpirationDurationInSeconds: 90
-    # 实例名称显示IP配置（与instance-id配合使用）
-    # prefer-ip-address: true
-    # instance-id: http://localhost:8764/rental  # 将InstanceID设置为 IP:Port 形式
-  client:
-    serviceUrl:
-      # 设置与Eureka Server交互的地址，默认为http://localhost:8761/eureka，多个地址用逗号（,）分隔
-      defaultZone: http://122.152.221.117:8761/eureka/
-
 # spring 配置
 spring:
+  # spring cloud nacos配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 122.152.221.117:8848
   # redis 配置
   redis:
     # 地址

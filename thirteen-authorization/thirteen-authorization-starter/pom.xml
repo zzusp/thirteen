@@ -28,10 +28,10 @@
       <groupId>thirteen-authorization</groupId>
       <artifactId>thirteen-authorization-core-service</artifactId>
     </dependency>
-    <!-- spring cloud eureka服务提供 -->
+    <!-- spring-cloud-starter-alibaba-nacos-discovery -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
     </dependency>
     <!-- 热部署 -->
     <dependency>

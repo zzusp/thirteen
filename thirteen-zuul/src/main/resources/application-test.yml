@@ -3,11 +3,9 @@ server:
   # 端口
   port: 8769
 
-# spring cloud 配置
-eureka:
-  client:
-    # zuul间隔多久去拉取注册服务的信息
-    registry-fetch-interval-seconds: 5
-    serviceUrl:
-      # 设置与Eureka Server交互的地址，默认为http://localhost:8761/eureka，多个地址用逗号（,）分隔
-      defaultZone: http://122.152.221.117:8761/eureka/
+# spring cloud nacos配置
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 122.152.221.117:8848

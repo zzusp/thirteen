@@ -2,7 +2,7 @@ package org.thirteen.authorization;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * @author Aaron.Sun
@@ -11,7 +11,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * @modified By
  */
 @SpringBootApplication
-@EnableEurekaClient
+@EnableDiscoveryClient
 public class AuthorizationAppilcation {
 
     public static void main(String[] args) {

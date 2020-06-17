@@ -60,6 +60,12 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!-- spring-cloud-starter-alibaba-nacos-discovery -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        <version>${spring.cloud.nacos.discovery.version}</version>
+      </dependency>
       <!-- spring boot -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
