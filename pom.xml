@@ -28,7 +28,7 @@
     <maven.compiler.encoding>${global.encoding}</maven.compiler.encoding>
 
     <spring.cloud.version>Hoxton.RELEASE</spring.cloud.version><!-- spring-cloud包 -->
-    <spring.cloud.nacos.discovery.version>0.9.0.RELEASE</spring.cloud.nacos.discovery.version><!-- spring-cloud-alibaba-nacos-discovery -->
+    <spring.cloud.nacos.version>0.9.0.RELEASE</spring.cloud.nacos.version><!-- spring-cloud-alibaba-nacos-discovery -->
     <spring.boot.version>2.2.2.RELEASE</spring.boot.version><!-- spring boot -->
     <spring.data.redis.version>2.2.3.RELEASE</spring.data.redis.version><!-- spring-data-redis -->
     <spring.data.jpa.version>2.2.3.RELEASE</spring.data.jpa.version><!-- spring-data-jpa -->
@@ -72,7 +72,13 @@
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-        <version>${spring.cloud.nacos.discovery.version}</version>
+        <version>${spring.cloud.nacos.version}</version>
+      </dependency>
+      <!-- spring-cloud-starter-alibaba-nacos-config -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        <version>${spring.cloud.nacos.version}</version>
       </dependency>
       <!-- spring boot -->
       <dependency>
