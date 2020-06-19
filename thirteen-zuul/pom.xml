@@ -38,6 +38,11 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
     </dependency>
+    <!-- spring-cloud-starter-alibaba-nacos-config -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+    </dependency>
     <!-- spring cloud zuul网关 -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
