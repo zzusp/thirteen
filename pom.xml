@@ -9,8 +9,8 @@
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <modules>
-    <module>thirteen-zuul</module>
     <module>thirteen-authorization</module>
+    <module>thirteen-gateway</module>
   </modules>
   <name>依赖jar包</name>
   <description>依赖jar包版本配置</description>
@@ -28,7 +28,7 @@
     <maven.compiler.encoding>${global.encoding}</maven.compiler.encoding>
 
     <spring.cloud.version>Hoxton.RELEASE</spring.cloud.version><!-- spring-cloud包 -->
-    <spring.cloud.nacos.version>0.9.0.RELEASE</spring.cloud.nacos.version><!-- spring-cloud-alibaba-nacos-discovery -->
+    <spring.cloud.nacos.version>0.9.0.RELEASE</spring.cloud.nacos.version><!-- spring-cloud-alibaba-nacos -->
     <spring.boot.version>2.2.2.RELEASE</spring.boot.version><!-- spring boot -->
     <spring.data.redis.version>2.2.3.RELEASE</spring.data.redis.version><!-- spring-data-redis -->
     <spring.data.jpa.version>2.2.3.RELEASE</spring.data.jpa.version><!-- spring-data-jpa -->

@@ -3,9 +3,9 @@
   <!-- 文件输出格式 -->
   <property name="PATTERN" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] \\(%file:%line\\) -| %msg%n"/>
   <!-- test文件路径 -->
-  <property name="TEST_FILE_PATH" value="/logs/thirteen/zuul_test.log"/>
+  <property name="TEST_FILE_PATH" value="/logs/thirteen/gateway_test.log"/>
   <!-- prod文件路径 -->
-  <property name="PROD_FILE_PATH" value="/logs/thirteen/zuul_prod.log"/>
+  <property name="PROD_FILE_PATH" value="/logs/thirteen/gateway_prod.log"/>
 
   <!-- springProfile 标签的 name 属性对应 application.properties 中的 spring.profiles.active 的配置 -->
   <!-- 开发环境 -->
@@ -15,7 +15,7 @@
         <pattern>${PATTERN}</pattern>
       </encoder>
     </appender>
-    <logger name="org.thirteen.zuul" level="debug"/>
+    <logger name="org.thirteen.gateway" level="debug"/>
     <root level="info">
       <appender-ref ref="CONSOLE"/>
     </root>
@@ -54,7 +54,7 @@
         <pattern>${PATTERN}</pattern>
       </layout>
     </appender>
-    <root level="info">
+    <root level="warn">
       <appender-ref ref="PROD_FILE"/>
     </root>
   </springProfile>

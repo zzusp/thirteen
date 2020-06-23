@@ -8,31 +8,15 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <name>网关</name>
-  <artifactId>thirteen-zuul</artifactId>
+  <name>网关路由模块</name>
+  <artifactId>thirteen-gateway</artifactId>
 
   <properties>
     <!-- spring boot启动类 -->
-    <start-class>org.thirteen.zuul.ZuulApplication</start-class>
+    <start-class>org.thirteen.gateway.GatewayAppilcation</start-class>
   </properties>
 
   <dependencies>
-    <!-- 包含 mvc,aop 等jar资源 -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <!-- 热部署 -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-devtools</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <!-- 支持 @ConfigurationProperties 注解 -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-    </dependency>
     <!-- spring-cloud-starter-alibaba-nacos-discovery -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -43,10 +27,21 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
     </dependency>
-    <!-- spring cloud zuul网关 -->
+    <!-- hystrix 熔断器 -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+      <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+    </dependency>
+    <!-- spring-cloud-starter-gateway -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-gateway</artifactId>
+    </dependency>
+    <!-- 热部署 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 
@@ -76,6 +71,17 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <!-- java编译插件 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <encoding>${global.encoding}</encoding>
+        </configuration>
       </plugin>
     </plugins>
   </build>
