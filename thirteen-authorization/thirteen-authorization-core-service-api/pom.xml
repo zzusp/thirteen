@@ -32,11 +32,6 @@
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger-ui</artifactId>
     </dependency>
-    <!-- 阿里Json处理工具包 -->
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
-    </dependency>
     <!-- lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>

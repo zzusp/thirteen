@@ -172,7 +172,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
     @Override
     public PagerResult<VO> findAllByParam(BaseParam param) {
         Assert.notNull(param, PARAM_MUST_NOT_BE_EMPTY);
-        logger.debug(String.format("查询参数：%s", JsonUtil.toString(param)));
+        logger.debug(String.format("查询参数：%s", JsonUtil.toJsonString(param)));
         PagerResult<VO> result;
         Specification<PO> specification = null;
         Sort sort = null;

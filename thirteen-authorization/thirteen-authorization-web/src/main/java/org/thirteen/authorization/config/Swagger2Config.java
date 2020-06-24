@@ -1,14 +1,18 @@
 package org.thirteen.authorization.config;
 
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.support.config.FastJsonConfig;
-import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -74,37 +78,6 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
             .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")
             .addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
-
-    /**
-     * JSON转换器
-     * 1、定义一个convert转换消息对象；
-     * 2、添加fastJson的配置信息，是否要格式化返回的Json数据；
-     * 3、处理中文乱码
-     * 4、在convert中添加配置信息；
-     * 5、将convert添加到converters当中；
-     *
-     * @param converters JSON转换器
-     */
-    @Override
-    protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        super.configureMessageConverters(converters);
-        // 1、定义一个convert转换消息对象；
-        FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
-        // 2、添加fastJson的配置信息，是否要格式化返回的Json数据；
-        FastJsonConfig fastJsonConfig = new FastJsonConfig();
-        fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
-        // 3、处理中文乱码
-        List<MediaType> list = new ArrayList<>();
-        list.add(MediaType.APPLICATION_JSON);
-        list.add(new MediaType("text", "html", StandardCharsets.UTF_8));
-        list.add(new MediaType("application", "*+json", StandardCharsets.UTF_8));
-        list.add(new MediaType("application", "*+xml", StandardCharsets.UTF_8));
-        fastConverter.setSupportedMediaTypes(list);
-        // 4、在convert中添加配置信息；
-        fastConverter.setFastJsonConfig(fastJsonConfig);
-        // 5、将convert添加到converters当中；
-        converters.add(fastConverter);
     }
 
     /**

@@ -31,7 +31,9 @@ public class SysLogLoginServiceImpl extends BaseDeleteServiceImpl<SysLogLoginVO,
 
     public static final String VISITS_CHART_NAME = "用户访问量趋势";
     public static final String DISTRIBUTION_CHART_NAME = "访问来源分布";
-    /** 日期类型，日月年（按不同维度查询，判断时使用）0：日 1：月 2：年 */
+    /**
+     * 日期类型，日月年（按不同维度查询，判断时使用）0：日 1：月 2：年
+     */
     public static final String DATETIME_TYPE_DAY = "0";
     public static final String DATETIME_TYPE_MONTH = "1";
     public static final String DATETIME_TYPE_YEAR = "2";

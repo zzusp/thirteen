@@ -19,13 +19,21 @@ import java.util.Date;
  * @modified By
  */
 public class JwtUtil {
-    /** 签发者 */
+    /**
+     * 签发者
+     */
     private static final String ISSUER = "thrirteen.auth";
-    /** 原密钥 */
+    /**
+     * 原密钥
+     */
     private static final String SECRET = "thrirteen.jwt.secret";
-    /** 默认过期时间30分钟 */
+    /**
+     * 默认过期时间30分钟
+     */
     private static final long EXPIRE_TIME = 30 * 60 * 1000L;
-    /** local线程，用来存储获取当前登录用户 */
+    /**
+     * local线程，用来存储获取当前登录用户
+     */
     private static ThreadLocal<String> threadLocal = new ThreadLocal<>();
 
     /**

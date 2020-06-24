@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.thirteen.authorization.common.utils.Md5Util;
 import org.thirteen.authorization.common.utils.StringUtil;
 import org.thirteen.authorization.common.utils.WebUtil;
 import org.thirteen.authorization.model.vo.SysLogLoginVO;

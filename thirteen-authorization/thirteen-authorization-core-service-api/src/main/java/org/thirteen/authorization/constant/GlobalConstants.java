@@ -8,21 +8,35 @@ package org.thirteen.authorization.constant;
  */
 public class GlobalConstants {
 
-    /** 保存用户信息到SESSION */
+    /**
+     * 保存用户信息到SESSION
+     */
     public static final String SESSION_KEY = "shiro_session";
     public static final String CURRENT_USER = "current_user";
     public static final String REMEBER_ME = "true";
-    /** 默认密码 */
+    /**
+     * 默认密码
+     */
     public static final String DEFAULT_PASSWORD = "88888888";
-    /** 默认盐的长度 */
+    /**
+     * 默认盐的长度
+     */
     public static final Integer SALT_LENGTH = 16;
-    /** cookie的key */
+    /**
+     * cookie的key
+     */
     public static final String COOKIE_KEY = "RENTALJSESSIONID";
-    /** 超管角色Code */
+    /**
+     * 超管角色Code
+     */
     public static final String ADMIN_CODE = "admin";
-    /** 根节点父节点ID */
+    /**
+     * 根节点父节点ID
+     */
     public static final String ROOT_PARENT_ID = "root";
-    /** 启用标记 0：禁用；1启用 */
+    /**
+     * 启用标记 0：禁用；1启用
+     */
     public static final String ACTIVE_OFF = "0";
     public static final String ACTIVE_ON = "1";
     /**

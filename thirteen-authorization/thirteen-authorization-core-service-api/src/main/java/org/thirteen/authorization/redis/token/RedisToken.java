@@ -14,17 +14,29 @@ import java.util.Objects;
  */
 public class RedisToken implements Serializable {
 
-    /** 当前有效的token */
+    /**
+     * 当前有效的token
+     */
     private String token;
-    /** 用户账号，用于token续签 */
+    /**
+     * 用户账号，用于token续签
+     */
     private String account;
-    /** 来源IP，可用于异地登录提示 */
+    /**
+     * 来源IP，可用于异地登录提示
+     */
     private String ip;
-    /** 首次签发token时间 */
+    /**
+     * 首次签发token时间
+     */
     private LocalDateTime signTime;
-    /** 续签token时间 */
+    /**
+     * 续签token时间
+     */
     private LocalDateTime reSignTime;
-    /** 最后一个活跃时间 */
+    /**
+     * 最后一个活跃时间
+     */
     private LocalDateTime lastAccessTime;
 
     public String getToken() {

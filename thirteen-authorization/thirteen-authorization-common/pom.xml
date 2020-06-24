@@ -18,11 +18,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
     </dependency>
-    <!-- 阿里Json处理工具包 -->
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
-    </dependency>
     <!-- http client -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>

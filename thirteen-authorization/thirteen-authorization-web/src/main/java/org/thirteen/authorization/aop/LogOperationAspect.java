@@ -128,14 +128,14 @@ public class LogOperationAspect {
         logOperation.setOperationValue(targetTags + "-" + operationValue);
         logOperation.setOperationNotes(operationNotes);
         logOperation.setMethod(targetName + "." + methodName + "()");
-        logOperation.setArguments(JsonUtil.toString(arguments));
-        logOperation.setResult(JsonUtil.toString(result));
+        logOperation.setArguments(JsonUtil.toJsonString(arguments));
+        logOperation.setResult(JsonUtil.toJsonString(result));
         // 记录日志到数据库
         try {
             this.sysLogOperationService.insert(logOperation);
         } catch (Exception e) {
             logger.error("新增操作日志失败", e);
-            logger.error(String.format("日志内容：%s", JsonUtil.toString(logOperation)));
+            logger.error(String.format("日志内容：%s", JsonUtil.toJsonString(logOperation)));
         }
         return result;
     }

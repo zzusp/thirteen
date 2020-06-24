@@ -31,7 +31,9 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Value("${upload.path}")
     private String uploadPath;
-    /** 获取分隔符（不同系统不同） */
+    /**
+     * 获取分隔符（不同系统不同）
+     */
     String sep = System.getProperty("file.separator");
 
     private final SysUserService sysUserService;

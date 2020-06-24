@@ -33,11 +33,17 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     private final AuthorityService authorityService;
     private final RedisTokenService redisTokenService;
 
-    /** 所有登陆后可访问的地址 */
+    /**
+     * 所有登陆后可访问的地址
+     */
     private List<String> loginUrlList;
-    /** 所有认证后可访问的地址 */
+    /**
+     * 所有认证后可访问的地址
+     */
     private List<String> authUrlList;
-    /** 所有授权后可访问的地址 */
+    /**
+     * 所有授权后可访问的地址
+     */
     private List<String> permsUrlList;
 
     public JwtInterceptor(SysPermissionService sysPermissionService, AuthorityService authorityService,

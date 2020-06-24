@@ -38,7 +38,6 @@
     <mysql.version>8.0.18</mysql.version><!-- mysql连接 -->
     <slf4j.version>2.0.0-alpha1</slf4j.version><!-- 日志工具 -->
     <springfox.swagger2.version>2.9.2</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
-    <fastjson.version>1.2.62</fastjson.version><!-- 阿里json格式解析工具 -->
     <httpclient.version>4.5.10</httpclient.version><!-- HTTP协议的客户端编程工具包 -->
     <joda-time.version>2.10.5</joda-time.version><!-- 处理时间 -->
     <commons-lang3.version>3.9</commons-lang3.version><!-- java常用处理集 -->
@@ -148,12 +147,6 @@
         <groupId>io.springfox</groupId>
         <artifactId>springfox-swagger-ui</artifactId>
         <version>${springfox.swagger2.version}</version>
-      </dependency>
-      <!-- 阿里Json处理工具包 -->
-      <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>fastjson</artifactId>
-        <version>${fastjson.version}</version>
       </dependency>
       <!-- http client -->
       <dependency>

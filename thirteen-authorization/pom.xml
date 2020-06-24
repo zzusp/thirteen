@@ -141,12 +141,6 @@
         <artifactId>springfox-swagger-ui</artifactId>
         <version>${springfox.swagger2.version}</version>
       </dependency>
-      <!-- 阿里Json处理工具包 -->
-      <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>fastjson</artifactId>
-        <version>${fastjson.version}</version>
-      </dependency>
       <!-- http client -->
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>

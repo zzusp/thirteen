@@ -1,6 +1,5 @@
 package org.thirteen.authorization.model.vo;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -30,7 +29,6 @@ public class SysLogLoginVO extends BaseDeleteVO {
     @ApiModelProperty(value = "请求地址")
     private String requestPath;
     @ApiModelProperty(value = "登陆时间")
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime loginTime;
