@@ -29,6 +29,7 @@ public interface SysLogLoginRepository extends BaseRepository<SysLogLoginPO, Str
     @Query(value = "SELECT DATE_FORMAT(login_time, '%k') AS time, COUNT(id) AS num" +
         " FROM sys_log_login" +
         " WHERE DATE_FORMAT(login_time, '%Y%c%e')=DATE_FORMAT(?1, '%Y%c%e')" +
+        " AND del_flag=" + DEL_FLAG_NORMAL +
         " GROUP BY time" +
         " ORDER BY cast(time as UNSIGNED INTEGER)", nativeQuery = true)
     List<Map<String, Object>> findAllVisitofDayByDate(String date);
@@ -43,6 +44,7 @@ public interface SysLogLoginRepository extends BaseRepository<SysLogLoginPO, Str
     @Query(value = "SELECT DATE_FORMAT(login_time, '%e') AS time, COUNT(id) AS num" +
         " FROM sys_log_login" +
         " WHERE DATE_FORMAT(login_time, '%Y%c')=DATE_FORMAT(?1, '%Y%c')" +
+        " AND del_flag=" + DEL_FLAG_NORMAL +
         " GROUP BY time" +
         " ORDER BY cast(time as UNSIGNED INTEGER)", nativeQuery = true)
     List<Map<String, Object>> findAllVisitofMonthByDate(String date);
@@ -57,6 +59,7 @@ public interface SysLogLoginRepository extends BaseRepository<SysLogLoginPO, Str
     @Query(value = "SELECT DATE_FORMAT(login_time, '%c') AS time, COUNT(id) AS num" +
         " FROM sys_log_login" +
         " WHERE DATE_FORMAT(login_time, '%Y')=DATE_FORMAT(?1, '%Y')" +
+        " AND del_flag=" + DEL_FLAG_NORMAL +
         " GROUP BY time" +
         " ORDER BY cast(time as UNSIGNED INTEGER)", nativeQuery = true)
     List<Map<String, Object>> findAllVisitofYearByDate(String date);
