@@ -1,13 +1,10 @@
 package org.thirteen.gateway;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -18,16 +15,6 @@ import org.springframework.web.client.RestTemplate;
  */
 @SpringBootApplication
 public class GatewayAppilcation {
-
-    @Autowired
-    RestTemplate restTemplate;
-
-    @GetMapping("/testZipKin")
-    public String addToCart() {
-        ResponseEntity<String> res = restTemplate.getForEntity("http://122.152.221.117:8769/api-authorization/login",
-            String.class, "test", "1234");
-        return res.getBody();
-    }
 
     @Bean
     public RestTemplate restTemplate(ClientHttpRequestFactory factory) {
@@ -45,7 +32,6 @@ public class GatewayAppilcation {
     public static void main(String[] args) {
         SpringApplication.run(GatewayAppilcation.class, args);
     }
-
 
 
 }
