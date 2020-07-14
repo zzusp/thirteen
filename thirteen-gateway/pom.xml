@@ -37,6 +37,11 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-gateway</artifactId>
     </dependency>
+    <!-- spring-cloud-starter-zipkin -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-zipkin</artifactId>
+    </dependency>
     <!-- 热部署 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
