@@ -11,6 +11,7 @@
   <modules>
     <module>thirteen-authorization</module>
     <module>thirteen-gateway</module>
+    <module>thirteen-datamation</module>
   </modules>
   <name>依赖jar包</name>
   <description>依赖jar包版本配置</description>
@@ -59,6 +60,12 @@
   <!-- 只定义依赖的版本，并不实际依赖 -->
   <dependencyManagement>
     <dependencies>
+      <!-- 数据化通用模块 -->
+      <dependency>
+        <groupId>org.thirteen</groupId>
+        <artifactId>thirteen-datamation</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <!-- spring cloud -->
       <dependency>
         <groupId>org.springframework.cloud</groupId>
