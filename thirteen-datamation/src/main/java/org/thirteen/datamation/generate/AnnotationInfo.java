@@ -19,6 +19,18 @@ public class AnnotationInfo implements Serializable {
     /** 参数集合 */
     private List<Param> params;
 
+    public AnnotationInfo() {
+        this.visible = true;
+    }
+
+    public AnnotationInfo add(String name, String value) {
+        if (this.params == null) {
+            this.params = new ArrayList<>();
+        }
+        this.params.add(new Param(name, value));
+        return this;
+    }
+
     public String getDesc() {
         return desc;
     }
@@ -44,11 +56,16 @@ public class AnnotationInfo implements Serializable {
     }
 
     /** 注释类的参数 */
-    class Param {
+    static class Param {
         /** name */
         private String name;
         /** value */
         private String value;
+
+        public Param(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
 
         public String getName() {
             return name;
@@ -65,5 +82,14 @@ public class AnnotationInfo implements Serializable {
         public void setValue(String value) {
             this.value = value;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "AnnotationInfo{" +
+            "desc='" + desc + '\'' +
+            ", visible=" + visible +
+            ", params=" + params +
+            '}';
     }
 }

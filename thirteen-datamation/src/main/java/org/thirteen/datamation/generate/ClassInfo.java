@@ -1,6 +1,5 @@
 package org.thirteen.datamation.generate;
 
-import javassist.bytecode.FieldInfo;
 import javassist.bytecode.MethodInfo;
 
 import java.io.Serializable;
@@ -28,6 +27,10 @@ public class ClassInfo implements Serializable {
     private List<MethodInfo> methodInfos;
     /** 类字段信息集合 */
     private List<FieldInfo> fieldInfos;
+
+    public ClassInfo() {
+        this.superName = "java/lang/Object";
+    }
 
     public String getPackagePath() {
         return packagePath;
@@ -83,5 +86,18 @@ public class ClassInfo implements Serializable {
 
     public void setFieldInfos(List<FieldInfo> fieldInfos) {
         this.fieldInfos = fieldInfos;
+    }
+
+    @Override
+    public String toString() {
+        return "ClassInfo{" +
+            "packagePath='" + packagePath + '\'' +
+            ", className='" + className + '\'' +
+            ", access='" + access + '\'' +
+            ", superName='" + superName + '\'' +
+            ", annotationInfos=" + annotationInfos +
+            ", methodInfos=" + methodInfos +
+            ", fieldInfos=" + fieldInfos +
+            '}';
     }
 }
