@@ -3,6 +3,7 @@ package org.thirteen.datamation.generate;
 import javassist.bytecode.MethodInfo;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,6 +22,8 @@ public class ClassInfo implements Serializable {
     private String access;
     /** 父类名 */
     private String superName;
+    /** 实现的接口 */
+    String[] interfaces;
     /** 类注解信息集合 */
     private List<AnnotationInfo> annotationInfos;
     /** 类方法信息集合 */
@@ -64,6 +67,14 @@ public class ClassInfo implements Serializable {
         this.superName = superName;
     }
 
+    public String[] getInterfaces() {
+        return interfaces;
+    }
+
+    public void setInterfaces(String[] interfaces) {
+        this.interfaces = interfaces;
+    }
+
     public List<AnnotationInfo> getAnnotationInfos() {
         return annotationInfos;
     }
@@ -88,6 +99,10 @@ public class ClassInfo implements Serializable {
         this.fieldInfos = fieldInfos;
     }
 
+    public String getFullName() {
+        return this.getPackagePath() + "/" + this.getClassName();
+    }
+
     @Override
     public String toString() {
         return "ClassInfo{" +
@@ -95,6 +110,7 @@ public class ClassInfo implements Serializable {
             ", className='" + className + '\'' +
             ", access='" + access + '\'' +
             ", superName='" + superName + '\'' +
+            ", interfaces=" + Arrays.toString(interfaces) +
             ", annotationInfos=" + annotationInfos +
             ", methodInfos=" + methodInfos +
             ", fieldInfos=" + fieldInfos +
