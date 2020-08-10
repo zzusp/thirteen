@@ -3,7 +3,7 @@ package org.thirteen.datamation.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-import org.thirteen.datamation.model.po.DmTablePO;
+import org.thirteen.datamation.model.po.DmColumnPO;
 
 /**
  * @author Aaron.Sun
@@ -12,5 +12,5 @@ import org.thirteen.datamation.model.po.DmTablePO;
  * @modified by
  */
 @Repository
-public interface DmColumnRepository extends JpaRepository<DmTablePO, String>, JpaSpecificationExecutor<DmTablePO> {
+public interface DmColumnRepository extends JpaRepository<DmColumnPO, String>, JpaSpecificationExecutor<DmColumnPO> {
 }

@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class ClassInfo implements Serializable {
 
-    /** 包路径 */
-    private String packagePath;
     /** 类名 */
     private String className;
     /** 类的访问标志 */
@@ -33,14 +31,6 @@ public class ClassInfo implements Serializable {
 
     public ClassInfo() {
         this.superName = "java/lang/Object";
-    }
-
-    public String getPackagePath() {
-        return packagePath;
-    }
-
-    public void setPackagePath(String packagePath) {
-        this.packagePath = packagePath;
     }
 
     public String getClassName() {
@@ -99,15 +89,10 @@ public class ClassInfo implements Serializable {
         this.fieldInfos = fieldInfos;
     }
 
-    public String getFullName() {
-        return this.getPackagePath() + "/" + this.getClassName();
-    }
-
     @Override
     public String toString() {
         return "ClassInfo{" +
-            "packagePath='" + packagePath + '\'' +
-            ", className='" + className + '\'' +
+            "className='" + className + '\'' +
             ", access='" + access + '\'' +
             ", superName='" + superName + '\'' +
             ", interfaces=" + Arrays.toString(interfaces) +

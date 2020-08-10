@@ -1,6 +1,7 @@
 package org.thirteen.datamation.generate;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Aaron.Sun
@@ -16,6 +17,8 @@ public class FieldInfo implements Serializable {
     private String fieldClass;
     /** 字段的访问标志 */
     private String access;
+    /** 类注解信息集合 */
+    private List<AnnotationInfo> annotationInfos;
 
     public String getName() {
         return name;
@@ -41,12 +44,21 @@ public class FieldInfo implements Serializable {
         this.access = access;
     }
 
+    public List<AnnotationInfo> getAnnotationInfos() {
+        return annotationInfos;
+    }
+
+    public void setAnnotationInfos(List<AnnotationInfo> annotationInfos) {
+        this.annotationInfos = annotationInfos;
+    }
+
     @Override
     public String toString() {
         return "FieldInfo{" +
             "name='" + name + '\'' +
             ", fieldClass='" + fieldClass + '\'' +
             ", access='" + access + '\'' +
+            ", annotationInfos=" + annotationInfos +
             '}';
     }
 }
