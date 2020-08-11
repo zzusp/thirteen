@@ -8,7 +8,8 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Aaron.Sun
@@ -51,6 +52,6 @@ public class DmTablePO implements Serializable {
     private Integer version;
     @Column(name = "del_flag", columnDefinition = "TINYINT(1) NOT NULL COMMENT '删除标志 0：正常；1：删除'")
     private Byte delFlag;
-    @OneToMany(mappedBy = "table", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-    private List<DmColumnPO> columns;
+    @Transient
+    private Set<DmColumnPO> columns = new HashSet<>();
 }

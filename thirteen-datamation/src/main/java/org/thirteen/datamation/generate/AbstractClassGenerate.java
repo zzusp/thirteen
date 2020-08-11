@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -151,7 +152,9 @@ public abstract class AbstractClassGenerate extends ClassLoader implements Opcod
     protected void initMethodHandle(ClassWriter cw) {
         // 构造函数
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        // 访问局部变量指令。0表示this
         mv.visitVarInsn(ALOAD, 0);
+        // 访问方法指令
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
@@ -195,6 +198,67 @@ public abstract class AbstractClassGenerate extends ClassLoader implements Opcod
         mv.visitInsn(loadAndReturnOf(typeOf)[1]);
         mv.visitMaxs(2, 1);
         mv.visitEnd();
+    }
+
+    /**
+     * toString方法处理
+     *
+     * @param cw 类构建器
+     * @param fieldInfos 字段信息集合
+     * @param className 完整类名
+     */
+    protected void toStringMethodHandle(ClassWriter cw, List<FieldInfo> fieldInfos, String className) {
+        if (!CollectionUtils.isEmpty(fieldInfos)) {
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
+            // 添加Override注解
+            AnnotationVisitor av = mv.visitAnnotation("java.lang.Override", true);
+            av.visitEnd();
+            // 开始扫描该方法
+            mv.visitCode();
+            String fieldName;
+            String typeOf;
+            // 塞入字符串
+            mv.visitLdcInsn(className + "{");
+            Iterator<FieldInfo> iterable = fieldInfos.iterator();
+            FieldInfo field;
+            // 每个字段结尾字符串临时变量
+            String endTemp;
+            while (iterable.hasNext()) {
+                field = iterable.next();
+                fieldName = field.getName();
+                typeOf = Type.getType(field.getFieldClass()).getDescriptor();
+                endTemp = "";
+                if (typeOf.startsWith("L")) {
+                    mv.visitLdcInsn(fieldName + "='");
+                } else {
+                    mv.visitLdcInsn(fieldName + "=");
+                }
+                mv.visitInsn(IADD);
+                mv.visitMaxs(2, 3);
+                // 访问局部变量指令。0表示this
+                mv.visitVarInsn(ALOAD, 0);
+                // 访问方法指令
+                mv.visitFieldInsn(GETFIELD, className, fieldName, typeOf);
+                mv.visitInsn(IADD);
+                mv.visitMaxs(2, 3);
+                // 拼接每个字段结尾
+                if (typeOf.startsWith("L")) {
+                    endTemp = "'";
+                }
+                if (iterable.hasNext()) {
+                    endTemp += ", ";
+                } else {
+                    endTemp += "}";
+                }
+                mv.visitLdcInsn(endTemp);
+                mv.visitInsn(IADD);
+                mv.visitMaxs(2, 3);
+            }
+            // 设置返回
+            mv.visitInsn(ARETURN);
+            mv.visitMaxs(2, 1);
+            mv.visitEnd();
+        }
     }
 
     /**

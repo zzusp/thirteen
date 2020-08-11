@@ -1,5 +1,6 @@
 package org.thirteen.datamation.generate.po;
 
+import org.springframework.util.StringUtils;
 import org.thirteen.datamation.generate.AbstractClassConver;
 import org.thirteen.datamation.generate.AnnotationInfo;
 import org.thirteen.datamation.generate.ClassInfo;
@@ -13,6 +14,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Aaron.Sun
+ * @description 数据库配置信息转为生成PO类所需要的信息
+ * @date Created in 15:54 2020/8/11
+ * @modified By
+ */
 public class PoConver extends AbstractClassConver {
 
     @Override
@@ -53,6 +60,7 @@ public class PoConver extends AbstractClassConver {
         AnnotationInfo columnAnno = new AnnotationInfo();
         columnAnno.setDesc("javax.persistence.Column");
         columnAnno.add("name", column.getCode());
+        // 拼接columnDefinition
         StringBuilder sb = new StringBuilder();
         sb.append(column.getDbType());
         if (column.getLength() != null && column.getLength() > 0) {
@@ -61,7 +69,12 @@ public class PoConver extends AbstractClassConver {
         if (column.getNotNull() != null && column.getNotNull() == 1) {
             sb.append(" NOT NULL ");
         }
-        sb.append(" COMMENT '").append(column.getName()).append(" ").append(column.getRemark()).append("'");
+        sb.append(" COMMENT '").append(column.getName());
+        if (StringUtils.isEmpty(column.getRemark())) {
+            sb.append(" ").append(column.getRemark());
+        }
+        sb.append("'");
+        // 添加到集合中
         columnAnno.add("columnDefinition", sb.toString());
         annotationInfos.add(columnAnno);
         return annotationInfos;
@@ -84,20 +97,35 @@ public class PoConver extends AbstractClassConver {
         po.setCreateBy("admin");
         po.setCreateTime(LocalDateTime.now());
         po.setDelFlag((byte) 1);
-        DmColumnPO column = new DmColumnPO();
-        column.setCode("id");
-        column.setName("主键");
-        column.setJavaType("Ljava/lang/String;");
-        column.setDbType("VARCHAR");
-        column.setLength(32);
-        column.setNotNull((byte) 1);
-        po.setStatus((byte) 1);
-        column.setCreateBy("admin");
-        column.setCreateTime(LocalDateTime.now());
-        column.setRemark("主键唯一");
-        column.setDelFlag((byte) 1);
-        po.setColumns(new ArrayList<>());
-        po.getColumns().add(column);
+
+        DmColumnPO id = new DmColumnPO();
+        id.setCode("id");
+        id.setName("主键");
+        id.setJavaType("Ljava/lang/String;");
+        id.setDbType("VARCHAR");
+        id.setLength(32);
+        id.setNotNull((byte) 1);
+        id.setStatus((byte) 1);
+        id.setCreateBy("admin");
+        id.setCreateTime(LocalDateTime.now());
+        id.setRemark(null);
+        id.setDelFlag((byte) 1);
+
+        DmColumnPO code = new DmColumnPO();
+        code.setCode("code");
+        code.setName("编码");
+        code.setJavaType("Ljava/lang/String;");
+        code.setDbType("VARCHAR");
+        code.setLength(20);
+        code.setNotNull((byte) 1);
+        code.setStatus((byte) 1);
+        code.setCreateBy("admin");
+        code.setCreateTime(LocalDateTime.now());
+        code.setRemark("编码唯一");
+        code.setDelFlag((byte) 1);
+
+        po.getColumns().add(id);
+        po.getColumns().add(code);
         PoConver poConver = new PoConver();
         PoGenerate poGenerate = new PoGenerate();
         try {

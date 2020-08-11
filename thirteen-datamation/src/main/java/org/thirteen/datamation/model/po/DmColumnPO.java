@@ -29,9 +29,8 @@ public class DmColumnPO implements Serializable {
     @GeneratedValue(generator = "pk_uuid")
     @Column(name = "id", unique = true, columnDefinition = "CHAR(32) NOT NULL COMMENT '实体主键（唯一标识）'")
     private String id;
-    @ManyToOne(targetEntity = DmTablePO.class, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-    @JoinColumn(name = "table_code", referencedColumnName = "code")
-    private DmTablePO table;
+    @Column(name = "table_code", columnDefinition = "CHAR(20) NOT NULL COMMENT '表编码，即表名'")
+    private String tableCode;
     @Column(name = "code", columnDefinition = "CHAR(20) NOT NULL COMMENT '编码唯一，非空且不可更改'")
     private String code;
     @Column(name = "name", columnDefinition = "VARCHAR(50) NOT NULL COMMENT '名称'")
@@ -42,7 +41,7 @@ public class DmColumnPO implements Serializable {
     private String javaType;
     @Column(name = "db_type", columnDefinition = "VARCHAR(50) COMMENT '数据库类型'")
     private String dbType;
-    @Column(name = "length", columnDefinition = "INT NOT NULL COMMENT '字段长度'")
+    @Column(name = "length", columnDefinition = "INT COMMENT '字段长度'")
     private Integer length;
     @Column(name = "status", columnDefinition = "TINYINT(1) NOT NULL COMMENT '状态 0：禁用；1启用'")
     private Byte status;

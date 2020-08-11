@@ -40,6 +40,8 @@ public class PoGenerate extends AbstractClassGenerate {
         initMethodHandle(cw);
         // 字段处理（包含get/set方法）
         fieldHandle(cw, classInfo.getFieldInfos(), this.defaultPackage + classInfo.getClassName());
+        // toString
+        toStringMethodHandle(cw, classInfo.getFieldInfos(), this.defaultPackage + classInfo.getClassName());
         // cw结束
         cw.visitEnd();
         // 转为字节数组
