@@ -34,6 +34,8 @@ public abstract class AbstractClassConver {
             for (DmColumnPO column : table.getColumns()) {
                 fieldInfo = this.columnToField(column);
                 if (fieldInfo != null) {
+                    // 根据db类型设置对应java类型
+                    fieldInfo.setFieldClass(getJavaType(column.getDbType()));
                     fieldInfo.setAnnotationInfos(this.columnToAnnotation(column));
                     classInfo.getFieldInfos().add(fieldInfo);
                 }
@@ -106,5 +108,46 @@ public abstract class AbstractClassConver {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * 数据库类型转java类型
+     *
+     * @param dbType 数据库类型
+     * @return java类型
+     */
+    public static String getJavaType(String dbType) {
+        // 先转大写
+        dbType = dbType.toUpperCase();
+        String javaType;
+        switch (dbType) {
+            case "INT":
+                javaType = "Ijava/lang/Integer;";
+                break;
+            case "TINYINT":
+                javaType = "Bjava/lang/Byte;";
+                break;
+            case "BIGINT":
+                javaType = "Zjava/lang/Long;";
+                break;
+            case "FLOAT":
+                javaType = "Fjava/lang/Float;";
+                break;
+            case "DOUBLE":
+                javaType = "Djava/lang/Double;";
+                break;
+            case "DATE":
+                javaType = "Ljava/time/LocalDate;";
+                break;
+            case "DATETIME":
+                javaType = "Ljava/time/LocalDateTime;";
+                break;
+            case "CHAR":
+            case "VARCHAR":
+            default:
+                javaType = "Ljava/lang/String;";
+                break;
+        }
+        return javaType;
     }
 }

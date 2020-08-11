@@ -37,7 +37,7 @@ public class DmColumnPO implements Serializable {
     private String name;
     @Column(name = "not_null", columnDefinition = "TINYINT(1) COMMENT '是否不可为NULL 0：可为NULL；1：不可为NULL'")
     private Byte notNull;
-    @Column(name = "java_type", columnDefinition = "varchar(50) NOT NULL COMMENT 'java类型'")
+    @Column(name = "java_type", columnDefinition = "varchar(50) COMMENT 'java类型 预留字段'")
     private String javaType;
     @Column(name = "db_type", columnDefinition = "VARCHAR(50) COMMENT '数据库类型'")
     private String dbType;

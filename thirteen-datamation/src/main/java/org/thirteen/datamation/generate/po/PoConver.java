@@ -84,7 +84,6 @@ public class PoConver extends AbstractClassConver {
     protected FieldInfo columnToField(DmColumnPO column) {
         FieldInfo fieldInfo = new FieldInfo();
         fieldInfo.setName(lineToHump(column.getCode()));
-        fieldInfo.setFieldClass(column.getJavaType().replaceAll("\\.", "\\/"));
         fieldInfo.setAccess("private");
         return fieldInfo;
     }
@@ -101,7 +100,6 @@ public class PoConver extends AbstractClassConver {
         DmColumnPO id = new DmColumnPO();
         id.setCode("id");
         id.setName("主键");
-        id.setJavaType("Ljava/lang/String;");
         id.setDbType("VARCHAR");
         id.setLength(32);
         id.setNotNull((byte) 1);
@@ -114,7 +112,6 @@ public class PoConver extends AbstractClassConver {
         DmColumnPO code = new DmColumnPO();
         code.setCode("code");
         code.setName("编码");
-        code.setJavaType("Ljava/lang/String;");
         code.setDbType("VARCHAR");
         code.setLength(20);
         code.setNotNull((byte) 1);
@@ -124,8 +121,19 @@ public class PoConver extends AbstractClassConver {
         code.setRemark("编码唯一");
         code.setDelFlag((byte) 1);
 
+        DmColumnPO createTime = new DmColumnPO();
+        createTime.setCode("create_time");
+        createTime.setName("创建时间");
+        createTime.setDbType("DATETIME");
+        createTime.setNotNull((byte) 0);
+        createTime.setStatus((byte) 1);
+        createTime.setCreateBy("admin");
+        createTime.setCreateTime(LocalDateTime.now());
+        createTime.setDelFlag((byte) 1);
+
         po.getColumns().add(id);
         po.getColumns().add(code);
+        po.getColumns().add(createTime);
         PoConver poConver = new PoConver();
         PoGenerate poGenerate = new PoGenerate();
         try {
