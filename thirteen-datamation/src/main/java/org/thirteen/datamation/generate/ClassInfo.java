@@ -18,6 +18,8 @@ public class ClassInfo implements Serializable {
     private String className;
     /** 类的访问标志 */
     private String access;
+    /** 签名（设置泛型值时使用） */
+    private String signature;
     /** 父类名 */
     private String superName;
     /** 实现的接口 */
@@ -47,6 +49,14 @@ public class ClassInfo implements Serializable {
 
     public void setAccess(String access) {
         this.access = access;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 
     public String getSuperName() {
@@ -94,6 +104,7 @@ public class ClassInfo implements Serializable {
         return "ClassInfo{" +
             "className='" + className + '\'' +
             ", access='" + access + '\'' +
+            ", signature='" + signature + '\'' +
             ", superName='" + superName + '\'' +
             ", interfaces=" + Arrays.toString(interfaces) +
             ", annotationInfos=" + annotationInfos +

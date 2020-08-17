@@ -1,7 +1,7 @@
 package org.thirteen.datamation.generate.po;
 
 import org.objectweb.asm.ClassWriter;
-import org.thirteen.datamation.generate.AbstractClassGenerate;
+import org.thirteen.datamation.generate.AbstractClassGenerator;
 import org.thirteen.datamation.generate.AnnotationInfo;
 import org.thirteen.datamation.generate.ClassInfo;
 import org.thirteen.datamation.generate.FieldInfo;
@@ -15,10 +15,10 @@ import java.util.List;
  * @date Created in 16:19 2020/8/10
  * @modified By
  */
-public class PoGenerate extends AbstractClassGenerate {
+public class PoGenerator extends AbstractClassGenerator {
 
-    public PoGenerate() {
-        super(PoGenerate.class);
+    public PoGenerator() {
+        super(PoGenerator.class);
     }
 
     /**
@@ -32,8 +32,8 @@ public class PoGenerate extends AbstractClassGenerate {
         ClassWriter cw = new ClassWriter(0);
         // 设置类基本属性
         // 参数：版本号，类的访问标志，类名（包含路径），签名，父类，内部接口
-        cw.visit(52, accessOf(classInfo.getAccess()), this.defaultPackage + classInfo.getClassName(), null,
-            classInfo.getSuperName(), classInfo.getInterfaces());
+        cw.visit(52, accessOf(classInfo.getAccess()), this.defaultPackage + classInfo.getClassName(),
+            classInfo.getSignature(), classInfo.getSuperName(), classInfo.getInterfaces());
         // 注解处理
         annotationHandle(cw, classInfo.getAnnotationInfos());
         // 无参构造函数处理
@@ -69,7 +69,7 @@ public class PoGenerate extends AbstractClassGenerate {
         fieldInfos.add(idField);
         classInfo.setFieldInfos(fieldInfos);
 
-        PoGenerate poGenerate = new PoGenerate();
+        PoGenerator poGenerate = new PoGenerator();
         poGenerate.writeClass(classInfo);
         Class<?> c = poGenerate.generate(classInfo);
         System.out.println(c.getMethod("getId").invoke(c.getDeclaredConstructor().newInstance()));

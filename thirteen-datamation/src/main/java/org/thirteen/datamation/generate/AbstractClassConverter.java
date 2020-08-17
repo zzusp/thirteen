@@ -15,8 +15,10 @@ import java.util.regex.Pattern;
  * @date Created in 16:19 2020/8/10
  * @modified By
  */
-public abstract class AbstractClassConver {
+public abstract class AbstractClassConverter {
 
+    protected static final String PO_SUFFIX = "PO";
+    protected static final String REPOSITORY_SUFFIX = "Repository";
     private static final Pattern LINE_PATTERN = Pattern.compile("_(\\w)");
 
     /**

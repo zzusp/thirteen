@@ -1,7 +1,7 @@
 package org.thirteen.datamation.generate.po;
 
 import org.springframework.util.StringUtils;
-import org.thirteen.datamation.generate.AbstractClassConver;
+import org.thirteen.datamation.generate.AbstractClassConverter;
 import org.thirteen.datamation.generate.AnnotationInfo;
 import org.thirteen.datamation.generate.ClassInfo;
 import org.thirteen.datamation.generate.FieldInfo;
@@ -16,16 +16,16 @@ import java.util.List;
 
 /**
  * @author Aaron.Sun
- * @description 数据库配置信息转为生成PO类所需要的信息
+ * @description 数据库配置信息转为生成类所需要的信息
  * @date Created in 15:54 2020/8/11
  * @modified By
  */
-public class PoConver extends AbstractClassConver {
+public class PoConverter extends AbstractClassConverter {
 
     @Override
     protected ClassInfo tableToClass(DmTablePO table) {
         ClassInfo classInfo = new ClassInfo();
-        classInfo.setClassName(lineToHumpAndStartWithCapitalize(table.getCode()));
+        classInfo.setClassName(lineToHumpAndStartWithCapitalize(table.getCode()) + PO_SUFFIX);
         classInfo.setAccess("public");
         classInfo.setInterfaces(new String[]{"java/io/Serializable"});
         return classInfo;
@@ -134,10 +134,10 @@ public class PoConver extends AbstractClassConver {
         po.getColumns().add(id);
         po.getColumns().add(code);
         po.getColumns().add(createTime);
-        PoConver poConver = new PoConver();
-        PoGenerate poGenerate = new PoGenerate();
+        PoConverter poConverter = new PoConverter();
+        PoGenerator poGenerate = new PoGenerator();
         try {
-            poGenerate.writeClass(poConver.getClassInfo(po));
+            poGenerate.writeClass(poConverter.getClassInfo(po));
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }

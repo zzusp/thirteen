@@ -18,17 +18,18 @@ import java.util.List;
  * @date Created in 16:19 2020/8/10
  * @modified By
  */
-public abstract class AbstractClassGenerate extends ClassLoader implements Opcodes {
+public abstract class AbstractClassGenerator extends ClassLoader implements Opcodes {
+    private static final String TYPEOF_BOOLEAN = "Z";
     /** 默认的class生成路径 */
     protected String defaultPackage;
     /** 生成类的邻类 */
     private final Class<?> neighbor;
 
-    public AbstractClassGenerate() {
-        this(AbstractClassGenerate.class);
+    public AbstractClassGenerator() {
+        this(AbstractClassGenerator.class);
     }
 
-    public AbstractClassGenerate(Class<?> neighbor) {
+    public AbstractClassGenerator(Class<?> neighbor) {
         this.neighbor = neighbor;
         this.defaultPackage = neighbor.getPackageName().replaceAll("\\.", "\\/") + "/";
     }
@@ -190,7 +191,12 @@ public abstract class AbstractClassGenerate extends ClassLoader implements Opcod
      * @param className 完整类名
      */
     private void getMethodHandle(ClassWriter cw, String fieldName, String typeOf, String className) {
-        String getMethodName = "get" + StringUtils.capitalize(fieldName);
+        String getMethodName = "get";
+        // 布尔类型的get方法名是is开头
+        if (TYPEOF_BOOLEAN.equals(typeOf)) {
+            getMethodName = "is";
+        }
+        getMethodName = getMethodName + StringUtils.capitalize(fieldName);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, getMethodName, "()" + typeOf, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -301,6 +307,8 @@ public abstract class AbstractClassGenerate extends ClassLoader implements Opcod
                 return ACC_FINAL;
             case "super":
                 return ACC_SUPER;
+            case "interface":
+                return ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE;
             case "public":
             default:
                 return ACC_PUBLIC;
