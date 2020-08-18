@@ -1,4 +1,4 @@
-package org.thirteen.datamation.generate;
+package org.thirteen.datamation.core.generate;
 
 import org.springframework.util.CollectionUtils;
 import org.thirteen.datamation.model.po.DmColumnPO;

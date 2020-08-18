@@ -1,4 +1,4 @@
-package org.thirteen.datamation.generate;
+package org.thirteen.datamation.core.generate;
 
 import javassist.bytecode.MethodInfo;
 

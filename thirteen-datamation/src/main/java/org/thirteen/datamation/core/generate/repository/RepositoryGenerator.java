@@ -1,8 +1,8 @@
-package org.thirteen.datamation.generate.repository;
+package org.thirteen.datamation.core.generate.repository;
 
 import org.objectweb.asm.ClassWriter;
-import org.thirteen.datamation.generate.AbstractClassGenerator;
-import org.thirteen.datamation.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.AbstractClassGenerator;
+import org.thirteen.datamation.core.generate.ClassInfo;
 
 /**
  * @author Aaron.Sun

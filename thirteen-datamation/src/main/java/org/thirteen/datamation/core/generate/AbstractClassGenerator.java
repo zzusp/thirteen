@@ -1,4 +1,4 @@
-package org.thirteen.datamation.generate;
+package org.thirteen.datamation.core.generate;
 
 import javassist.util.proxy.DefineClassHelper;
 import org.objectweb.asm.*;
@@ -200,7 +200,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, getMethodName, "()" + typeOf, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, className, fieldName, typeOf);
+        mv.visitFieldInsn(getField, className, fieldName, typeOf);
         mv.visitInsn(loadAndReturnOf(typeOf)[1]);
         mv.visitMaxs(2, 1);
         mv.visitEnd();
@@ -244,7 +244,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
                 // 访问局部变量指令。0表示this
                 mv.visitVarInsn(ALOAD, 0);
                 // 访问方法指令
-                mv.visitFieldInsn(GETFIELD, className, fieldName, typeOf);
+                mv.visitFieldInsn(getField, className, fieldName, typeOf);
                 mv.visitInsn(IADD);
                 mv.visitMaxs(2, 3);
                 // 拼接每个字段结尾

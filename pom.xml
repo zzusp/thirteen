@@ -45,6 +45,7 @@
     <commons-io.version>2.6</commons-io.version><!-- io处理 -->
     <commons-net.version>3.6</commons-net.version><!-- 下载功能 -->
     <commons-fileupload.version>1.4</commons-fileupload.version><!-- 文件上传 -->
+    <commons-collections4.version>4.4</commons-collections4.version><!-- 集合工具类 -->
     <commons-codec.version>1.12</commons-codec.version><!-- 加密库 -->
     <javax.servlet.version>4.0.1</javax.servlet.version><!-- javax.servlet -->
     <javax.persistence.version>1.0.2</javax.persistence.version><!-- javax.persistence -->
@@ -188,6 +189,11 @@
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
         <version>${commons-fileupload.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>${commons-collections4.version}</version>
       </dependency>
       <!-- 加密库 -->
       <dependency>

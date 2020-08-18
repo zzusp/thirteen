@@ -1,10 +1,10 @@
-package org.thirteen.datamation.generate.po;
+package org.thirteen.datamation.core.generate.po;
 
 import org.springframework.util.StringUtils;
-import org.thirteen.datamation.generate.AbstractClassConverter;
-import org.thirteen.datamation.generate.AnnotationInfo;
-import org.thirteen.datamation.generate.ClassInfo;
-import org.thirteen.datamation.generate.FieldInfo;
+import org.thirteen.datamation.core.generate.AbstractClassConverter;
+import org.thirteen.datamation.core.generate.AnnotationInfo;
+import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.FieldInfo;
 import org.thirteen.datamation.model.po.DmColumnPO;
 import org.thirteen.datamation.model.po.DmTablePO;
 

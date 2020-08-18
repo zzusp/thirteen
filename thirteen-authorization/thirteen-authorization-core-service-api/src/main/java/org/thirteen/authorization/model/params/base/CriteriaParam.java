@@ -24,7 +24,7 @@ public class CriteriaParam implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * feild = value
+     * field = value
      */
     public static final String EQUAL = "equal";
     /**
@@ -86,7 +86,7 @@ public class CriteriaParam implements Serializable {
     public static final String OR = "or";
 
     @ApiParam(value = "字段")
-    protected String feild;
+    protected String field;
     @ApiParam(value = "比较操作符，默认为equals")
     protected String operator;
     @ApiParam(value = "字段对应值")
@@ -104,12 +104,12 @@ public class CriteriaParam implements Serializable {
         return new CriteriaParam().operator(EQUAL).and().required(false).criterias(new ArrayList<>());
     }
 
-    public static CriteriaParam equal(String feild, Object value) {
-        return new CriteriaParam().feild(feild).operator(EQUAL).value(value);
+    public static CriteriaParam equal(String field, Object value) {
+        return new CriteriaParam().field(field).operator(EQUAL).value(value);
     }
 
-    public static CriteriaParam in(String feild, List values) {
-        return new CriteriaParam().feild(feild).operator(IN).values(Arrays.asList(values.toArray()));
+    public static CriteriaParam in(String field, List values) {
+        return new CriteriaParam().field(field).operator(IN).values(Arrays.asList(values.toArray()));
     }
 
     public CriteriaParam add(CriteriaParam criteria) {
@@ -120,8 +120,8 @@ public class CriteriaParam implements Serializable {
         return this;
     }
 
-    public CriteriaParam feild(String feild) {
-        this.feild = feild;
+    public CriteriaParam field(String field) {
+        this.field = field;
         return this;
     }
 

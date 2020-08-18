@@ -1,10 +1,10 @@
-package org.thirteen.datamation.generate.po;
+package org.thirteen.datamation.core.generate.po;
 
 import org.objectweb.asm.ClassWriter;
-import org.thirteen.datamation.generate.AbstractClassGenerator;
-import org.thirteen.datamation.generate.AnnotationInfo;
-import org.thirteen.datamation.generate.ClassInfo;
-import org.thirteen.datamation.generate.FieldInfo;
+import org.thirteen.datamation.core.generate.AbstractClassGenerator;
+import org.thirteen.datamation.core.generate.AnnotationInfo;
+import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.FieldInfo;
 
 import java.util.ArrayList;
 import java.util.List;

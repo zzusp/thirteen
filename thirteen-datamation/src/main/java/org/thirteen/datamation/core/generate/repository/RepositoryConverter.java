@@ -1,14 +1,14 @@
-package org.thirteen.datamation.generate.repository;
+package org.thirteen.datamation.core.generate.repository;
 
 import aj.org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thirteen.datamation.generate.AbstractClassConverter;
-import org.thirteen.datamation.generate.AnnotationInfo;
-import org.thirteen.datamation.generate.ClassInfo;
-import org.thirteen.datamation.generate.FieldInfo;
-import org.thirteen.datamation.generate.po.PoConverter;
-import org.thirteen.datamation.generate.po.PoGenerator;
+import org.thirteen.datamation.core.generate.AbstractClassConverter;
+import org.thirteen.datamation.core.generate.AnnotationInfo;
+import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.FieldInfo;
+import org.thirteen.datamation.core.generate.po.PoConverter;
+import org.thirteen.datamation.core.generate.po.PoGenerator;
 import org.thirteen.datamation.model.po.DmColumnPO;
 import org.thirteen.datamation.model.po.DmTablePO;
 

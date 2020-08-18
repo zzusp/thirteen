@@ -425,7 +425,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
         // 遍历条件参数集合
         for (CriteriaParam item : criterias) {
             // 判断字段名是否包含"."，如果包含则continue
-            if (item.getFeild().contains(".")) {
+            if (item.getField().contains(".")) {
                 continue;
             }
             // 判断条件组是否为空
@@ -477,43 +477,43 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
             try {
                 switch (item.getOperator()) {
                     case CriteriaParam.EQUAL:
-                        predicate = cb.equal(root.get(item.getFeild()), item.getValue());
+                        predicate = cb.equal(root.get(item.getField()), item.getValue());
                         break;
                     case CriteriaParam.NOT_EQUAL:
-                        predicate = cb.notEqual(root.get(item.getFeild()), item.getValue());
+                        predicate = cb.notEqual(root.get(item.getField()), item.getValue());
                         break;
                     case CriteriaParam.GT:
-                        predicate = cb.gt(root.get(item.getFeild()), (Number) item.getValue());
+                        predicate = cb.gt(root.get(item.getField()), (Number) item.getValue());
                         break;
                     case CriteriaParam.GE:
-                        predicate = cb.ge(root.get(item.getFeild()), (Number) item.getValue());
+                        predicate = cb.ge(root.get(item.getField()), (Number) item.getValue());
                         break;
                     case CriteriaParam.LT:
-                        predicate = cb.lt(root.get(item.getFeild()), (Number) item.getValue());
+                        predicate = cb.lt(root.get(item.getField()), (Number) item.getValue());
                         break;
                     case CriteriaParam.LE:
-                        predicate = cb.le(root.get(item.getFeild()), (Number) item.getValue());
+                        predicate = cb.le(root.get(item.getField()), (Number) item.getValue());
                         break;
                     case CriteriaParam.GREATER_THAN:
-                        predicate = cb.greaterThan(root.get(item.getFeild()), (Comparable) item.getValue());
+                        predicate = cb.greaterThan(root.get(item.getField()), (Comparable) item.getValue());
                         break;
                     case CriteriaParam.GREATER_THAN_OR_EQUAL_TO:
-                        predicate = cb.greaterThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
+                        predicate = cb.greaterThanOrEqualTo(root.get(item.getField()), (Comparable) item.getValue());
                         break;
                     case CriteriaParam.LESS_THEN:
-                        predicate = cb.lessThan(root.get(item.getFeild()), (Comparable) item.getValue());
+                        predicate = cb.lessThan(root.get(item.getField()), (Comparable) item.getValue());
                         break;
                     case CriteriaParam.LESS_THAN_OR_EQUAL_TO:
-                        predicate = cb.lessThanOrEqualTo(root.get(item.getFeild()), (Comparable) item.getValue());
+                        predicate = cb.lessThanOrEqualTo(root.get(item.getField()), (Comparable) item.getValue());
                         break;
                     case CriteriaParam.LIKE:
-                        predicate = cb.like(root.get(item.getFeild()), (String) item.getValue());
+                        predicate = cb.like(root.get(item.getField()), (String) item.getValue());
                         break;
                     case CriteriaParam.NOT_LIKE:
-                        predicate = cb.notLike(root.get(item.getFeild()), (String) item.getValue());
+                        predicate = cb.notLike(root.get(item.getField()), (String) item.getValue());
                         break;
                     case CriteriaParam.IN:
-                        CriteriaBuilder.In<Object> in = cb.in(root.get(item.getFeild()));
+                        CriteriaBuilder.In<Object> in = cb.in(root.get(item.getField()));
                         for (Object object : item.getValues()) {
                             in.value(object);
                         }
