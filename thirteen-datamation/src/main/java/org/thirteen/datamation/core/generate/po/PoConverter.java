@@ -89,57 +89,57 @@ public class PoConverter extends AbstractClassConverter {
     }
 
     public static void main(String[] args) {
-        DmTablePO po = new DmTablePO();
-        po.setCode("rental_stock");
-        po.setName("库存");
-        po.setStatus((byte) 1);
-        po.setCreateBy("admin");
-        po.setCreateTime(LocalDateTime.now());
-        po.setDelFlag((byte) 1);
-
-        DmColumnPO id = new DmColumnPO();
-        id.setCode("id");
-        id.setName("主键");
-        id.setDbType("VARCHAR");
-        id.setLength(32);
-        id.setNotNull((byte) 1);
-        id.setStatus((byte) 1);
-        id.setCreateBy("admin");
-        id.setCreateTime(LocalDateTime.now());
-        id.setRemark(null);
-        id.setDelFlag((byte) 1);
-
-        DmColumnPO code = new DmColumnPO();
-        code.setCode("code");
-        code.setName("编码");
-        code.setDbType("VARCHAR");
-        code.setLength(20);
-        code.setNotNull((byte) 1);
-        code.setStatus((byte) 1);
-        code.setCreateBy("admin");
-        code.setCreateTime(LocalDateTime.now());
-        code.setRemark("编码唯一");
-        code.setDelFlag((byte) 1);
-
-        DmColumnPO createTime = new DmColumnPO();
-        createTime.setCode("create_time");
-        createTime.setName("创建时间");
-        createTime.setDbType("DATETIME");
-        createTime.setNotNull((byte) 0);
-        createTime.setStatus((byte) 1);
-        createTime.setCreateBy("admin");
-        createTime.setCreateTime(LocalDateTime.now());
-        createTime.setDelFlag((byte) 1);
-
-        po.getColumns().add(id);
-        po.getColumns().add(code);
-        po.getColumns().add(createTime);
-        PoConverter poConverter = new PoConverter();
-        PoGenerator poGenerate = new PoGenerator();
-        try {
-            poGenerate.writeClass(poConverter.getClassInfo(po));
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
-        }
+//        DmTablePO po = new DmTablePO();
+//        po.setCode("rental_stock");
+//        po.setName("库存");
+//        po.setStatus((byte) 1);
+//        po.setCreateBy("admin");
+//        po.setCreateTime(LocalDateTime.now());
+//        po.setDelFlag((byte) 1);
+//
+//        DmColumnPO id = new DmColumnPO();
+//        id.setCode("id");
+//        id.setName("主键");
+//        id.setDbType("VARCHAR");
+//        id.setLength(32);
+//        id.setNotNull((byte) 1);
+//        id.setStatus((byte) 1);
+//        id.setCreateBy("admin");
+//        id.setCreateTime(LocalDateTime.now());
+//        id.setRemark(null);
+//        id.setDelFlag((byte) 1);
+//
+//        DmColumnPO code = new DmColumnPO();
+//        code.setCode("code");
+//        code.setName("编码");
+//        code.setDbType("VARCHAR");
+//        code.setLength(20);
+//        code.setNotNull((byte) 1);
+//        code.setStatus((byte) 1);
+//        code.setCreateBy("admin");
+//        code.setCreateTime(LocalDateTime.now());
+//        code.setRemark("编码唯一");
+//        code.setDelFlag((byte) 1);
+//
+//        DmColumnPO createTime = new DmColumnPO();
+//        createTime.setCode("create_time");
+//        createTime.setName("创建时间");
+//        createTime.setDbType("DATETIME");
+//        createTime.setNotNull((byte) 0);
+//        createTime.setStatus((byte) 1);
+//        createTime.setCreateBy("admin");
+//        createTime.setCreateTime(LocalDateTime.now());
+//        createTime.setDelFlag((byte) 1);
+//
+//        po.getColumns().add(id);
+//        po.getColumns().add(code);
+//        po.getColumns().add(createTime);
+//        PoConverter poConverter = new PoConverter();
+//        PoGenerator poGenerate = new PoGenerator();
+//        try {
+//            poGenerate.writeClass(poConverter.getClassInfo(po));
+//        } catch (IOException | URISyntaxException e) {
+//            e.printStackTrace();
+//        }
     }
 }

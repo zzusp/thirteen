@@ -4,16 +4,16 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
-import org.thirteen.datamation.core.criteria.CriteriaBuilder;
-import org.thirteen.datamation.core.criteria.DatamationCriteria;
+import org.thirteen.datamation.core.criteria.DmExample;
+import org.thirteen.datamation.core.criteria.DmCriteria;
 import org.thirteen.datamation.model.po.DmColumnPO;
 import org.thirteen.datamation.model.po.DmTablePO;
 import org.thirteen.datamation.repository.DmColumnRepository;
 import org.thirteen.datamation.repository.DmTableRepository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Aaron.Sun
@@ -34,10 +34,6 @@ public class DatamationRepositoryFactoryBean implements FactoryBean<DatamationRe
 
     @Override
     public DatamationRepository getObject() throws Exception {
-        CriteriaBuilder<DmTablePO> tableBuilder = new CriteriaBuilder<>();
-        List<DmTablePO> tableList = dmTableRepository.findAll(tableBuilder
-            .createSpecification(DatamationCriteria.equal("delFlag", 1)));
-        List<DmColumnPO> columnList = dmColumnRepository.findAll();
         return null;
     }
 
@@ -49,5 +45,27 @@ public class DatamationRepositoryFactoryBean implements FactoryBean<DatamationRe
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    protected DatamationRepository buildDatamationRepository() {
+        // 查询所有有效table数据
+        DmExample<DmTablePO> tableExample = new DmExample<>();
+        tableExample.createSpecification().add(DmCriteria.noDeleted());
+        List<DmTablePO> tableList = dmTableRepository.findAll(tableExample.build());
+        // 查询所有有效column数据
+        DmExample<DmColumnPO> columnExample = new DmExample<>();
+        columnExample.createSpecification().add(DmCriteria.noDeleted());
+        List<DmColumnPO> columnList = dmColumnRepository.findAll(columnExample.build());
+        // 将所有column关联到对应的table
+        for (DmTablePO table : tableList) {
+            for (DmColumnPO column : columnList) {
+                if (table.getCode().equals(column.getTableCode())) {
+                    table.getColumns().add(column);
+                }
+            }
+        }
+
+
+        return null;
     }
 }

@@ -13,27 +13,40 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.thirteen.datamation.core.DmCodes.*;
+
 /**
  * @author Aaron.Sun
  * @description JPA条件帮助类
  * @date Created in 23:43 2019/12/19
  * @modified by
  */
-public class CriteriaBuilder<T> {
+public class DmExample<T> {
 
     /** 每层条件个数的最大值 */
     private static final Integer MAX_CRITERIA_SIZE = 10;
     /** 条件最大深度 */
     private static final Integer MAX_DEEP = 5;
 
+    private DmSpecification specification;
+
     /**
      * 由搜索条件参数生成jpa数据查询参数对象
      *
-     * @param criteria 搜索条件参数
+     * @return datamation查询参数对象
+     */
+    public DmSpecification createSpecification() {
+        specification = DmSpecification.of();
+        return specification;
+    }
+
+    /**
+     * 生成jpa数据查询参数对象
+     *
      * @return jpa查询参数对象
      */
-    public Specification<T> createSpecification(DatamationCriteria criteria) {
-        return this.createSpecification(DatamationSpecification.of().add(criteria).getCriterias());
+    public Specification<T> build() {
+        return this.createSpecification(specification.getCriterias());
     }
 
     /**
@@ -42,7 +55,7 @@ public class CriteriaBuilder<T> {
      * @param criterias 搜索条件参数集合
      * @return jpa查询参数对象
      */
-    public Specification<T> createSpecification(List<DatamationCriteria> criterias) {
+    public Specification<T> createSpecification(List<DmCriteria> criterias) {
         return (Root<T> root, CriteriaQuery<?> query, javax.persistence.criteria.CriteriaBuilder cb) -> this.setCriteria(root, cb, criterias, 0);
     }
 
@@ -52,16 +65,16 @@ public class CriteriaBuilder<T> {
      * @param sorts 排序参数集合
      * @return jpa数据查询排序对象
      */
-    public Sort createSort(List<DatamationSort> sorts) {
+    public Sort createSort(List<DmSort> sorts) {
         Assert.notEmpty(sorts, "排序参数集合不可为空");
         List<Sort.Order> orders = new ArrayList<>();
-        for (DatamationSort item : sorts) {
+        for (DmSort item : sorts) {
             if (StringUtils.isNotEmpty(item.getField())) {
-                if (StringUtils.isEmpty(item.getOrderBy()) || DatamationSort.ASC.equals(item.getOrderBy())) {
+                if (StringUtils.isEmpty(item.getOrderBy()) || ASC.equals(item.getOrderBy())) {
                     orders.add(Sort.Order.asc(item.getField()));
                     continue;
                 }
-                if (DatamationSort.DESC.equals(item.getOrderBy())) {
+                if (DESC.equals(item.getOrderBy())) {
                     orders.add(Sort.Order.desc(item.getField()));
                     continue;
                 }
@@ -80,7 +93,7 @@ public class CriteriaBuilder<T> {
      * @param deep 条件深度
      * @return jpa查询参数对象
      */
-    private Predicate setCriteria(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, List<DatamationCriteria> criterias, int deep) {
+    private Predicate setCriteria(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, List<DmCriteria> criterias, int deep) {
         Assert.notEmpty(criterias, "条件参数集合不可为空");
         if (criterias.size() > MAX_CRITERIA_SIZE) {
             throw new ParamErrorException("条件参数集合大小不可大于10");
@@ -96,7 +109,7 @@ public class CriteriaBuilder<T> {
         // 深度加1
         deep++;
         // 遍历条件参数集合
-        for (DatamationCriteria item : criterias) {
+        for (DmCriteria item : criterias) {
             // 判断字段名是否包含"."，如果包含则continue
             if (item.getField().contains(".")) {
                 continue;
@@ -114,11 +127,11 @@ public class CriteriaBuilder<T> {
             }
             if (predicate != null) {
                 // 判断条件间关系（默认关系为AND）
-                if (StringUtils.isEmpty(item.getRelation()) || DatamationCriteria.AND.equals(item.getRelation())) {
+                if (StringUtils.isEmpty(item.getRelation()) || AND.equals(item.getRelation())) {
                     result = cb.and(result, predicate);
                     continue;
                 }
-                if (DatamationCriteria.OR.equals(item.getRelation())) {
+                if (OR.equals(item.getRelation())) {
                     result = cb.or(result, predicate);
                     continue;
                 }
@@ -137,7 +150,7 @@ public class CriteriaBuilder<T> {
      * @return 处理后的谓语对象
      */
     @SuppressWarnings("unchecked")
-    private Predicate predicateHandle(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, DatamationCriteria item) {
+    private Predicate predicateHandle(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, DmCriteria item) {
         Predicate predicate = null;
         boolean hasValue = item.getValue() != null && !"".equals(String.valueOf(item.getValue()));
         boolean hasValues = CollectionUtils.isNotEmpty(item.getValues());
@@ -145,47 +158,47 @@ public class CriteriaBuilder<T> {
         if (hasValue || hasValues || item.isRequired()) {
             // 比较操作符默认为equals
             if (StringUtils.isEmpty(item.getOperator())) {
-                item.setOperator(DatamationCriteria.EQUAL);
+                item.setOperator(EQUAL);
             }
             try {
                 switch (item.getOperator()) {
-                    case DatamationCriteria.EQUAL:
+                    case EQUAL:
                         predicate = cb.equal(root.get(item.getField()), item.getValue());
                         break;
-                    case DatamationCriteria.NOT_EQUAL:
+                    case NOT_EQUAL:
                         predicate = cb.notEqual(root.get(item.getField()), item.getValue());
                         break;
-                    case DatamationCriteria.GT:
+                    case GT:
                         predicate = cb.gt(root.get(item.getField()), (Number) item.getValue());
                         break;
-                    case DatamationCriteria.GE:
+                    case GE:
                         predicate = cb.ge(root.get(item.getField()), (Number) item.getValue());
                         break;
-                    case DatamationCriteria.LT:
+                    case LT:
                         predicate = cb.lt(root.get(item.getField()), (Number) item.getValue());
                         break;
-                    case DatamationCriteria.LE:
+                    case LE:
                         predicate = cb.le(root.get(item.getField()), (Number) item.getValue());
                         break;
-                    case DatamationCriteria.GREATER_THAN:
+                    case GREATER_THAN:
                         predicate = cb.greaterThan(root.get(item.getField()), (Comparable) item.getValue());
                         break;
-                    case DatamationCriteria.GREATER_THAN_OR_EQUAL_TO:
+                    case GREATER_THAN_OR_EQUAL_TO:
                         predicate = cb.greaterThanOrEqualTo(root.get(item.getField()), (Comparable) item.getValue());
                         break;
-                    case DatamationCriteria.LESS_THEN:
+                    case LESS_THEN:
                         predicate = cb.lessThan(root.get(item.getField()), (Comparable) item.getValue());
                         break;
-                    case DatamationCriteria.LESS_THAN_OR_EQUAL_TO:
+                    case LESS_THAN_OR_EQUAL_TO:
                         predicate = cb.lessThanOrEqualTo(root.get(item.getField()), (Comparable) item.getValue());
                         break;
-                    case DatamationCriteria.LIKE:
+                    case LIKE:
                         predicate = cb.like(root.get(item.getField()), (String) item.getValue());
                         break;
-                    case DatamationCriteria.NOT_LIKE:
+                    case NOT_LIKE:
                         predicate = cb.notLike(root.get(item.getField()), (String) item.getValue());
                         break;
-                    case DatamationCriteria.IN:
+                    case IN:
                         javax.persistence.criteria.CriteriaBuilder.In<Object> in = cb.in(root.get(item.getField()));
                         for (Object object : item.getValues()) {
                             in.value(object);

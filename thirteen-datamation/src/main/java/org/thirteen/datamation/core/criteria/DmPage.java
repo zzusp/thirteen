@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @date Created in 23:43 2019/12/19
  * @modified by
  */
-public class DatamationPage implements Serializable {
+public class DmPage implements Serializable {
 
     private static final long serialVersionUID = 1L;
     /** 当前页码，第一页页码为0 */

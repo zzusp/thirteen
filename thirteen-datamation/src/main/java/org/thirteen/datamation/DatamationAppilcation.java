@@ -2,6 +2,11 @@ package org.thirteen.datamation;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.thirteen.datamation.core.spring.DatamationRepository;
+import org.thirteen.datamation.core.spring.DatamationRepositoryFactoryBean;
+import org.thirteen.datamation.repository.DmColumnRepository;
+import org.thirteen.datamation.repository.DmTableRepository;
 
 /**
  * @author Aaron.Sun
@@ -16,4 +21,9 @@ public class DatamationAppilcation {
         SpringApplication.run(DatamationAppilcation.class, args);
     }
 
+    @Bean
+    public DatamationRepository datamationRepositoryFactoryBean(DmTableRepository dmTableRepository,
+                                                                DmColumnRepository dmColumnRepository) throws Exception {
+        return new DatamationRepositoryFactoryBean(dmTableRepository, dmColumnRepository).getObject();
+    }
 }

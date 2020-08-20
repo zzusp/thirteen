@@ -2,48 +2,47 @@ package org.thirteen.datamation.core.criteria;
 
 import java.io.Serializable;
 
+import static org.thirteen.datamation.core.DmCodes.ASC;
+import static org.thirteen.datamation.core.DmCodes.DESC;
+
 /**
  * @author Aaron.Sun
  * @description 排序查询入参对象
  * @date Created in 23:43 2019/12/19
  * @modified by
  */
-public class DatamationSort implements Serializable {
+public class DmSort implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /** 升序 */
-    public static final String ASC = "asc";
-    /** 降序 */
-    public static final String DESC = "desc";
 
     /** 字段名 */
     private String field;
     /** 排序 asc（升序）/desc（降序） */
     private String orderBy;
 
-    public static DatamationSort of() {
-        return new DatamationSort();
+    public static DmSort of() {
+        return new DmSort();
     }
 
-    public static DatamationSort asc(String field) {
+    public static DmSort asc(String field) {
         return of().field(field).asc();
     }
 
-    public static DatamationSort desc(String field) {
+    public static DmSort desc(String field) {
         return of().field(field).desc();
     }
 
-    public DatamationSort field(String field) {
+    public DmSort field(String field) {
         this.field = field;
         return this;
     }
 
-    public DatamationSort asc() {
+    public DmSort asc() {
         this.orderBy = ASC;
         return this;
     }
 
-    public DatamationSort desc() {
+    public DmSort desc() {
         this.orderBy = DESC;
         return this;
     }
