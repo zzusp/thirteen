@@ -13,6 +13,11 @@
   <artifactId>thirteen-datamation</artifactId>
 
   <dependencies>
+    <!-- 包含 mvc,aop 等jar资源 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
     <!-- 引入Spring封装的jdbc-->
     <dependency>
       <groupId>org.springframework.boot</groupId>

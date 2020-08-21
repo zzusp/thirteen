@@ -3,7 +3,7 @@ package org.thirteen.datamation.core.exception;
 /**
  * @author Aaron.Sun
  * @description 查询参数异常
- * @date Created in 17:12 2020/1/1913
+ * @date Created in 17:12 2020/1/19
  * @modified by
  */
 public class ParamErrorException extends RuntimeException {

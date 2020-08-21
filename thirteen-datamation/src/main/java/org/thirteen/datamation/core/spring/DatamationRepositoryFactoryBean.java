@@ -14,6 +14,10 @@ import org.thirteen.datamation.repository.DmTableRepository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Aaron.Sun
@@ -34,7 +38,7 @@ public class DatamationRepositoryFactoryBean implements FactoryBean<DatamationRe
 
     @Override
     public DatamationRepository getObject() throws Exception {
-        return null;
+        return new DatamationRepository(dmTableRepository, dmColumnRepository);
     }
 
     @Override
@@ -43,29 +47,8 @@ public class DatamationRepositoryFactoryBean implements FactoryBean<DatamationRe
     }
 
     @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
-    protected DatamationRepository buildDatamationRepository() {
-        // 查询所有有效table数据
-        DmExample<DmTablePO> tableExample = new DmExample<>();
-        tableExample.createSpecification().add(DmCriteria.noDeleted());
-        List<DmTablePO> tableList = dmTableRepository.findAll(tableExample.build());
-        // 查询所有有效column数据
-        DmExample<DmColumnPO> columnExample = new DmExample<>();
-        columnExample.createSpecification().add(DmCriteria.noDeleted());
-        List<DmColumnPO> columnList = dmColumnRepository.findAll(columnExample.build());
-        // 将所有column关联到对应的table
-        for (DmTablePO table : tableList) {
-            for (DmColumnPO column : columnList) {
-                if (table.getCode().equals(column.getTableCode())) {
-                    table.getColumns().add(column);
-                }
-            }
-        }
-
-
-        return null;
-    }
 }

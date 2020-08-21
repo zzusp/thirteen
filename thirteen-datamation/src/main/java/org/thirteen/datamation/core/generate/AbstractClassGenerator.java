@@ -2,8 +2,12 @@ package org.thirteen.datamation.core.generate;
 
 import javassist.util.proxy.DefineClassHelper;
 import org.objectweb.asm.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.thirteen.datamation.core.exception.DatamationException;
+import org.thirteen.datamation.core.generate.repository.BaseRepository;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,6 +23,9 @@ import java.util.List;
  * @modified By
  */
 public abstract class AbstractClassGenerator extends ClassLoader implements Opcodes {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractClassGenerator.class);
+
     private static final String TYPEOF_BOOLEAN = "Z";
     /** 默认的class生成路径 */
     protected String defaultPackage;
@@ -38,10 +45,14 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * 生成class
      *
      * @param classInfo 类信息
-     * @throws IllegalAccessException 非法访问异常
      */
-    public Class<?> generate(ClassInfo classInfo) throws IllegalAccessException {
-        return defineClass(this.neighbor, getClassByteArray(classInfo));
+    public Class<?> generate(ClassInfo classInfo) {
+        try {
+            return defineClass(this.neighbor, getClassByteArray(classInfo));
+        } catch (Exception e) {
+            logger.error("动态生成失败，class：{}", classInfo.getClassName());
+            throw new DatamationException("动态生成失败，class：" + classInfo.getClassName(), e);
+        }
     }
 
     /**
@@ -67,12 +78,11 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * @return class定义
      * @throws IllegalAccessException 非法访问异常
      */
-    public Class<?> defineClass(Class<?> neighbor, byte[] b)
-        throws IllegalAccessException {
+    public Class<?> defineClass(Class<?> neighbor, byte[] b) throws IllegalAccessException {
         DefineClassHelper.class.getModule().addReads(neighbor.getModule());
         MethodHandles.Lookup lookup = MethodHandles.lookup();
-        MethodHandles.Lookup prvlookup = MethodHandles.privateLookupIn(neighbor, lookup);
-        return prvlookup.defineClass(b);
+        MethodHandles.Lookup prvLookup = MethodHandles.privateLookupIn(neighbor, lookup);
+        return prvLookup.defineClass(b);
     }
 
     /**

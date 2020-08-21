@@ -3,6 +3,7 @@ package org.thirteen.datamation.core.generate.repository;
 import aj.org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thirteen.datamation.core.exception.DatamationException;
 import org.thirteen.datamation.core.generate.AbstractClassConverter;
 import org.thirteen.datamation.core.generate.AnnotationInfo;
 import org.thirteen.datamation.core.generate.ClassInfo;
@@ -33,14 +34,17 @@ public class RepositoryConverter extends AbstractClassConverter {
     /** 主键的java类型 */
     private final String pkJavaType;
 
-    public RepositoryConverter(String poClassName, String pkJavaType) throws InterruptedException {
+    public RepositoryConverter(Class<?> poClass) {
+        this(Type.getInternalName(poClass), "Ljava/lang/String;");
+    }
+
+    public RepositoryConverter(String poClassName, String pkJavaType) {
         // po是否存在校验。未找到PO类时，应中断运行，所以抛出中断异常
         try {
             RepositoryGenerator.class.getClassLoader().loadClass(poClassName.replaceAll("/", "."));
         } catch (ClassNotFoundException e) {
             logger.error("po class not found: {}", poClassName);
-            e.printStackTrace();
-            throw new InterruptedException("po class not found: " + e.getMessage());
+            throw new DatamationException("po class not found: " + poClassName, e);
         }
         this.poClassName = poClassName;
         this.pkJavaType = pkJavaType;
@@ -49,9 +53,9 @@ public class RepositoryConverter extends AbstractClassConverter {
     @Override
     protected ClassInfo tableToClass(DmTablePO table) {
         // 接口
-        String interfaceStr = "L" + Type.getInternalName(BaseRepository.class);
+        String interfaceStr = Type.getInternalName(BaseRepository.class);
         // 签名（泛型。Ljava/lang/Object;表示超类或超接口）
-        String signature = "Ljava/lang/Object;" + interfaceStr + "<L" + poClassName + ";" + pkJavaType + ">;";
+        String signature = "Ljava/lang/Object;L" + interfaceStr + "<L" + poClassName + ";" + pkJavaType + ">;";
 
         ClassInfo classInfo = new ClassInfo();
         classInfo.setClassName(lineToHumpAndStartWithCapitalize(table.getCode()) + REPOSITORY_SUFFIX);
