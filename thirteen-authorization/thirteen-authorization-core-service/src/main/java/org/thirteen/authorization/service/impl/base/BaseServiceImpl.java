@@ -500,7 +500,7 @@ public abstract class BaseServiceImpl<VO extends BaseVO, PO extends BasePO, R ex
                     case CriteriaParam.GREATER_THAN_OR_EQUAL_TO:
                         predicate = cb.greaterThanOrEqualTo(root.get(item.getField()), (Comparable) item.getValue());
                         break;
-                    case CriteriaParam.LESS_THEN:
+                    case CriteriaParam.LESS_THAN:
                         predicate = cb.lessThan(root.get(item.getField()), (Comparable) item.getValue());
                         break;
                     case CriteriaParam.LESS_THAN_OR_EQUAL_TO:

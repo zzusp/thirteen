@@ -58,7 +58,7 @@ public class CriteriaParam implements Serializable {
     /**
      * filed < value  value为Comparable类型数据
      */
-    public static final String LESS_THEN = "lessThan";
+    public static final String LESS_THAN = "lessThan";
     /**
      * filed <= value  value为Comparable类型数据
      */

@@ -186,7 +186,7 @@ public class DmExample<T> {
                     case GREATER_THAN_OR_EQUAL_TO:
                         predicate = cb.greaterThanOrEqualTo(root.get(item.getField()), (Comparable) item.getValue());
                         break;
-                    case LESS_THEN:
+                    case LESS_THAN:
                         predicate = cb.lessThan(root.get(item.getField()), (Comparable) item.getValue());
                         break;
                     case LESS_THAN_OR_EQUAL_TO:

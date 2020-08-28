@@ -4,20 +4,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.lang.NonNull;
-import org.thirteen.datamation.core.criteria.DmExample;
-import org.thirteen.datamation.core.criteria.DmCriteria;
-import org.thirteen.datamation.model.po.DmColumnPO;
-import org.thirteen.datamation.model.po.DmTablePO;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.thirteen.datamation.repository.DmColumnRepository;
 import org.thirteen.datamation.repository.DmTableRepository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toSet;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 /**
  * @author Aaron.Sun

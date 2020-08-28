@@ -39,7 +39,7 @@ public interface DmCodes {
     /** filed >= value  value为Comparable类型数据 */
     String GREATER_THAN_OR_EQUAL_TO = "greaterThanOrEqualTo";
     /** filed < value  value为Comparable类型数据 */
-    String LESS_THEN = "lessThan";
+    String LESS_THAN = "lessThan";
     /** filed <= value  value为Comparable类型数据 */
     String LESS_THAN_OR_EQUAL_TO = "lessThanOrEqualTo";
     /** filed like value */

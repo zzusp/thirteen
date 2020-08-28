@@ -56,6 +56,20 @@ public class PoConverter extends AbstractClassConverter {
     @Override
     protected List<AnnotationInfo> columnToAnnotation(DmColumnPO column) {
         List<AnnotationInfo> annotationInfos = new ArrayList<>();
+        if ("id".equals(column.getCode())) {
+            AnnotationInfo idAnno = new AnnotationInfo();
+            idAnno.setDesc("javax.persistence.Id");
+            AnnotationInfo genericGeneratorAnno = new AnnotationInfo();
+            genericGeneratorAnno.setDesc("org.hibernate.annotations.GenericGenerator");
+            genericGeneratorAnno.add("name", "pk_uuid");
+            genericGeneratorAnno.add("strategy", "uuid");
+            AnnotationInfo generatedValueAnno = new AnnotationInfo();
+            generatedValueAnno.setDesc("javax.persistence.GeneratedValue");
+            generatedValueAnno.add("generator", "pk_uuid");
+            annotationInfos.add(idAnno);
+            annotationInfos.add(genericGeneratorAnno);
+            annotationInfos.add(generatedValueAnno);
+        }
         // column注解
         AnnotationInfo columnAnno = new AnnotationInfo();
         columnAnno.setDesc("javax.persistence.Column");
@@ -70,7 +84,7 @@ public class PoConverter extends AbstractClassConverter {
             sb.append(" NOT NULL ");
         }
         sb.append(" COMMENT '").append(column.getName());
-        if (StringUtils.isEmpty(column.getRemark())) {
+        if (!StringUtils.isEmpty(column.getRemark())) {
             sb.append(" ").append(column.getRemark());
         }
         sb.append("'");
