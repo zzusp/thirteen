@@ -23,7 +23,7 @@ public class AnnotationInfo implements Serializable {
         this.visible = true;
     }
 
-    public AnnotationInfo add(String name, String value) {
+    public AnnotationInfo add(String name, Object value) {
         if (this.params == null) {
             this.params = new ArrayList<>();
         }
@@ -60,9 +60,9 @@ public class AnnotationInfo implements Serializable {
         /** name */
         private String name;
         /** value */
-        private String value;
+        private Object value;
 
-        public Param(String name, String value) {
+        public Param(String name, Object value) {
             this.name = name;
             this.value = value;
         }
@@ -75,11 +75,11 @@ public class AnnotationInfo implements Serializable {
             this.name = name;
         }
 
-        public String getValue() {
+        public Object getValue() {
             return value;
         }
 
-        public void setValue(String value) {
+        public void setValue(Object value) {
             this.value = value;
         }
     }

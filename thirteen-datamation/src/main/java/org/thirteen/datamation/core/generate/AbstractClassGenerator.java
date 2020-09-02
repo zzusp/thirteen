@@ -63,11 +63,12 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * @throws URISyntaxException 路径句法异常
      */
     public void writeClass(ClassInfo classInfo) throws IOException, URISyntaxException {
+        String classFilePath = ClassLoader.getSystemResource("").toURI().getPath()
+            + this.defaultPackage + classInfo.getClassName() + ".class";
         //将二进制流写到本地磁盘上
-        FileOutputStream fos = new FileOutputStream(ClassLoader.getSystemResource("").toURI().getPath()
-            + this.defaultPackage + classInfo.getClassName() + ".class");
-        fos.write(getClassByteArray(classInfo));
-        fos.close();
+        try (FileOutputStream fos = new FileOutputStream(classFilePath)) {
+            fos.write(getClassByteArray(classInfo));
+        }
     }
 
     /**
@@ -109,7 +110,14 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
                 if (!CollectionUtils.isEmpty(info.getParams())) {
                     for (AnnotationInfo.Param param : info.getParams()) {
                         // 设置注解参数
-                        av.visit(param.getName(), param.getValue());
+                        if (param.getValue() instanceof String[]) {
+                            av = av.visitArray(param.getName());
+                            for (String v : (String[]) param.getValue()) {
+                                av.visit(null, v);
+                            }
+                        } else {
+                            av.visit(param.getName(), param.getValue());
+                        }
                     }
                 }
                 // 注解结束
@@ -283,7 +291,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * @param typeof 类型字符串
      * @return load或return标识
      */
-    private static int[] loadAndReturnOf(String typeof) {
+    protected static int[] loadAndReturnOf(String typeof) {
         switch (typeof) {
             case "I":
             case "Z":

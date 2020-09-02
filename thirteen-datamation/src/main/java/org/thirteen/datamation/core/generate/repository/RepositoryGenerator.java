@@ -15,7 +15,7 @@ public class RepositoryGenerator extends AbstractClassGenerator {
     public RepositoryGenerator() {
         super(RepositoryGenerator.class);
         try {
-            this.loadClass("org.thirteen.datamation.core.generate.repository.BaseRepository");
+            this.loadClass(BaseRepository.class.getName());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

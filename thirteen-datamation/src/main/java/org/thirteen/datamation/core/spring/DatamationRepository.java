@@ -6,17 +6,26 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractRefreshableApplicationContext;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.jdbc.datasource.lookup.SingleDataSourceLookup;
 import org.springframework.lang.NonNull;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.thirteen.datamation.core.criteria.DmCriteria;
 import org.thirteen.datamation.core.criteria.DmExample;
 import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.config.DatasourceConfigGenerator;
 import org.thirteen.datamation.core.generate.po.PoConverter;
 import org.thirteen.datamation.core.generate.po.PoGenerator;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
@@ -46,6 +55,7 @@ import static java.util.stream.Collectors.toSet;
  * @date Created in 17:30 2020/8/18
  * @modified by
  */
+
 public class DatamationRepository implements ApplicationContextAware {
 
     private static final String BEAN_NAME_PREFIX = "datamation:";
@@ -118,26 +128,7 @@ public class DatamationRepository implements ApplicationContextAware {
 //                beanFactory.destroyBean(beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class));
 //                beanFactory.destroySingleton(beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0]);
 //                registry.destroySingleton(beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0]);
-                String name = beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0];
 
-//                LocalContainerEntityManagerFactoryBean entityManagerFactory = beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class);
-
-//                registry.destroySingleton(name);
-//                registry.registerSingleton(name, entityManagerFactory);
-//                beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class);
-                LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-                LocalContainerEntityManagerFactoryBean springEntityManagerFactoryBean = (LocalContainerEntityManagerFactoryBean) beanFactory.getBean(name);
-                entityManagerFactoryBean.setJpaVendorAdapter(springEntityManagerFactoryBean.getJpaVendorAdapter());
-                entityManagerFactoryBean.setPackagesToScan(poClass.getPackageName());
-                entityManagerFactoryBean.setJpaPropertyMap(springEntityManagerFactoryBean.getJpaPropertyMap());
-                entityManagerFactoryBean.setDataSource(springEntityManagerFactoryBean.getDataSource());
-
-
-
-//                entityManagerFactoryBean.getPersistenceUnitInfo().getManagedClassNames().add(poClass.getPackageName());
-//                entityManagerFactoryBean.destroy();
-                name = "&" + BEAN_NAME_PREFIX + name.replace("&", "");
-                beanFactory.registerSingleton(name, entityManagerFactoryBean);
 //                entityManagerFactoryBean.afterPropertiesSet();
 //                EntityManagerFactory emf = entityManagerFactoryBean.getObject();
 
@@ -158,27 +149,73 @@ public class DatamationRepository implements ApplicationContextAware {
             repositoryConverter = new RepositoryConverter(poClass);
             // 生成repository类
             repositoryClass = repositoryGenerate.generate(repositoryConverter.getClassInfo(table));
-
+//            try {
+//                repositoryGenerate.writeClass(repositoryConverter.getClassInfo(table));
+//            } catch (IOException | URISyntaxException e) {
+//                e.printStackTrace();
+//            }
             // 获取已加载到spring中的repository bean定义，作为原型
-            tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition("dmTableRepository");
+//            tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition("dmTableRepository");
 
             // bean定义构建器
-            builder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean");
-            builder.getRawBeanDefinition().setSource(tempBeanDefinition.getSource());
-            builder.addConstructorArgValue(repositoryClass.getName());
-            builder.addPropertyValue("queryLookupStrategyKey", tempBeanDefinition.getPropertyValues().get("queryLookupStrategyKey"));
-            builder.addPropertyValue("lazyInit", tempBeanDefinition.isLazyInit());
-            builder.setLazyInit(tempBeanDefinition.isLazyInit());
-            builder.addPropertyValue("namedQueries", tempBeanDefinition.getPropertyValues().get("namedQueries"));
-            builder.addPropertyValue("repositoryFragments", tempBeanDefinition.getPropertyValues().get("repositoryFragments"));
+//            builder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean");
+//            builder.getRawBeanDefinition().setSource(tempBeanDefinition.getSource());
+//            builder.addConstructorArgValue(repositoryClass.getName());
+//            builder.addPropertyValue("queryLookupStrategyKey", tempBeanDefinition.getPropertyValues().get("queryLookupStrategyKey"));
+//            builder.addPropertyValue("lazyInit", tempBeanDefinition.isLazyInit());
+//            builder.setLazyInit(tempBeanDefinition.isLazyInit());
+//            builder.addPropertyValue("namedQueries", tempBeanDefinition.getPropertyValues().get("namedQueries"));
+//            builder.addPropertyValue("repositoryFragments", tempBeanDefinition.getPropertyValues().get("repositoryFragments"));
 
+//            RootBeanDefinition rootBeanDefinition = new RootBeanDefinition();
+//            rootBeanDefinition.overrideFrom(tempBeanDefinition);
+//            rootBeanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass.getName());
+//            ((AnnotationMetadata) rootBeanDefinition.getSource()).getAnnotations()
+//                .get("org.springframework.data.jpa.repository.config.EnableJpaRepositories").asMap();
             // 注入到spring容器内，beanName为表名
-            beanName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
-            beanFactory.registerBeanDefinition(beanName, builder.getBeanDefinition());
+//            beanName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
+//            beanFactory.registerBeanDefinition(beanName, rootBeanDefinition.cloneBeanDefinition());
 
         }
 
-        BaseRepository repository = (BaseRepository) beanFactory.getBean("datamation:rentalStockRepository");
+//        String name = beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0];
+
+//                LocalContainerEntityManagerFactoryBean entityManagerFactory = beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class);
+
+//                registry.destroySingleton(name);
+//                registry.registerSingleton(name, entityManagerFactory);
+//                beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class);
+//        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+//        LocalContainerEntityManagerFactoryBean springEntityManagerFactoryBean = (LocalContainerEntityManagerFactoryBean) beanFactory.getBean(name);
+//        entityManagerFactoryBean.setJpaVendorAdapter(springEntityManagerFactoryBean.getJpaVendorAdapter());
+//
+//        DefaultPersistenceUnitManager persistenceUnitManager = new DefaultPersistenceUnitManager();
+//        persistenceUnitManager.setPackagesToScan("org.thirteen.datamation.core.generate.po");
+//        persistenceUnitManager.setDataSourceLookup(new SingleDataSourceLookup(springEntityManagerFactoryBean.getDataSource()));
+//        persistenceUnitManager.setDefaultDataSource(springEntityManagerFactoryBean.getDataSource());
+//
+//        entityManagerFactoryBean.setPersistenceUnitManager(persistenceUnitManager);
+//
+//        name = BEAN_NAME_PREFIX + name.replace("&", "");
+//        beanFactory.registerSingleton(name, entityManagerFactoryBean);
+
+
+        DatasourceConfigGenerator datasourceConfigGenerator = new DatasourceConfigGenerator();
+        Class<?> datasourceConfigClass = datasourceConfigGenerator.generate(null);
+
+//        try {
+//            beanFactory.registerSingleton(BEAN_NAME_PREFIX + "datasourceConfig", datasourceConfigClass.getDeclaredConstructor().newInstance());
+//        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+        AnnotationConfigServletWebApplicationContext applicationContext1 = new AnnotationConfigServletWebApplicationContext();
+        // 设置父容器
+        applicationContext1.setParent(this.applicationContext);
+        applicationContext1.register(datasourceConfigClass);
+        applicationContext1.refresh();
+        // 创建监听器，主要用来发布项目中存在父子容器事件
+        DmTableRepository dmTableRepository1 = applicationContext1.getBean(DmTableRepository.class);
+        BaseRepository repository = (BaseRepository) beanFactory.getBean(BEAN_NAME_PREFIX + "rentalStockRepository");
         repository.findAll();
         System.out.println("success");
     }
