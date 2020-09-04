@@ -14,11 +14,10 @@ public class RepositoryGenerator extends AbstractClassGenerator {
 
     public RepositoryGenerator() {
         super(RepositoryGenerator.class);
-        try {
-            this.loadClass(BaseRepository.class.getName());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+    }
+
+    public RepositoryGenerator(Class<?> neighbor) {
+        super(neighbor);
     }
 
     /**
@@ -32,7 +31,7 @@ public class RepositoryGenerator extends AbstractClassGenerator {
         ClassWriter cw = new ClassWriter(0);
         // 设置类基本属性
         // 参数：版本号，类的访问标志，类名（包含路径），签名，父类，内部接口
-        cw.visit(52, accessOf(classInfo.getAccess()), this.defaultPackage + classInfo.getClassName(),
+        cw.visit(57, accessOf(classInfo.getAccess()), this.defaultPackage + classInfo.getClassName(),
             classInfo.getSignature(), classInfo.getSuperName(), classInfo.getInterfaces());
         // 注解处理
         annotationHandle(cw, classInfo.getAnnotationInfos());

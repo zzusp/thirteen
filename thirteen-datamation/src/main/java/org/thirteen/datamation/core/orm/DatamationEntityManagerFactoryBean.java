@@ -7,7 +7,6 @@ import java.util.Objects;
 public class DatamationEntityManagerFactoryBean extends LocalContainerEntityManagerFactoryBean {
 
     public DatamationEntityManagerFactoryBean() {
-        System.out.println("111");
     }
 
     public void copy(LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean) {

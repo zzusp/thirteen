@@ -1,5 +1,8 @@
 package org.thirteen.datamation.core.spring;
 
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -22,6 +25,7 @@ import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.thirteen.datamation.DatamationAppilcation;
 import org.thirteen.datamation.core.criteria.DmCriteria;
 import org.thirteen.datamation.core.criteria.DmExample;
 import org.thirteen.datamation.core.generate.ClassInfo;
@@ -31,6 +35,7 @@ import org.thirteen.datamation.core.generate.po.PoGenerator;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.generate.repository.RepositoryConverter;
 import org.thirteen.datamation.core.generate.repository.RepositoryGenerator;
+import org.thirteen.datamation.core.orm.jpa.persistenceunit.PersistenceUnitInfoImpl;
 import org.thirteen.datamation.model.po.DmColumnPO;
 import org.thirteen.datamation.model.po.DmTablePO;
 import org.thirteen.datamation.repository.DmColumnRepository;
@@ -38,12 +43,11 @@ import org.thirteen.datamation.repository.DmTableRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -72,6 +76,17 @@ public class DatamationRepository implements ApplicationContextAware {
         this.repositoryMap = null;
     }
 
+    /**
+     * PersistenceUnitInfo
+     *
+     * org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider#createContainerEntityManagerFactory
+     * (new EntityManagerFactoryBuilderImpl(new PersistenceUnitInfoDescriptor(info) {
+     *             public List<String> getManagedClassNames() {
+     *                 return mergedClassesAndPackages;
+     *             }
+     *         }, properties)).build()
+     *
+     */
     private void buildDatamationRepository() {
         // 查询所有有效table数据
         DmExample<DmTablePO> tableExample = new DmExample<>();
@@ -85,11 +100,13 @@ public class DatamationRepository implements ApplicationContextAware {
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
             .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
 
+//        AnnotationConfigServletWebApplicationContext applicationContext1 = new AnnotationConfigServletWebApplicationContext();
+
         // 动态生成po类
         PoConverter poConverter = new PoConverter();
         PoGenerator poGenerate = new PoGenerator();
         ClassInfo tableClassInfo;
-        Class<?> poClass;
+        Class<?> poClass = null;
         // 动态生成repository类
         RepositoryConverter repositoryConverter;
         RepositoryGenerator repositoryGenerate = new RepositoryGenerator();
@@ -155,7 +172,7 @@ public class DatamationRepository implements ApplicationContextAware {
 //                e.printStackTrace();
 //            }
             // 获取已加载到spring中的repository bean定义，作为原型
-//            tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition("dmTableRepository");
+            tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition("dmTableRepository");
 
             // bean定义构建器
 //            builder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean");
@@ -167,15 +184,14 @@ public class DatamationRepository implements ApplicationContextAware {
 //            builder.addPropertyValue("namedQueries", tempBeanDefinition.getPropertyValues().get("namedQueries"));
 //            builder.addPropertyValue("repositoryFragments", tempBeanDefinition.getPropertyValues().get("repositoryFragments"));
 
-//            RootBeanDefinition rootBeanDefinition = new RootBeanDefinition();
-//            rootBeanDefinition.overrideFrom(tempBeanDefinition);
-//            rootBeanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass.getName());
-//            ((AnnotationMetadata) rootBeanDefinition.getSource()).getAnnotations()
-//                .get("org.springframework.data.jpa.repository.config.EnableJpaRepositories").asMap();
+            RootBeanDefinition rootBeanDefinition = new RootBeanDefinition();
+            rootBeanDefinition.overrideFrom(tempBeanDefinition);
+            rootBeanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass.getName());
+            ((AnnotationMetadata) rootBeanDefinition.getSource()).getAnnotations()
+                .get("org.springframework.data.jpa.repository.config.EnableJpaRepositories").asMap();
             // 注入到spring容器内，beanName为表名
-//            beanName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
+            beanName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
 //            beanFactory.registerBeanDefinition(beanName, rootBeanDefinition.cloneBeanDefinition());
-
         }
 
 //        String name = beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0];
@@ -200,24 +216,57 @@ public class DatamationRepository implements ApplicationContextAware {
 //        beanFactory.registerSingleton(name, entityManagerFactoryBean);
 
 
-        DatasourceConfigGenerator datasourceConfigGenerator = new DatasourceConfigGenerator();
-        Class<?> datasourceConfigClass = datasourceConfigGenerator.generate(null);
+//        DatasourceConfigGenerator datasourceConfigGenerator = new DatasourceConfigGenerator();
+//        Class<?> datasourceConfigClass = datasourceConfigGenerator.generate(null);
 
 //        try {
 //            beanFactory.registerSingleton(BEAN_NAME_PREFIX + "datasourceConfig", datasourceConfigClass.getDeclaredConstructor().newInstance());
 //        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 //            e.printStackTrace();
 //        }
-        AnnotationConfigServletWebApplicationContext applicationContext1 = new AnnotationConfigServletWebApplicationContext();
         // 设置父容器
-        applicationContext1.setParent(this.applicationContext);
-        applicationContext1.register(datasourceConfigClass);
-        applicationContext1.refresh();
+//        applicationContext1.setParent(this.applicationContext);
+//        String dataSourceBeanName = beanFactory.getBeanNamesForType(javax.sql.DataSource.class)[0];
+//        applicationContext1.getBeanFactory().registerSingleton(dataSourceBeanName, beanFactory.getBean(dataSourceBeanName));
+//        try {
+//            applicationContext1.getClassLoader().
+//            String poPath = poGenerate.getClass().getResource("/").getPath();
+//            poPath = poPath + "org/thirteen/datamation/core/generate/po/RentalStorePO.class";
+//            applicationContext1.getClassLoader().loadClass(poPath);
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        applicationContext1.register(datasourceConfigClass);
+//        applicationContext1.refresh();
         // 创建监听器，主要用来发布项目中存在父子容器事件
-        DmTableRepository dmTableRepository1 = applicationContext1.getBean(DmTableRepository.class);
-        BaseRepository repository = (BaseRepository) beanFactory.getBean(BEAN_NAME_PREFIX + "rentalStockRepository");
-        repository.findAll();
+//        DmTableRepository dmTableRepository1 = applicationContext1.getBean(repositoryClass);
+//        BaseRepository repository = (BaseRepository) beanFactory.getBean(BEAN_NAME_PREFIX + "rentalStockRepository");
+//        repository.findAll();
         System.out.println("success");
+
+        Properties properties = new Properties();
+        properties.put("hibernate.format_sql", "true");
+        properties.put("hibernate.show_sql", "true");
+        properties.put("hibernate.hbm2ddl.auto", "update");
+        properties.put("hibernate.connection.handling_mode", "DELAYED_ACQUISITION_AND_HOLD");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+        PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
+            "default",
+            Collections.singletonList("org.thirteen.datamation.core.generate.po.RentalStorePO"),
+//            Collections.singletonList("org.thirteen.datamation.model.po.DmTablePO"),
+            properties
+        );
+        persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
+        Map<String, Object> configuration = new HashMap<>();
+        EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
+            new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration, PoGenerator.class.getClassLoader()
+        );
+        EntityManagerFactory emf = entityManagerFactoryBuilder.build();
+        if (poClass != null) {
+//            ((SessionImpl) emf.createEntityManager()).refresh("org.thirteen.datamation.model.po.DmTablePO", DmTablePO.class);
+        }
+
+        System.out.println("build sucess");
     }
 
     @Override

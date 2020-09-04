@@ -21,6 +21,10 @@ public class PoGenerator extends AbstractClassGenerator {
         super(PoGenerator.class);
     }
 
+    public PoGenerator(Class<?> neighbor) {
+        super(neighbor);
+    }
+
     /**
      * 生成 po class字节码数组
      *
@@ -32,7 +36,7 @@ public class PoGenerator extends AbstractClassGenerator {
         ClassWriter cw = new ClassWriter(0);
         // 设置类基本属性
         // 参数：版本号，类的访问标志，类名（包含路径），签名，父类，内部接口
-        cw.visit(52, accessOf(classInfo.getAccess()), this.defaultPackage + classInfo.getClassName(),
+        cw.visit(57, accessOf(classInfo.getAccess()), this.defaultPackage + classInfo.getClassName(),
             classInfo.getSignature(), classInfo.getSuperName(), classInfo.getInterfaces());
         // 注解处理
         annotationHandle(cw, classInfo.getAnnotationInfos());
