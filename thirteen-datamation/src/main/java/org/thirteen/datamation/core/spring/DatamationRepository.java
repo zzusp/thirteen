@@ -1,54 +1,35 @@
 package org.thirteen.datamation.core.spring;
 
 import org.hibernate.internal.SessionImpl;
-import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractRefreshableApplicationContext;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.jdbc.datasource.lookup.SingleDataSourceLookup;
 import org.springframework.lang.NonNull;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
-import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.thirteen.datamation.DatamationAppilcation;
 import org.thirteen.datamation.core.criteria.DmCriteria;
 import org.thirteen.datamation.core.criteria.DmExample;
 import org.thirteen.datamation.core.generate.ClassInfo;
-import org.thirteen.datamation.core.generate.config.DatasourceConfigGenerator;
 import org.thirteen.datamation.core.generate.po.PoConverter;
 import org.thirteen.datamation.core.generate.po.PoGenerator;
-import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.generate.repository.RepositoryConverter;
 import org.thirteen.datamation.core.generate.repository.RepositoryGenerator;
+import org.thirteen.datamation.core.orm.DmEntityManagerFactoryBuilderImpl;
 import org.thirteen.datamation.core.orm.jpa.persistenceunit.PersistenceUnitInfoImpl;
 import org.thirteen.datamation.model.po.DmColumnPO;
 import org.thirteen.datamation.model.po.DmTablePO;
 import org.thirteen.datamation.repository.DmColumnRepository;
 import org.thirteen.datamation.repository.DmTableRepository;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
@@ -104,7 +85,7 @@ public class DatamationRepository implements ApplicationContextAware {
 
         // 动态生成po类
         PoConverter poConverter = new PoConverter();
-        PoGenerator poGenerate = new PoGenerator();
+        PoGenerator poGenerate = new PoGenerator(DatamationAppilcation.class);
         ClassInfo tableClassInfo;
         Class<?> poClass = null;
         // 动态生成repository类
@@ -131,7 +112,7 @@ public class DatamationRepository implements ApplicationContextAware {
             poClass = poGenerate.generate(tableClassInfo);
 //            try {
 //                poGenerate.writeClass(tableClassInfo);
-//            } catch (IOException | URISyntaxException e) {
+//            } catch (Exception e) {
 //                e.printStackTrace();
 //            }
             try {
@@ -244,26 +225,27 @@ public class DatamationRepository implements ApplicationContextAware {
 //        repository.findAll();
         System.out.println("success");
 
-        Properties properties = new Properties();
-        properties.put("hibernate.format_sql", "true");
-        properties.put("hibernate.show_sql", "true");
-        properties.put("hibernate.hbm2ddl.auto", "update");
-        properties.put("hibernate.connection.handling_mode", "DELAYED_ACQUISITION_AND_HOLD");
-        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-        PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
-            "default",
-            Collections.singletonList("org.thirteen.datamation.core.generate.po.RentalStorePO"),
-//            Collections.singletonList("org.thirteen.datamation.model.po.DmTablePO"),
-            properties
-        );
-        persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
-        Map<String, Object> configuration = new HashMap<>();
-        EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
-            new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration, PoGenerator.class.getClassLoader()
-        );
-        EntityManagerFactory emf = entityManagerFactoryBuilder.build();
         if (poClass != null) {
-//            ((SessionImpl) emf.createEntityManager()).refresh("org.thirteen.datamation.model.po.DmTablePO", DmTablePO.class);
+            Properties properties = new Properties();
+            properties.put("hibernate.format_sql", "true");
+            properties.put("hibernate.show_sql", "true");
+            properties.put("hibernate.hbm2ddl.auto", "update");
+            properties.put("hibernate.connection.handling_mode", "DELAYED_ACQUISITION_AND_HOLD");
+            properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+            PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
+                "default",
+                properties
+            );
+            persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
+            Map<String, Object> configuration = new HashMap<>();
+            LinkedHashSet<String> mapperList = new LinkedHashSet<>();
+            mapperList.add(poClass.getName());
+            DmEntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new DmEntityManagerFactoryBuilderImpl(
+                new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration, PoGenerator.class.getClassLoader(), mapperList
+            );
+
+            EntityManagerFactory emf = entityManagerFactoryBuilder.build();
+            emf.createEntityManager().find(poClass, "1");
         }
 
         System.out.println("build sucess");

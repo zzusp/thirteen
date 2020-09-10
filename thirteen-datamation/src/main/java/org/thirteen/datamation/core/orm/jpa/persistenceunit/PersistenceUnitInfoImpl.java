@@ -9,10 +9,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import java.net.URL;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
@@ -27,11 +24,11 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
     private DataSource jtaDataSource;
     private DataSource nonJtaDataSource;
 
-    public PersistenceUnitInfoImpl(String persistenceUnitName, List<String> managedClassNames, Properties properties) {
+    public PersistenceUnitInfoImpl(String persistenceUnitName, Properties properties) {
         this.sharedCacheMode = SharedCacheMode.UNSPECIFIED;
         this.validationMode = ValidationMode.AUTO;
         this.persistenceUnitName = persistenceUnitName;
-        this.managedClassNames = managedClassNames;
+        this.managedClassNames = new ArrayList<>();
         this.properties = properties;
         this.persistenceXMLSchemaVersion = "2.1";
     }

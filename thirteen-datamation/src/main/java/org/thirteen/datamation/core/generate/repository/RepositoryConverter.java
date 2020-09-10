@@ -70,7 +70,7 @@ public class RepositoryConverter extends AbstractClassConverter {
         List<AnnotationInfo> annotationInfos = new ArrayList<>();
         // repository注解
         AnnotationInfo repositoryAnno = new AnnotationInfo();
-        repositoryAnno.setDesc("org.springframework.stereotype.Repository");
+        repositoryAnno.setDesc("Lorg/springframework/stereotype/Repository;");
         annotationInfos.add(repositoryAnno);
         return annotationInfos;
     }

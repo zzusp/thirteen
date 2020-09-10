@@ -235,7 +235,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
         if (!CollectionUtils.isEmpty(fieldInfos)) {
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
             // 添加Override注解
-            AnnotationVisitor av = mv.visitAnnotation("java.lang.Override", true);
+            AnnotationVisitor av = mv.visitAnnotation("Ljava/lang/Override;", true);
             av.visitEnd();
             // 开始扫描该方法
             mv.visitCode();

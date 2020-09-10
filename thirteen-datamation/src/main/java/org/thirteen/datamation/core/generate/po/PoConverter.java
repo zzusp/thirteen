@@ -36,14 +36,14 @@ public class PoConverter extends AbstractClassConverter {
         List<AnnotationInfo> annotationInfos = new ArrayList<>();
         // entity注解
         AnnotationInfo entityAnno = new AnnotationInfo();
-        entityAnno.setDesc("javax.persistence.Entity");
+        entityAnno.setDesc("Ljavax/persistence/Entity;");
         // table注解
         AnnotationInfo tableAnno = new AnnotationInfo();
-        tableAnno.setDesc("javax.persistence.Table");
+        tableAnno.setDesc("Ljavax/persistence/Table;");
         tableAnno.add("name", table.getCode());
         // hibernate的table注解，生成table时可添加上表描述
         AnnotationInfo hibernateTableAnno = new AnnotationInfo();
-        hibernateTableAnno.setDesc("org.hibernate.annotations.Table");
+        hibernateTableAnno.setDesc("Lorg/hibernate/annotations/Table;");
         hibernateTableAnno.add("appliesTo", table.getCode());
         hibernateTableAnno.add("comment", table.getName());
         // 添加到集合中
@@ -58,13 +58,13 @@ public class PoConverter extends AbstractClassConverter {
         List<AnnotationInfo> annotationInfos = new ArrayList<>();
         if ("id".equals(column.getCode())) {
             AnnotationInfo idAnno = new AnnotationInfo();
-            idAnno.setDesc("javax.persistence.Id");
+            idAnno.setDesc("Ljavax/persistence/Id;");
             AnnotationInfo genericGeneratorAnno = new AnnotationInfo();
-            genericGeneratorAnno.setDesc("org.hibernate.annotations.GenericGenerator");
+            genericGeneratorAnno.setDesc("Lorg/hibernate/annotations/GenericGenerator;");
             genericGeneratorAnno.add("name", "pk_uuid");
             genericGeneratorAnno.add("strategy", "uuid");
             AnnotationInfo generatedValueAnno = new AnnotationInfo();
-            generatedValueAnno.setDesc("javax.persistence.GeneratedValue");
+            generatedValueAnno.setDesc("Ljavax/persistence/GeneratedValue;");
             generatedValueAnno.add("generator", "pk_uuid");
             annotationInfos.add(idAnno);
             annotationInfos.add(genericGeneratorAnno);
@@ -72,7 +72,7 @@ public class PoConverter extends AbstractClassConverter {
         }
         // column注解
         AnnotationInfo columnAnno = new AnnotationInfo();
-        columnAnno.setDesc("javax.persistence.Column");
+        columnAnno.setDesc("Ljavax/persistence/Column;");
         columnAnno.add("name", column.getCode());
         // 拼接columnDefinition
         StringBuilder sb = new StringBuilder();
