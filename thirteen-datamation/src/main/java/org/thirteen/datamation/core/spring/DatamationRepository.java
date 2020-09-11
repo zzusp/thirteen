@@ -3,6 +3,7 @@ package org.thirteen.datamation.core.spring;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
@@ -17,6 +18,7 @@ import org.thirteen.datamation.core.criteria.DmExample;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.po.PoConverter;
 import org.thirteen.datamation.core.generate.po.PoGenerator;
+import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.generate.repository.RepositoryConverter;
 import org.thirteen.datamation.core.generate.repository.RepositoryGenerator;
 import org.thirteen.datamation.core.orm.DmEntityManagerFactoryBuilderImpl;
@@ -26,6 +28,7 @@ import org.thirteen.datamation.model.po.DmTablePO;
 import org.thirteen.datamation.repository.DmColumnRepository;
 import org.thirteen.datamation.repository.DmTableRepository;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
@@ -58,15 +61,7 @@ public class DatamationRepository implements ApplicationContextAware {
     }
 
     /**
-     * PersistenceUnitInfo
-     *
-     * org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider#createContainerEntityManagerFactory
-     * (new EntityManagerFactoryBuilderImpl(new PersistenceUnitInfoDescriptor(info) {
-     *             public List<String> getManagedClassNames() {
-     *                 return mergedClassesAndPackages;
-     *             }
-     *         }, properties)).build()
-     *
+     * 构建datamationRepository
      */
     private void buildDatamationRepository() {
         // 查询所有有效table数据
@@ -81,27 +76,28 @@ public class DatamationRepository implements ApplicationContextAware {
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
             .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
 
-//        AnnotationConfigServletWebApplicationContext applicationContext1 = new AnnotationConfigServletWebApplicationContext();
-
         // 动态生成po类
         PoConverter poConverter = new PoConverter();
-        PoGenerator poGenerate = new PoGenerator(DatamationAppilcation.class);
+        PoGenerator poGenerate = new PoGenerator();
+        ClassLoader poClassLoader = poGenerate.getNeighborClassLoader();
         ClassInfo tableClassInfo;
-        Class<?> poClass = null;
+        Class<?> poClass;
         // 动态生成repository类
         RepositoryConverter repositoryConverter;
         RepositoryGenerator repositoryGenerate = new RepositoryGenerator();
         Class<?> repositoryClass;
-        String beanName;
 
         // 获取beanFactory用于手动注册bd
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-        DefaultSingletonBeanRegistry registry = (DefaultSingletonBeanRegistry) applicationContext.getAutowireCapableBeanFactory();
-        // bean定义构建对象
-        BeanDefinitionBuilder builder;
+        // 实体类完整类路径集合
+        LinkedHashSet<String> entityList = new LinkedHashSet<>();
+        // 记录repository bean定义的map。key为beanName，value为bean定义
+        Map<String, RootBeanDefinition> repositoryBeanDefinitionMap = new HashMap<>(tableList.size() << 1);
+        String repositoryName;
+        RootBeanDefinition repositoryBd;
         // bean定义构建原型
-        RootBeanDefinition tempBeanDefinition;
-
+        String tempBeanName = beanFactory.getBeanNamesForType(DmTableRepository.class)[0];
+        RootBeanDefinition tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition(tempBeanName);
         // 遍历所有table
         for (DmTablePO table : tableList) {
             // 将所有column关联到对应的table
@@ -110,158 +106,103 @@ public class DatamationRepository implements ApplicationContextAware {
             tableClassInfo = poConverter.getClassInfo(table);
             // 生成po类
             poClass = poGenerate.generate(tableClassInfo);
-//            try {
-//                poGenerate.writeClass(tableClassInfo);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-            try {
-//                emfb.setPackagesToScan(poClass.getPackageName());
-//                emfb.getNativeEntityManagerFactory().
-//                emfb.setPackagesToScan(poClass.getPackageName());
-//                ((MutablePersistenceUnitInfo) emfb.getPersistenceUnitInfo()).addManagedClassName(poClass.getName());
-//                persistenceUnitInfo.addManagedClassName(poClass.getName());
-//                emfb.getPersistenceUnitInfo().getManagedClassNames().add(poClass.getName());
-//                beanFactory.destroyScopedBean("entityManagerFactory");
-//                beanFactory.destroyBean(beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class));
-//                beanFactory.destroySingleton(beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0]);
-//                registry.destroySingleton(beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0]);
-
-//                entityManagerFactoryBean.afterPropertiesSet();
-//                EntityManagerFactory emf = entityManagerFactoryBean.getObject();
-
-//                BeanDefinition beanDefinition = beanFactory.getBeanDefinition(name);
-//                beanDefinition.setBeanClassName(name);
-//                beanFactory.registerBeanDefinition(name, beanDefinition);
-
-
-
-//                ((AbstractRefreshableApplicationContext) applicationContext).refresh();
-
-                refreshModel(poClass.getDeclaredConstructor().newInstance(), poClass.getName());
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
+            // 将po完整类名添加到实体类集合，供hibernate加载
+            entityList.add(poClass.getName());
 
             // 初始化repository转换器
             repositoryConverter = new RepositoryConverter(poClass);
             // 生成repository类
             repositoryClass = repositoryGenerate.generate(repositoryConverter.getClassInfo(table));
-//            try {
-//                repositoryGenerate.writeClass(repositoryConverter.getClassInfo(table));
-//            } catch (IOException | URISyntaxException e) {
-//                e.printStackTrace();
-//            }
             // 获取已加载到spring中的repository bean定义，作为原型
-            tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition("dmTableRepository");
-
-            // bean定义构建器
-//            builder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean");
-//            builder.getRawBeanDefinition().setSource(tempBeanDefinition.getSource());
-//            builder.addConstructorArgValue(repositoryClass.getName());
-//            builder.addPropertyValue("queryLookupStrategyKey", tempBeanDefinition.getPropertyValues().get("queryLookupStrategyKey"));
-//            builder.addPropertyValue("lazyInit", tempBeanDefinition.isLazyInit());
-//            builder.setLazyInit(tempBeanDefinition.isLazyInit());
-//            builder.addPropertyValue("namedQueries", tempBeanDefinition.getPropertyValues().get("namedQueries"));
-//            builder.addPropertyValue("repositoryFragments", tempBeanDefinition.getPropertyValues().get("repositoryFragments"));
-
-            RootBeanDefinition rootBeanDefinition = new RootBeanDefinition();
-            rootBeanDefinition.overrideFrom(tempBeanDefinition);
-            rootBeanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass.getName());
-            ((AnnotationMetadata) rootBeanDefinition.getSource()).getAnnotations()
-                .get("org.springframework.data.jpa.repository.config.EnableJpaRepositories").asMap();
+            repositoryBd = new RootBeanDefinition();
+            repositoryBd.overrideFrom(tempBeanDefinition);
+            repositoryBd.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass.getName());
             // 注入到spring容器内，beanName为表名
-            beanName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
-//            beanFactory.registerBeanDefinition(beanName, rootBeanDefinition.cloneBeanDefinition());
+            repositoryName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
+            // 将bean定义放入map中
+            repositoryBeanDefinitionMap.put(repositoryName, repositoryBd);
         }
 
-//        String name = beanFactory.getBeanNamesForType(LocalContainerEntityManagerFactoryBean.class)[0];
+        // 判断是否有生成实体对象
+        if (!entityList.isEmpty()) {
+            // 创建EntityManagerFactory
+            EntityManagerFactory emf = createEntityManagerFactory(beanFactory, poClassLoader, entityList);
+            // 以下代码为repository注入容器处理
+            registerRepository(beanFactory, emf, repositoryBeanDefinitionMap);
 
-//                LocalContainerEntityManagerFactoryBean entityManagerFactory = beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class);
-
-//                registry.destroySingleton(name);
-//                registry.registerSingleton(name, entityManagerFactory);
-//                beanFactory.getBean(LocalContainerEntityManagerFactoryBean.class);
-//        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-//        LocalContainerEntityManagerFactoryBean springEntityManagerFactoryBean = (LocalContainerEntityManagerFactoryBean) beanFactory.getBean(name);
-//        entityManagerFactoryBean.setJpaVendorAdapter(springEntityManagerFactoryBean.getJpaVendorAdapter());
-//
-//        DefaultPersistenceUnitManager persistenceUnitManager = new DefaultPersistenceUnitManager();
-//        persistenceUnitManager.setPackagesToScan("org.thirteen.datamation.core.generate.po");
-//        persistenceUnitManager.setDataSourceLookup(new SingleDataSourceLookup(springEntityManagerFactoryBean.getDataSource()));
-//        persistenceUnitManager.setDefaultDataSource(springEntityManagerFactoryBean.getDataSource());
-//
-//        entityManagerFactoryBean.setPersistenceUnitManager(persistenceUnitManager);
-//
-//        name = BEAN_NAME_PREFIX + name.replace("&", "");
-//        beanFactory.registerSingleton(name, entityManagerFactoryBean);
-
-
-//        DatasourceConfigGenerator datasourceConfigGenerator = new DatasourceConfigGenerator();
-//        Class<?> datasourceConfigClass = datasourceConfigGenerator.generate(null);
-
-//        try {
-//            beanFactory.registerSingleton(BEAN_NAME_PREFIX + "datasourceConfig", datasourceConfigClass.getDeclaredConstructor().newInstance());
-//        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
-        // 设置父容器
-//        applicationContext1.setParent(this.applicationContext);
-//        String dataSourceBeanName = beanFactory.getBeanNamesForType(javax.sql.DataSource.class)[0];
-//        applicationContext1.getBeanFactory().registerSingleton(dataSourceBeanName, beanFactory.getBean(dataSourceBeanName));
-//        try {
-//            applicationContext1.getClassLoader().
-//            String poPath = poGenerate.getClass().getResource("/").getPath();
-//            poPath = poPath + "org/thirteen/datamation/core/generate/po/RentalStorePO.class";
-//            applicationContext1.getClassLoader().loadClass(poPath);
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        applicationContext1.register(datasourceConfigClass);
-//        applicationContext1.refresh();
-        // 创建监听器，主要用来发布项目中存在父子容器事件
-//        DmTableRepository dmTableRepository1 = applicationContext1.getBean(repositoryClass);
-//        BaseRepository repository = (BaseRepository) beanFactory.getBean(BEAN_NAME_PREFIX + "rentalStockRepository");
-//        repository.findAll();
+            BaseRepository repository = (BaseRepository) beanFactory.getBean(BEAN_NAME_PREFIX + "rentalStockRepository");
+            repository.findAll();
+        }
         System.out.println("success");
-
-        if (poClass != null) {
-            Properties properties = new Properties();
-            properties.put("hibernate.format_sql", "true");
-            properties.put("hibernate.show_sql", "true");
-            properties.put("hibernate.hbm2ddl.auto", "update");
-            properties.put("hibernate.connection.handling_mode", "DELAYED_ACQUISITION_AND_HOLD");
-            properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-            PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
-                "default",
-                properties
-            );
-            persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
-            Map<String, Object> configuration = new HashMap<>();
-            LinkedHashSet<String> mapperList = new LinkedHashSet<>();
-            mapperList.add(poClass.getName());
-            DmEntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new DmEntityManagerFactoryBuilderImpl(
-                new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration, PoGenerator.class.getClassLoader(), mapperList
-            );
-
-            EntityManagerFactory emf = entityManagerFactoryBuilder.build();
-            emf.createEntityManager().find(poClass, "1");
-        }
-
-        System.out.println("build sucess");
     }
 
     @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         buildDatamationRepository();
     }
 
-    void refreshModel(Object poClass, String className) {
-//        emfb.getPersistenceUnitInfo().getManagedClassNames().add(className);
-//        emf.createEntityManager().getTransaction().begin();
-//        emf.createEntityManager().refresh(poClass);
-//        emf.createEntityManager().getTransaction().commit();
+    /**
+     * 创建EntityManagerFactory
+     *
+     * @param beanFactory bean工厂对象
+     * @param classLoader 类加载器
+     * @param entityList 实体类完整类路径集合
+     * @return EntityManagerFactory
+     */
+    private EntityManagerFactory createEntityManagerFactory(DefaultListableBeanFactory beanFactory,
+                                                            ClassLoader classLoader, LinkedHashSet<String> entityList) {
+        Properties properties = new Properties();
+        properties.put("hibernate.format_sql", "true");
+        properties.put("hibernate.show_sql", "true");
+        properties.put("hibernate.hbm2ddl.auto", "update");
+        properties.put("hibernate.connection.handling_mode", "DELAYED_ACQUISITION_AND_HOLD");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+        PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
+            "default",
+            properties
+        );
+        persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
+        // 使用自定义EntityManagerFactoryBuilderImpl，可实现直接加载asm生成的class类
+        DmEntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new DmEntityManagerFactoryBuilderImpl(
+            new PersistenceUnitInfoDescriptor(persistenceUnitInfo), null,
+            classLoader, entityList
+        );
+        return entityManagerFactoryBuilder.build();
+    }
+
+    /**
+     * 注册repository到spring容器
+     *
+     * @param beanFactory bean工厂对象
+     * @param emf 实体管理工厂
+     * @param repositoryBeanDefinitionMap 记录repository bean定义的map。key为beanName，value为bean定义
+     */
+    private void registerRepository(DefaultListableBeanFactory beanFactory, EntityManagerFactory emf,
+                                    Map<String, RootBeanDefinition> repositoryBeanDefinitionMap) {
+        RootBeanDefinition bd;
+        RootBeanDefinition entityManagerBd;
+        PropertyValue pv;
+        // 遍历所有要注册到spring容器的repository定义
+        for (Map.Entry<String, RootBeanDefinition> rbd : repositoryBeanDefinitionMap.entrySet()) {
+            bd = rbd.getValue();
+            // 替换EntityManagerFactory
+            for (int i = 0; i < bd.getPropertyValues().getPropertyValueList().size(); i++) {
+                pv = bd.getPropertyValues().getPropertyValueList().get(i);
+                // 替换entityManager属性中，org.springframework.orm.jpa.SharedEntityManagerCreator定义中构造方法参数中的
+                // EntityManagerFactory。之所以不直接替换entityManager，而是替换entityManagerFactory，
+                // 是因为要将entityManager的创建和关闭交给spring容器管理
+                if ("entityManager".equals(pv.getName())) {
+                    entityManagerBd = (RootBeanDefinition) pv.getValue();
+                    if (entityManagerBd != null) {
+                        entityManagerBd.getConstructorArgumentValues().addIndexedArgumentValue(0, emf);
+                        bd.getPropertyValues().getPropertyValueList().set(i, new PropertyValue(pv, entityManagerBd));
+                    }
+                }
+            }
+            // 将repository注入容器中
+            beanFactory.registerBeanDefinition(rbd.getKey(), bd.cloneBeanDefinition());
+        }
     }
 
     /**

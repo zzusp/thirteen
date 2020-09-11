@@ -41,6 +41,10 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
         this.defaultPackage = neighbor.getPackageName().replaceAll("\\.", "\\/") + "/";
     }
 
+    public ClassLoader getNeighborClassLoader() {
+        return this.neighbor.getClassLoader();
+    }
+
     /**
      * 生成class
      *
