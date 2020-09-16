@@ -62,8 +62,9 @@
     </dependency>
     <!-- 字节码操作工具类 -->
     <dependency>
-      <groupId>org.objectweb.asm</groupId>
-      <artifactId>com.springsource.org.objectweb.asm</artifactId>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm</artifactId>
+      <version>8.0.1</version>
     </dependency>
     <!-- Apache工具组件 -->
     <dependency>

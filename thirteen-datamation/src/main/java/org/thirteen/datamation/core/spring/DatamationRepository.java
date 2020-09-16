@@ -1,21 +1,26 @@
 package org.thirteen.datamation.core.spring;
 
 import org.hibernate.internal.SessionImpl;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.lang.NonNull;
+import org.springframework.util.CollectionUtils;
 import org.thirteen.datamation.DatamationAppilcation;
 import org.thirteen.datamation.core.criteria.DmCriteria;
 import org.thirteen.datamation.core.criteria.DmExample;
 import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.internal.EntityManagerFactoryBuilderImplGenerator;
 import org.thirteen.datamation.core.generate.po.PoConverter;
 import org.thirteen.datamation.core.generate.po.PoGenerator;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
@@ -31,7 +36,9 @@ import org.thirteen.datamation.repository.DmTableRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -133,7 +140,6 @@ public class DatamationRepository implements ApplicationContextAware {
             BaseRepository repository = (BaseRepository) beanFactory.getBean(BEAN_NAME_PREFIX + "rentalStockRepository");
             repository.findAll();
         }
-        System.out.println("success");
     }
 
     @Override
@@ -152,23 +158,38 @@ public class DatamationRepository implements ApplicationContextAware {
      */
     private EntityManagerFactory createEntityManagerFactory(DefaultListableBeanFactory beanFactory,
                                                             ClassLoader classLoader, LinkedHashSet<String> entityList) {
+        // jpa配置
         Properties properties = new Properties();
-        properties.put("hibernate.format_sql", "true");
-        properties.put("hibernate.show_sql", "true");
-        properties.put("hibernate.hbm2ddl.auto", "update");
-        properties.put("hibernate.connection.handling_mode", "DELAYED_ACQUISITION_AND_HOLD");
-        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+        // 读取spring容器中的jpa配置，并设置到当前jpa配置对象中
+        properties.putAll(beanFactory.getBean(JpaProperties.class).getProperties());
+        // 创建持久单元信息
         PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
             "default",
             properties
         );
+        // 设置数据源
         persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
         // 使用自定义EntityManagerFactoryBuilderImpl，可实现直接加载asm生成的class类
-        DmEntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new DmEntityManagerFactoryBuilderImpl(
-            new PersistenceUnitInfoDescriptor(persistenceUnitInfo), null,
-            classLoader, entityList
-        );
-        return entityManagerFactoryBuilder.build();
+//        DmEntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new DmEntityManagerFactoryBuilderImpl(
+//            new PersistenceUnitInfoDescriptor(persistenceUnitInfo), null,
+//            classLoader, entityList
+//        );
+        EntityManagerFactoryBuilderImplGenerator generator = new EntityManagerFactoryBuilderImplGenerator();
+        Class<?> clazz = generator.generate(entityList);
+        Class<?>[] declare = new Class<?>[]{PersistenceUnitDescriptor.class, Map.class, ClassLoader.class};
+        Object[] params = new Object[]{null, null, classLoader};
+        Object emfb;
+        try {
+            Constructor c = clazz.getDeclaredConstructor(declare);
+            emfb = c.newInstance(params);
+            System.out.println("EntityManagerFactoryBuilderImpl");
+            Method method = clazz.getMethod("build", (Class<?>[]) null);
+            return (EntityManagerFactory) method.invoke(emfb, (Object[]) null);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     /**

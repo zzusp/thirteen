@@ -11,7 +11,9 @@ import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Aaron.Sun
@@ -65,6 +67,11 @@ public class DatasourceConfigGenerator extends AbstractClassGenerator {
         cw.visitEnd();
         // 转为字节数组
         return cw.toByteArray();
+    }
+
+    @Override
+    protected byte[] getClassByteArray(Set<String> mappers) {
+        return new byte[0];
     }
 
     private void dataSourceMethodHandle(ClassWriter cw) {

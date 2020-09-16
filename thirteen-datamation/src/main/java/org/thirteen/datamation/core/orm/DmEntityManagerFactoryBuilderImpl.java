@@ -1,15 +1,5 @@
 package org.thirteen.datamation.core.orm;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import javax.persistence.AttributeConverter;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.PersistenceException;
-import javax.persistence.spi.PersistenceUnitTransactionType;
-import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.SessionFactoryObserver;
 import org.hibernate.boot.CacheRegionDefinition;
@@ -50,11 +40,7 @@ import org.hibernate.internal.util.NullnessHelper;
 import org.hibernate.internal.util.StringHelper;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.jpa.boot.internal.StandardJpaScanEnvironmentImpl;
-import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.hibernate.jpa.boot.spi.IntegratorProvider;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
-import org.hibernate.jpa.boot.spi.StrategyRegistrationProviderList;
-import org.hibernate.jpa.boot.spi.TypeContributorList;
+import org.hibernate.jpa.boot.spi.*;
 import org.hibernate.jpa.internal.util.LogHelper;
 import org.hibernate.jpa.internal.util.PersistenceUnitTransactionTypeHelper;
 import org.hibernate.jpa.spi.IdentifierGeneratorStrategyProvider;
@@ -69,8 +55,20 @@ import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.hibernate.tool.schema.spi.DelayedDropRegistryNotAvailableImpl;
 import org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator;
 
+import javax.persistence.AttributeConverter;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.PersistenceException;
+import javax.persistence.spi.PersistenceUnitTransactionType;
+import javax.sql.DataSource;
+import java.io.Serializable;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
 public class DmEntityManagerFactoryBuilderImpl implements EntityManagerFactoryBuilder {
-    private static final EntityManagerMessageLogger LOG = HEMLogging.messageLogger(DmEntityManagerFactoryBuilderImpl.class);
+    private static final EntityManagerMessageLogger LOG = HEMLogging.messageLogger("org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl");
+
     public static final String INTEGRATOR_PROVIDER = "hibernate.integrator_provider";
     public static final String STRATEGY_REGISTRATION_PROVIDERS = "hibernate.strategy_registration_provider";
     public static final String TYPE_CONTRIBUTORS = "hibernate.type_contributors";
@@ -119,6 +117,8 @@ public class DmEntityManagerFactoryBuilderImpl implements EntityManagerFactoryBu
         this.standardServiceRegistry = ssrBuilder.build();
         this.configureIdentifierGenerators(this.standardServiceRegistry);
         MetadataSources metadataSources = new MetadataSources(bsr);
+        metadataSources.addAnnotatedClassName("org.xxx.xxx");
+        metadataSources.addAnnotatedClassName("org.xxx.yyy");
         List<AttributeConverterDefinition> attributeConverterDefinitions = this.applyMappingResources(metadataSources);
         this.metamodelBuilder = (MetadataBuilderImplementor)metadataSources.getMetadataBuilder(this.standardServiceRegistry);
         this.applyMetamodelBuilderSettings(mergedSettings, attributeConverterDefinitions);
@@ -133,11 +133,7 @@ public class DmEntityManagerFactoryBuilderImpl implements EntityManagerFactoryBu
             }
         }
 
-        if (mapperList != null) {
-            for (String mapper : mapperList) {
-                metadataSources.addAnnotatedClassName(mapper);
-            }
-        }
+
 
         this.managedResources = MetadataBuildingProcess.prepare(metadataSources, this.metamodelBuilder.getBootstrapContext());
         this.withValidatorFactory(this.configurationValues.get("javax.persistence.validation.factory"));
