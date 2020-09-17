@@ -175,20 +175,22 @@ public class DatamationRepository implements ApplicationContextAware {
 //            classLoader, entityList
 //        );
         EntityManagerFactoryBuilderImplGenerator generator = new EntityManagerFactoryBuilderImplGenerator();
-        Class<?> clazz = generator.generate(entityList);
-        Class<?>[] declare = new Class<?>[]{PersistenceUnitDescriptor.class, Map.class, ClassLoader.class};
-        Object[] params = new Object[]{null, null, classLoader};
-        Object emfb;
-        try {
-            Constructor c = clazz.getDeclaredConstructor(declare);
-            emfb = c.newInstance(params);
-            System.out.println("EntityManagerFactoryBuilderImpl");
-            Method method = clazz.getMethod("build", (Class<?>[]) null);
-            return (EntityManagerFactory) method.invoke(emfb, (Object[]) null);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-
+//        Class<?> clazz = generator.generate(entityList);
+//        Class<?>[] declare = new Class<?>[]{PersistenceUnitDescriptor.class, Map.class, ClassLoader.class};
+//        Object[] params = new Object[]{persistenceUnitInfo, null, classLoader};
+//        Object emfb;
+//        try {
+//
+//            clazz.getConstructors();
+//            Constructor c = clazz.getConstructor(declare);
+//            emfb = c.newInstance(params);
+//            System.out.println("new EntityManagerFactoryBuilderImpl");
+//            Method method = clazz.getMethod("build", (Class<?>[]) null);
+//            return (EntityManagerFactory) method.invoke(emfb, (Object[]) null);
+//        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+        generator.newInstance(persistenceUnitInfo, entityList);
         return null;
     }
 

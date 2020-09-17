@@ -1,12 +1,19 @@
 package org.thirteen.datamation.core.generate.internal;
 
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.objectweb.asm.*;
 import org.thirteen.datamation.core.generate.AbstractClassGenerator;
 import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.util.CollectionUtils;
 
-import java.util.HashSet;
-import java.util.Set;
+import javax.persistence.EntityManagerFactory;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * @author Aaron.Sun
@@ -18,6 +25,25 @@ public class EntityManagerFactoryBuilderImplGenerator extends AbstractClassGener
 
     public EntityManagerFactoryBuilderImplGenerator() {
         super(EntityManagerFactoryBuilderImplGenerator.class);
+    }
+
+    public Object newInstance(PersistenceUnitDescriptor persistenceUnit, Set<String> mappers) {
+        Class<?> clazz = this.generate(mappers);
+        Class<?>[] declare = new Class<?>[]{PersistenceUnitDescriptor.class, Map.class, ClassLoader.class};
+        Object[] params = new Object[]{persistenceUnit, null, this.getNeighborClassLoader()};
+        Object emfb;
+        try {
+
+            clazz.getConstructors();
+            Constructor c = clazz.getConstructor(declare);
+            emfb = c.newInstance(params);
+            System.out.println("new EntityManagerFactoryBuilderImpl");
+            Method method = clazz.getMethod("build", (Class<?>[]) null);
+            return method.invoke(emfb, (Object[]) null);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -38,6 +64,12 @@ public class EntityManagerFactoryBuilderImplGenerator extends AbstractClassGener
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             ClassAdapter ca = new ClassAdapter(cw, this.defaultPackage, mappers);
             classReader.accept(ca, ClassReader.EXPAND_FRAMES);
+
+//            ClassReader innerClassReader = new ClassReader(EntityManagerFactoryBuilderImpl.class.getName() + ".MergedSettings");
+//            ClassWriter icw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+//            ClassAdapter ica = new ClassAdapter(icw, this.defaultPackage, null);
+//            innerClassReader.accept(ica, ClassReader.EXPAND_FRAMES);
+//            this.defineClass(this.getNeighbor(), icw.toByteArray());
 
 //            MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 //            Label l0 = new Label();
@@ -82,25 +114,191 @@ public class EntityManagerFactoryBuilderImplGenerator extends AbstractClassGener
 
         @Override
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-            if (name.contains(TARGET_PACKAGE) && name.contains(TARGET_CLASS_NAME)) {
+            if (name.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !name.contains("&")) {
                 name = name.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (signature != null && signature.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !signature.contains("&")) {
+                signature = signature.replace(TARGET_PACKAGE, defaultPackage);
             }
             super.visit(version, access, name, signature, superName, interfaces);
         }
 
         @Override
-        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-            MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-            if (ACC_PRIVATE == access && TARGET_NAME.equals(name) && TARGET_DESC.equals(descriptor)) {
-                return new MethodAdapter(mv, mappers);
+        public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
+            if (name.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !name.contains("&")) {
+                name = name.replace(TARGET_PACKAGE, defaultPackage);
             }
-            if ("<clinit>".equals(name)) {
-                return new StaticMethodAdapter(mv, defaultPackage + TARGET_CLASS_NAME);
+            if (descriptor.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !descriptor.contains("&")) {
+                descriptor = descriptor.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (signature != null && signature.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !signature.contains("&")) {
+                signature = signature.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            return super.visitField(access, name, descriptor, signature, value);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            if (name.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !name.contains("&")) {
+                name = name.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (descriptor.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !descriptor.contains("&")) {
+                descriptor = descriptor.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (signature != null && signature.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !signature.contains("&")) {
+                signature = signature.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
+            mv = new PackageMethodAdapter(mv, defaultPackage);
+            if (CollectionUtils.isNotEmpty(mappers) && ACC_PRIVATE == access
+                && TARGET_NAME.equals(name) && TARGET_DESC.equals(descriptor)) {
+                return new MapperMethodAdapter(mv, mappers);
             }
             return mv;
         }
 
-        static class MethodAdapter extends MethodVisitor {
+        @Override
+        public void visitInnerClass(String name, String outerName, String innerName, int access) {
+            if (name.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !name.contains("&")) {
+                name = name.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (outerName != null && outerName.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !outerName.contains("&")) {
+                outerName = outerName.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (innerName != null && innerName.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !innerName.contains("&")) {
+                innerName = innerName.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            super.visitInnerClass(name, outerName, innerName, access);
+        }
+
+        @Override
+        public void visitOuterClass(String owner, String name, String descriptor) {
+            if (owner.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !owner.contains("&")) {
+                owner = owner.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (name.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !name.contains("&")) {
+                name = name.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            if (descriptor.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !descriptor.contains("&")) {
+                descriptor = descriptor.replace(TARGET_PACKAGE, defaultPackage);
+            }
+            super.visitOuterClass(owner, name, descriptor);
+        }
+
+        static class PackageMethodAdapter extends MethodVisitor {
+
+            private final String defaultPackage;
+
+            public PackageMethodAdapter(MethodVisitor mv, String defaultPackage) {
+                super(ASM8, mv);
+                this.defaultPackage = defaultPackage;
+            }
+
+            @Override
+            public void visitLdcInsn(Object value) {
+                if (value instanceof Type && ((Type) value).getDescriptor().contains(TARGET_PACKAGE + TARGET_CLASS_NAME)
+                    && !((Type) value).getDescriptor().contains("&")) {
+                    value = Type.getType(((Type) value).getDescriptor().replace(TARGET_PACKAGE, defaultPackage));
+                }
+                super.visitLdcInsn(value);
+            }
+
+            @Override
+            public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+                if (owner.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !owner.contains("&")) {
+                    owner = owner.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                if (name.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !name.contains("&")) {
+                    name = name.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                if (descriptor.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !descriptor.contains("&")) {
+                    descriptor = descriptor.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                super.visitFieldInsn(opcode, owner, name, descriptor);
+            }
+
+            @Override
+            public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+                if (owner.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !owner.contains("&")) {
+                    owner = owner.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                if (name.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !name.contains("&")) {
+                    name = name.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                if (descriptor.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !descriptor.contains("&")) {
+                    descriptor = descriptor.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+            }
+
+            @Override
+            public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
+                if (descriptor != null && descriptor.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !descriptor.contains("&")) {
+                    descriptor = descriptor.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                super.visitLocalVariable(name, descriptor, signature, start, end, index);
+            }
+
+            @Override
+            public void visitTypeInsn(int opcode, String type) {
+                if (type.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !type.contains("&")) {
+                    type = type.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                super.visitTypeInsn(opcode, type);
+            }
+
+            @Override
+            public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
+                if (local != null && local.length > 0) {
+                    int i = 0;
+                    while (i < local.length) {
+                        if (local[i] instanceof String && ((String) local[i]).contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !((String) local[i]).contains("&")) {
+                            local[i] = ((String) local[i]).replace(TARGET_PACKAGE, defaultPackage);
+                        }
+                        i++;
+                    }
+                }
+                super.visitFrame(type, numLocal, local, numStack, stack);
+            }
+
+            @Override
+            public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
+                if (descriptor != null && descriptor.contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !descriptor.contains("&")) {
+                    descriptor = descriptor.replace(TARGET_PACKAGE, defaultPackage);
+                }
+                if (bootstrapMethodArguments != null && bootstrapMethodArguments.length > 0) {
+                    int i = 0;
+                    while (i < bootstrapMethodArguments.length) {
+                        if (bootstrapMethodArguments[i] instanceof Handle) {
+                            if (((Handle) bootstrapMethodArguments[i]).getOwner().contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !((Handle) bootstrapMethodArguments[i]).getOwner().contains("&")) {
+                                try {
+                                    Field field = Handle.class.getDeclaredField("owner");
+                                    field.setAccessible(true);
+                                    field.set(bootstrapMethodArguments[i], ((Handle) bootstrapMethodArguments[i]).getOwner()
+                                        .replace(TARGET_PACKAGE, defaultPackage));
+                                } catch (NoSuchFieldException | IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (((Handle) bootstrapMethodArguments[i]).getDesc().contains(TARGET_PACKAGE + TARGET_CLASS_NAME) && !((Handle) bootstrapMethodArguments[i]).getDesc().contains("&")) {
+                                try {
+                                    Field field = Handle.class.getDeclaredField("descriptor");
+                                    field.setAccessible(true);
+                                    field.set(bootstrapMethodArguments[i], ((Handle) bootstrapMethodArguments[i]).getDesc()
+                                        .replace(TARGET_PACKAGE, defaultPackage));
+                                } catch (NoSuchFieldException | IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        i++;
+                    }
+                }
+                super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+            }
+        }
+
+        static class MapperMethodAdapter extends MethodVisitor {
             private static final String TARGET_OWNER = "org/hibernate/boot/MetadataSources";
             private static final String TARGET_NAME = "<init>";
             private static final String TARGET_DESC = "(Lorg/hibernate/service/ServiceRegistry;)V";
@@ -109,7 +307,7 @@ public class EntityManagerFactoryBuilderImplGenerator extends AbstractClassGener
 
             private final Set<String> mappers;
 
-            public MethodAdapter(MethodVisitor mv, Set<String> mappers) {
+            public MapperMethodAdapter(MethodVisitor mv, Set<String> mappers) {
                 super(ASM8, mv);
                 this.mappers = mappers;
             }
@@ -185,6 +383,6 @@ public class EntityManagerFactoryBuilderImplGenerator extends AbstractClassGener
         Set<String> mappers = new HashSet<>();
         mappers.add("org.xxx.xxx");
         mappers.add("org.xxx.yyy");
-        generator.writeClass("DmEntityManagerFactoryBuilderImpl", mappers);
+        generator.writeClass("EntityManagerFactoryBuilderImpl", mappers);
     }
 }

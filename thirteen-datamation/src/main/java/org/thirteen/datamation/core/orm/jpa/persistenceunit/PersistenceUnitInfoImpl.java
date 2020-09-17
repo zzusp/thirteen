@@ -1,17 +1,16 @@
 package org.thirteen.datamation.core.orm.jpa.persistenceunit;
 
-import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.bytecode.enhance.spi.EnhancementContext;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
-import javax.persistence.spi.ClassTransformer;
-import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import java.net.URL;
 import java.util.*;
 
-public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
+public class PersistenceUnitInfoImpl implements PersistenceUnitDescriptor {
 
     private final String persistenceUnitName;
     private PersistenceUnitTransactionType transactionType;
@@ -31,16 +30,6 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
         this.managedClassNames = new ArrayList<>();
         this.properties = properties;
         this.persistenceXMLSchemaVersion = "2.1";
-    }
-
-    @Override
-    public String getPersistenceUnitName() {
-        return persistenceUnitName;
-    }
-
-    @Override
-    public String getPersistenceProviderClassName() {
-        return HibernatePersistenceProvider.class.getName();
     }
 
     @Override
@@ -89,13 +78,28 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
     }
 
     @Override
-    public List<String> getManagedClassNames() {
-        return managedClassNames;
+    public String getName() {
+        return null;
     }
 
     @Override
-    public boolean excludeUnlistedClasses() {
+    public String getProviderClassName() {
+        return null;
+    }
+
+    @Override
+    public boolean isUseQuotedIdentifiers() {
         return false;
+    }
+
+    @Override
+    public boolean isExcludeUnlistedClasses() {
+        return false;
+    }
+
+    @Override
+    public List<String> getManagedClassNames() {
+        return managedClassNames;
     }
 
     @Override
@@ -114,22 +118,17 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
     }
 
     @Override
-    public String getPersistenceXMLSchemaVersion() {
-        return this.persistenceXMLSchemaVersion;
-    }
-
-    @Override
     public ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
 
     @Override
-    public void addTransformer(ClassTransformer transformer) {
-        throw new UnsupportedOperationException("addTransformer not supported");
+    public ClassLoader getTempClassLoader() {
+        return null;
     }
 
     @Override
-    public ClassLoader getNewTempClassLoader() {
-        return null;
+    public void pushClassTransformer(EnhancementContext enhancementContext) {
+
     }
 }
