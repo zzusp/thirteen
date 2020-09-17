@@ -51,4 +51,6 @@ spring:
     properties:
       hibernate:
         # sql格式
+        show_sql: true
+        # sql格式
         format_sql: true

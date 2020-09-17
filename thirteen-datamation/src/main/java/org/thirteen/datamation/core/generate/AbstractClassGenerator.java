@@ -7,16 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.thirteen.datamation.core.exception.DatamationException;
-import org.thirteen.datamation.core.generate.repository.BaseRepository;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URISyntaxException;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Aaron.Sun
@@ -34,17 +31,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /** 生成类的邻类 */
     private final Class<?> neighbor;
 
-    public AbstractClassGenerator() {
-        this(AbstractClassGenerator.class);
-    }
-
     public AbstractClassGenerator(Class<?> neighbor) {
         this.neighbor = neighbor;
         this.defaultPackage = neighbor.getPackageName().replaceAll("\\.", "\\/") + "/";
-    }
-
-    public Class<?> getNeighbor() {
-        return neighbor;
     }
 
     public ClassLoader getNeighborClassLoader() {
@@ -66,20 +55,6 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     }
 
     /**
-     * 生成class
-     *
-     * @param mapper 实体类信息set集合
-     */
-    public Class<?> generate(Set<String> mapper) {
-        try {
-            return defineClass(this.neighbor, getClassByteArray(mapper));
-        } catch (Exception e) {
-            logger.error("动态生成失败，class：org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl");
-            throw new DatamationException("动态生成失败，class：EntityManagerFactoryBuilderImpl", e);
-        }
-    }
-
-    /**
      * 生成class并写入class文件
      *
      * @param classInfo 类信息
@@ -92,23 +67,6 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
         //将二进制流写到本地磁盘上
         try (FileOutputStream fos = new FileOutputStream(classFilePath)) {
             fos.write(getClassByteArray(classInfo));
-        }
-    }
-
-    /**
-     * 生成class并写入class文件
-     *
-     * @param className 类名
-     * @param mappers 实体类信息set集合
-     * @throws IOException        IO异常
-     * @throws URISyntaxException 路径句法异常
-     */
-    public void writeClass(String className, Set<String> mappers) throws IOException, URISyntaxException {
-        String classFilePath = ClassLoader.getSystemResource("").toURI().getPath()
-            + this.defaultPackage + className + ".class";
-        //将二进制流写到本地磁盘上
-        try (FileOutputStream fos = new FileOutputStream(classFilePath)) {
-            fos.write(getClassByteArray(mappers));
         }
     }
 
@@ -134,14 +92,6 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * @return class字节码数组
      */
     protected abstract byte[] getClassByteArray(ClassInfo classInfo);
-
-    /**
-     * 生成class字节码数组（重写EntityManagerFactoryBuilderImpl）
-     *
-     * @param mappers 实体类信息set集合
-     * @return class字节码数组
-     */
-    protected abstract byte[] getClassByteArray(Set<String> mappers);
 
     /**
      * 注解处理

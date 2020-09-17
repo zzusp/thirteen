@@ -79,7 +79,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitDescriptor {
 
     @Override
     public String getName() {
-        return null;
+        return persistenceUnitName;
     }
 
     @Override
