@@ -13,13 +13,11 @@ import java.util.*;
 public class PersistenceUnitInfoImpl implements PersistenceUnitDescriptor {
 
     private final String persistenceUnitName;
-    private PersistenceUnitTransactionType transactionType;
     private final List<String> managedClassNames;
     private final List<String> mappingFileNames = new LinkedList<>();
-    private SharedCacheMode sharedCacheMode;
-    private ValidationMode validationMode;
-    private Properties properties;
-    private String persistenceXMLSchemaVersion;
+    private final SharedCacheMode sharedCacheMode;
+    private final ValidationMode validationMode;
+    private final Properties properties;
     private DataSource jtaDataSource;
     private DataSource nonJtaDataSource;
 
@@ -29,14 +27,10 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitDescriptor {
         this.persistenceUnitName = persistenceUnitName;
         this.managedClassNames = new ArrayList<>();
         this.properties = properties;
-        this.persistenceXMLSchemaVersion = "2.1";
     }
 
     @Override
     public PersistenceUnitTransactionType getTransactionType() {
-        if (this.transactionType != null) {
-            return this.transactionType;
-        }
         return this.jtaDataSource != null ? PersistenceUnitTransactionType.JTA : PersistenceUnitTransactionType.RESOURCE_LOCAL;
     }
 
@@ -56,10 +50,6 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitDescriptor {
 
     public void setNonJtaDataSource(DataSource nonJtaDataSource) {
         this.nonJtaDataSource = nonJtaDataSource;
-    }
-
-    public void addMappingFileName(String mappingFileName) {
-        this.mappingFileNames.add(mappingFileName);
     }
 
     @Override
@@ -129,6 +119,6 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitDescriptor {
 
     @Override
     public void pushClassTransformer(EnhancementContext enhancementContext) {
-
+        throw new UnsupportedOperationException("pushClassTransformer not supported");
     }
 }

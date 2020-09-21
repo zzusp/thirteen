@@ -21,6 +21,7 @@ import static org.thirteen.datamation.core.DmCodes.*;
  * @date Created in 23:43 2019/12/19
  * @modified by
  */
+@SuppressWarnings("squid:S3252")
 public class DmExample<T> {
 
     /** 每层条件个数的最大值 */
@@ -76,9 +77,9 @@ public class DmExample<T> {
                 }
                 if (DESC.equals(item.getOrderBy())) {
                     orders.add(Sort.Order.desc(item.getField()));
-                    continue;
+                } else {
+                    throw new ParamErrorException("非法排序关键字 " + item.getOrderBy());
                 }
-                throw new ParamErrorException("非法排序关键字 " + item.getOrderBy());
             }
         }
         return Sort.by(orders);
@@ -93,6 +94,7 @@ public class DmExample<T> {
      * @param deep 条件深度
      * @return jpa查询参数对象
      */
+    @SuppressWarnings("squid:S3776")
     private Predicate setCriteria(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, List<DmCriteria> criterias, int deep) {
         Assert.notEmpty(criterias, "条件参数集合不可为空");
         if (criterias.size() > MAX_CRITERIA_SIZE) {
@@ -123,19 +125,15 @@ public class DmExample<T> {
             // 判断jpa查询参数是否为空
             if (result == null) {
                 result = predicate;
-                continue;
-            }
-            if (predicate != null) {
+            } else if (predicate != null) {
                 // 判断条件间关系（默认关系为AND）
                 if (StringUtils.isEmpty(item.getRelation()) || AND.equals(item.getRelation())) {
                     result = cb.and(result, predicate);
-                    continue;
-                }
-                if (OR.equals(item.getRelation())) {
+                } else if (OR.equals(item.getRelation())) {
                     result = cb.or(result, predicate);
-                    continue;
+                } else {
+                    throw new ParamErrorException("非法关系 " + item.getRelation());
                 }
-                throw new ParamErrorException("非法关系 " + item.getRelation());
             }
         }
         return result;
@@ -149,7 +147,7 @@ public class DmExample<T> {
      * @param item 搜索条件参数
      * @return 处理后的谓语对象
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private Predicate predicateHandle(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, DmCriteria item) {
         Predicate predicate = null;
         boolean hasValue = item.getValue() != null && !"".equals(String.valueOf(item.getValue()));

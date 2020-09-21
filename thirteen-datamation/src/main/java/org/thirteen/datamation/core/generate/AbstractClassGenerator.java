@@ -106,21 +106,32 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
             for (AnnotationInfo info : annotationInfos) {
                 // 注解开始
                 av = cw.visitAnnotation(info.getDesc(), info.getVisible());
-                if (!CollectionUtils.isEmpty(info.getParams())) {
-                    for (AnnotationInfo.Param param : info.getParams()) {
-                        // 设置注解参数
-                        if (param.getValue() instanceof String[]) {
-                            av = av.visitArray(param.getName());
-                            for (String v : (String[]) param.getValue()) {
-                                av.visit(null, v);
-                            }
-                        } else {
-                            av.visit(param.getName(), param.getValue());
-                        }
-                    }
-                }
+                // 注解参数处理
+                annotationParamHandle(av, info.getParams());
                 // 注解结束
                 av.visitEnd();
+            }
+        }
+    }
+
+    /**
+     * 注解参数处理
+     *
+     * @param av 注解访问器
+     * @param params 注解参数集合
+     */
+    private void annotationParamHandle(AnnotationVisitor av, List<AnnotationInfo.Param> params) {
+        if (!CollectionUtils.isEmpty(params)) {
+            for (AnnotationInfo.Param param : params) {
+                // 设置注解参数
+                if (param.getValue() instanceof String[]) {
+                    av = av.visitArray(param.getName());
+                    for (String v : (String[]) param.getValue()) {
+                        av.visit(null, v);
+                    }
+                } else {
+                    av.visit(param.getName(), param.getValue());
+                }
             }
         }
     }
@@ -148,12 +159,8 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
                     for (AnnotationInfo annotation : info.getAnnotationInfos()) {
                         // 字段注解开始
                         av = fv.visitAnnotation(annotation.getDesc(), annotation.getVisible());
-                        if (!CollectionUtils.isEmpty(annotation.getParams())) {
-                            for (AnnotationInfo.Param param : annotation.getParams()) {
-                                // 设置字段注解参数
-                                av.visit(param.getName(), param.getValue());
-                            }
-                        }
+                        // 注解参数处理
+                        annotationParamHandle(av, annotation.getParams());
                         // 字段注解结束
                         av.visitEnd();
                     }
@@ -173,7 +180,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
         // 访问局部变量指令。0表示this
         mv.visitVarInsn(ALOAD, 0);
         // 访问方法指令
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -245,12 +252,12 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
             Iterator<FieldInfo> iterable = fieldInfos.iterator();
             FieldInfo field;
             // 每个字段结尾字符串临时变量
-            String endTemp;
+            StringBuilder endTemp;
             while (iterable.hasNext()) {
                 field = iterable.next();
                 fieldName = field.getName();
                 typeOf = Type.getType(field.getFieldClass()).getDescriptor();
-                endTemp = "";
+                endTemp = new StringBuilder();
                 if (typeOf.startsWith("L")) {
                     mv.visitLdcInsn(fieldName + "='");
                 } else {
@@ -266,14 +273,14 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
                 mv.visitMaxs(2, 3);
                 // 拼接每个字段结尾
                 if (typeOf.startsWith("L")) {
-                    endTemp = "'";
+                    endTemp.append("'");
                 }
                 if (iterable.hasNext()) {
-                    endTemp += ", ";
+                    endTemp.append(", ");
                 } else {
-                    endTemp += "}";
+                    endTemp.append("}");
                 }
-                mv.visitLdcInsn(endTemp);
+                mv.visitLdcInsn(endTemp.toString());
                 mv.visitInsn(IADD);
                 mv.visitMaxs(2, 3);
             }

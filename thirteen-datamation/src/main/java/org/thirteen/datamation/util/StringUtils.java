@@ -6,6 +6,7 @@ package org.thirteen.datamation.util;
  * @date Created in 2018/9/30 17:24
  * @modified by
  */
+@SuppressWarnings("squid:S2176")
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     /**

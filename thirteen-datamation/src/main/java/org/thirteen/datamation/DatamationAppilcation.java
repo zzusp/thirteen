@@ -3,14 +3,10 @@ package org.thirteen.datamation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.thirteen.datamation.core.spring.DatamationRepository;
 import org.thirteen.datamation.core.spring.DatamationRepositoryFactoryBean;
 import org.thirteen.datamation.repository.DmColumnRepository;
 import org.thirteen.datamation.repository.DmTableRepository;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 /**
  * @author Aaron.Sun

@@ -8,9 +8,6 @@ import org.thirteen.datamation.core.generate.FieldInfo;
 import org.thirteen.datamation.model.po.DmColumnPO;
 import org.thirteen.datamation.model.po.DmTablePO;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +19,12 @@ import java.util.List;
  */
 public class PoConverter extends AbstractClassConverter {
 
+    /**
+     * table转classInfo
+     *
+     * @param table 数据库配置表信息
+     * @return classInfo（生成class所需要的信息）
+     */
     @Override
     protected ClassInfo tableToClass(DmTablePO table) {
         ClassInfo classInfo = new ClassInfo();
@@ -31,6 +34,12 @@ public class PoConverter extends AbstractClassConverter {
         return classInfo;
     }
 
+    /**
+     * table转classInfo
+     *
+     * @param table 数据库配置表信息
+     * @return classInfo（生成class的注解所需要的信息）
+     */
     @Override
     protected List<AnnotationInfo> tableToAnnotation(DmTablePO table) {
         List<AnnotationInfo> annotationInfos = new ArrayList<>();
@@ -53,6 +62,12 @@ public class PoConverter extends AbstractClassConverter {
         return annotationInfos;
     }
 
+    /**
+     * table转classInfo
+     *
+     * @param column 数据库配置列信息
+     * @return classInfo（生成class中的字段的注解所需要的信息）
+     */
     @Override
     protected List<AnnotationInfo> columnToAnnotation(DmColumnPO column) {
         List<AnnotationInfo> annotationInfos = new ArrayList<>();
@@ -94,6 +109,12 @@ public class PoConverter extends AbstractClassConverter {
         return annotationInfos;
     }
 
+    /**
+     * column转fieldInfo
+     *
+     * @param column 数据库配置列信息
+     * @return fieldInfo（生成class中的字段所需要的信息）
+     */
     @Override
     protected FieldInfo columnToField(DmColumnPO column) {
         FieldInfo fieldInfo = new FieldInfo();
@@ -102,58 +123,4 @@ public class PoConverter extends AbstractClassConverter {
         return fieldInfo;
     }
 
-    public static void main(String[] args) {
-//        DmTablePO po = new DmTablePO();
-//        po.setCode("rental_stock");
-//        po.setName("库存");
-//        po.setStatus((byte) 1);
-//        po.setCreateBy("admin");
-//        po.setCreateTime(LocalDateTime.now());
-//        po.setDelFlag((byte) 1);
-//
-//        DmColumnPO id = new DmColumnPO();
-//        id.setCode("id");
-//        id.setName("主键");
-//        id.setDbType("VARCHAR");
-//        id.setLength(32);
-//        id.setNotNull((byte) 1);
-//        id.setStatus((byte) 1);
-//        id.setCreateBy("admin");
-//        id.setCreateTime(LocalDateTime.now());
-//        id.setRemark(null);
-//        id.setDelFlag((byte) 1);
-//
-//        DmColumnPO code = new DmColumnPO();
-//        code.setCode("code");
-//        code.setName("编码");
-//        code.setDbType("VARCHAR");
-//        code.setLength(20);
-//        code.setNotNull((byte) 1);
-//        code.setStatus((byte) 1);
-//        code.setCreateBy("admin");
-//        code.setCreateTime(LocalDateTime.now());
-//        code.setRemark("编码唯一");
-//        code.setDelFlag((byte) 1);
-//
-//        DmColumnPO createTime = new DmColumnPO();
-//        createTime.setCode("create_time");
-//        createTime.setName("创建时间");
-//        createTime.setDbType("DATETIME");
-//        createTime.setNotNull((byte) 0);
-//        createTime.setStatus((byte) 1);
-//        createTime.setCreateBy("admin");
-//        createTime.setCreateTime(LocalDateTime.now());
-//        createTime.setDelFlag((byte) 1);
-//
-//        po.getColumns().add(id);
-//        po.getColumns().add(code);
-//        po.getColumns().add(createTime);
-//        PoConverter poConverter = new PoConverter();
-//        PoGenerator poGenerate = new PoGenerator();
-//        try {
-//            poGenerate.writeClass(poConverter.getClassInfo(po));
-//        } catch (IOException | URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-    }
 }

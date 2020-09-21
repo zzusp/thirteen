@@ -1,15 +1,11 @@
 package org.thirteen.datamation.core.spring;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.lang.NonNull;
 import org.thirteen.datamation.repository.DmColumnRepository;
 import org.thirteen.datamation.repository.DmTableRepository;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 /**
  * @author Aaron.Sun
@@ -29,7 +25,7 @@ public class DatamationRepositoryFactoryBean implements FactoryBean<DatamationRe
     }
 
     @Override
-    public DatamationRepository getObject() throws Exception {
+    public DatamationRepository getObject() {
         return new DatamationRepository(dmTableRepository, dmColumnRepository);
     }
 
@@ -39,7 +35,7 @@ public class DatamationRepositoryFactoryBean implements FactoryBean<DatamationRe
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 

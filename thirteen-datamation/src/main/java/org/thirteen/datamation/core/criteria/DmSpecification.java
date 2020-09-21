@@ -10,6 +10,7 @@ import java.util.List;
  * @date Created in 23:43 2019/12/19
  * @modified by
  */
+@SuppressWarnings("squid:S1948")
 public class DmSpecification implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class AnnotationInfo implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /** 注释类的类描述符。即注释路径 */
     private String desc;
     /** true注释在运行时可见 */
@@ -56,7 +58,11 @@ public class AnnotationInfo implements Serializable {
     }
 
     /** 注释类的参数 */
-    static class Param {
+    @SuppressWarnings("squid:S1948")
+    static class Param implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
         /** name */
         private String name;
         /** value */
@@ -81,6 +87,14 @@ public class AnnotationInfo implements Serializable {
 
         public void setValue(Object value) {
             this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "Param{" +
+                "name='" + name + '\'' +
+                ", value=" + value +
+                '}';
         }
     }
 

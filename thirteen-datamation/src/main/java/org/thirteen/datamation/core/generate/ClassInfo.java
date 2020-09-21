@@ -1,7 +1,5 @@
 package org.thirteen.datamation.core.generate;
 
-import javassist.bytecode.MethodInfo;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +11,8 @@ import java.util.List;
  * @modified By
  */
 public class ClassInfo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /** 类名 */
     private String className;
@@ -26,8 +26,6 @@ public class ClassInfo implements Serializable {
     String[] interfaces;
     /** 类注解信息集合 */
     private List<AnnotationInfo> annotationInfos;
-    /** 类方法信息集合 */
-    private List<MethodInfo> methodInfos;
     /** 类字段信息集合 */
     private List<FieldInfo> fieldInfos;
 
@@ -83,14 +81,6 @@ public class ClassInfo implements Serializable {
         this.annotationInfos = annotationInfos;
     }
 
-    public List<MethodInfo> getMethodInfos() {
-        return methodInfos;
-    }
-
-    public void setMethodInfos(List<MethodInfo> methodInfos) {
-        this.methodInfos = methodInfos;
-    }
-
     public List<FieldInfo> getFieldInfos() {
         return fieldInfos;
     }
@@ -108,7 +98,6 @@ public class ClassInfo implements Serializable {
             ", superName='" + superName + '\'' +
             ", interfaces=" + Arrays.toString(interfaces) +
             ", annotationInfos=" + annotationInfos +
-            ", methodInfos=" + methodInfos +
             ", fieldInfos=" + fieldInfos +
             '}';
     }

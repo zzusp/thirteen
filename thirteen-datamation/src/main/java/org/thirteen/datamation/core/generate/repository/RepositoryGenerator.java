@@ -4,9 +4,6 @@ import org.objectweb.asm.ClassWriter;
 import org.thirteen.datamation.core.generate.AbstractClassGenerator;
 import org.thirteen.datamation.core.generate.ClassInfo;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 /**
  * @author Aaron.Sun
  * @description 生成repository类
@@ -17,10 +14,6 @@ public class RepositoryGenerator extends AbstractClassGenerator {
 
     public RepositoryGenerator() {
         super(RepositoryGenerator.class);
-    }
-
-    public RepositoryGenerator(Class<?> neighbor) {
-        super(neighbor);
     }
 
     /**
@@ -44,8 +37,4 @@ public class RepositoryGenerator extends AbstractClassGenerator {
         return cw.toByteArray();
     }
 
-    @Override
-    protected byte[] getClassByteArray(Set<String> mappers) {
-        return new byte[0];
-    }
 }

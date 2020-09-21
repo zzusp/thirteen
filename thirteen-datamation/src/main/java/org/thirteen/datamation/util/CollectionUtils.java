@@ -11,6 +11,7 @@ import java.util.Map;
  * @date Created in 2020/8/18 17:24
  * @modified by
  */
+@SuppressWarnings("squid:S2176")
 public class CollectionUtils extends org.springframework.util.CollectionUtils {
 
     public static boolean isNotEmpty(@Nullable Collection<?> collection) {

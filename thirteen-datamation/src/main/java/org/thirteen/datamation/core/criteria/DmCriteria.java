@@ -13,6 +13,7 @@ import static org.thirteen.datamation.core.DmCodes.*;
  * @date Created in 23:43 2019/12/19
  * @modified by
  */
+@SuppressWarnings("squid:S1948")
 public class DmCriteria implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -36,6 +37,7 @@ public class DmCriteria implements Serializable {
         return new DmCriteria().operator(EQUAL).and().required(false).criterias(new ArrayList<>());
     }
 
+    @SuppressWarnings("squid:S1221")
     public static DmCriteria equal(String field, Object value) {
         return new DmCriteria().field(field).operator(EQUAL).value(value);
     }
