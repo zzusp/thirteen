@@ -42,7 +42,7 @@ public class DmCriteria implements Serializable {
         return new DmCriteria().field(field).operator(EQUAL).value(value);
     }
 
-    public static DmCriteria in(String field, List<Object> values) {
+    public static DmCriteria in(String field, List<?> values) {
         return new DmCriteria().field(field).operator(IN).values(Arrays.asList(values.toArray()));
     }
 

@@ -245,48 +245,43 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
             av.visitEnd();
             // 开始扫描该方法
             mv.visitCode();
+            Label label0 = new Label();
+            mv.visitLabel(label0);
+            Iterator<FieldInfo> iterable = fieldInfos.iterator();
             String fieldName;
             String typeOf;
-            // 塞入字符串
-            mv.visitLdcInsn(className + "{");
-            Iterator<FieldInfo> iterable = fieldInfos.iterator();
             FieldInfo field;
-            // 每个字段结尾字符串临时变量
-            StringBuilder endTemp;
+            // 字符串拼接函数的说明
+            StringBuilder desc = new StringBuilder("(");
+            // 字符串拼接函数的参数表达式
+            StringBuilder arguments = new StringBuilder(className + "{");
             while (iterable.hasNext()) {
                 field = iterable.next();
                 fieldName = field.getName();
                 typeOf = Type.getType(field.getFieldClass()).getDescriptor();
-                endTemp = new StringBuilder();
-                if (typeOf.startsWith("L")) {
-                    mv.visitLdcInsn(fieldName + "='");
-                } else {
-                    mv.visitLdcInsn(fieldName + "=");
-                }
-                mv.visitInsn(IADD);
-                mv.visitMaxs(2, 3);
-                // 访问局部变量指令。0表示this
                 mv.visitVarInsn(ALOAD, 0);
-                // 访问方法指令
                 mv.visitFieldInsn(GETFIELD, className, fieldName, typeOf);
-                mv.visitInsn(IADD);
-                mv.visitMaxs(2, 3);
-                // 拼接每个字段结尾
-                if (typeOf.startsWith("L")) {
-                    endTemp.append("'");
-                }
+                desc.append(typeOf);
+                arguments.append(fieldName).append("='\u0001'");
                 if (iterable.hasNext()) {
-                    endTemp.append(", ");
-                } else {
-                    endTemp.append("}");
+                    arguments.append(", ");
                 }
-                mv.visitLdcInsn(endTemp.toString());
-                mv.visitInsn(IADD);
-                mv.visitMaxs(2, 3);
             }
-            // 设置返回
+            desc.append(")Ljava/lang/String;");
+            arguments.append("}");
+            mv.visitInvokeDynamicInsn("makeConcatWithConstants", desc.toString(),
+                new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory",
+                    "makeConcatWithConstants",
+                    "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;" +
+                        "Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;",
+                    false), arguments.toString());
             mv.visitInsn(ARETURN);
-            mv.visitMaxs(2, 1);
+
+            Label label1 = new Label();
+            mv.visitLabel(label1);
+            mv.visitLocalVariable("this", "L" + className + ";", null, label0, label1, 0);
+            // 设置返回
+            mv.visitMaxs(fieldInfos.size(), 1);
             mv.visitEnd();
         }
     }

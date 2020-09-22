@@ -13,6 +13,8 @@ public class DmCodes {
 
     // 字段
 
+    /** 主键ID字段 */
+    public static final String ID_FIELD = "id";
     /** 表中删除标识列 字段名称 */
     public static final String DEL_FLAG_KEY = "delFlag";
 

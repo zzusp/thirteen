@@ -2,7 +2,12 @@ package org.thirteen.datamation.core.generate.po;
 
 import org.objectweb.asm.ClassWriter;
 import org.thirteen.datamation.core.generate.AbstractClassGenerator;
+import org.thirteen.datamation.core.generate.AnnotationInfo;
 import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.FieldInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Aaron.Sun
@@ -41,6 +46,53 @@ public class PoGenerator extends AbstractClassGenerator {
         cw.visitEnd();
         // 转为字节数组
         return cw.toByteArray();
+    }
+
+    public static void main(String[] args) throws Exception {
+        ClassInfo classInfo = new ClassInfo();
+        classInfo.setClassName("DmTestPO");
+        classInfo.setAccess("public");
+        classInfo.setInterfaces(new String[]{"java/io/Serializable"});
+
+        List<AnnotationInfo> annotationInfos = new ArrayList<>();
+        AnnotationInfo tableAnno = new AnnotationInfo();
+        tableAnno.setDesc("javax.persistence.Table");
+        tableAnno.add("name", "dm_test");
+        annotationInfos.add(tableAnno);
+        classInfo.setAnnotationInfos(annotationInfos);
+
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        FieldInfo idField = new FieldInfo();
+        idField.setName("id");
+        idField.setFieldClass("Ljava/lang/String;");
+        idField.setAccess("private");
+        fieldInfos.add(idField);
+
+        FieldInfo codeField = new FieldInfo();
+        codeField.setName("code");
+        codeField.setFieldClass("Ljava/lang/String;");
+        codeField.setAccess("private");
+        fieldInfos.add(codeField);
+
+
+        FieldInfo nameField = new FieldInfo();
+        nameField.setName("name");
+        nameField.setFieldClass("Ljava/lang/String;");
+        nameField.setAccess("private");
+        fieldInfos.add(nameField);
+
+        FieldInfo testField = new FieldInfo();
+        testField.setName("test_field");
+        testField.setFieldClass("Ljava/lang/String;");
+        testField.setAccess("private");
+        fieldInfos.add(testField);
+
+        classInfo.setFieldInfos(fieldInfos);
+
+        PoGenerator poGenerate = new PoGenerator();
+//        poGenerate.writeClass(classInfo);
+        Class<?> c = poGenerate.generate(classInfo);
+        System.out.println(c.getMethod("toString").invoke(c.getDeclaredConstructor().newInstance()));
     }
 
 }

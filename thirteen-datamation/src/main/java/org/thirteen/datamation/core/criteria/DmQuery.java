@@ -22,7 +22,7 @@ import static org.thirteen.datamation.core.DmCodes.*;
  * @modified by
  */
 @SuppressWarnings("squid:S3252")
-public class DmExample<T> {
+public class DmQuery {
 
     /** 每层条件个数的最大值 */
     private static final Integer MAX_CRITERIA_SIZE = 10;
@@ -46,7 +46,7 @@ public class DmExample<T> {
      *
      * @return jpa查询参数对象
      */
-    public Specification<T> build() {
+    public <T> Specification<T> build() {
         return this.createSpecification(specification.getCriterias());
     }
 
@@ -56,7 +56,7 @@ public class DmExample<T> {
      * @param criterias 搜索条件参数集合
      * @return jpa查询参数对象
      */
-    public Specification<T> createSpecification(List<DmCriteria> criterias) {
+    public <T> Specification<T> createSpecification(List<DmCriteria> criterias) {
         return (Root<T> root, CriteriaQuery<?> query, javax.persistence.criteria.CriteriaBuilder cb) -> this.setCriteria(root, cb, criterias, 0);
     }
 
@@ -95,7 +95,7 @@ public class DmExample<T> {
      * @return jpa查询参数对象
      */
     @SuppressWarnings("squid:S3776")
-    private Predicate setCriteria(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, List<DmCriteria> criterias, int deep) {
+    private <T> Predicate setCriteria(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, List<DmCriteria> criterias, int deep) {
         Assert.notEmpty(criterias, "条件参数集合不可为空");
         if (criterias.size() > MAX_CRITERIA_SIZE) {
             throw new ParamErrorException("条件参数集合大小不可大于10");
@@ -148,7 +148,7 @@ public class DmExample<T> {
      * @return 处理后的谓语对象
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private Predicate predicateHandle(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, DmCriteria item) {
+    private <T> Predicate predicateHandle(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, DmCriteria item) {
         Predicate predicate = null;
         boolean hasValue = item.getValue() != null && !"".equals(String.valueOf(item.getValue()));
         boolean hasValues = CollectionUtils.isNotEmpty(item.getValues());

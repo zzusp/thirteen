@@ -8,13 +8,15 @@ import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.CollectionUtils;
 import org.thirteen.datamation.core.criteria.DmCriteria;
-import org.thirteen.datamation.core.criteria.DmExample;
+import org.thirteen.datamation.core.criteria.DmQuery;
+import org.thirteen.datamation.core.exception.DatamationException;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.po.PoConverter;
 import org.thirteen.datamation.core.generate.po.PoGenerator;
-import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.generate.repository.RepositoryConverter;
 import org.thirteen.datamation.core.generate.repository.RepositoryGenerator;
 import org.thirteen.datamation.core.orm.jpa.persistenceunit.PersistenceUnitInfoImpl;
@@ -44,13 +46,46 @@ public class DatamationRepository implements ApplicationContextAware {
     private ApplicationContext applicationContext;
     private final DmTableRepository dmTableRepository;
     private final DmColumnRepository dmColumnRepository;
-
-    private Map<String, Object> repositoryMap;
+    /** 表名与po类的映射 */
+    private final Map<String, Class<?>> poMap = new HashMap<>();
+    /** 表名与repository类的映射 */
+    private final Map<String, Class<?>> repositoryMap = new HashMap<>();
 
     public DatamationRepository(DmTableRepository dmTableRepository, DmColumnRepository dmColumnRepository) {
         this.dmTableRepository = dmTableRepository;
         this.dmColumnRepository = dmColumnRepository;
-        this.repositoryMap = null;
+    }
+
+    /**
+     * 由表名获取对应的po class
+     *
+     * @param tableCode 表名
+     * @return po class
+     */
+    public Class<?> getPoClass(String tableCode) {
+        if (!poMap.containsKey(tableCode)) {
+            throw new DatamationException("Not found repository for table " + tableCode);
+        }
+        return poMap.get(tableCode);
+    }
+
+    /**
+     * 由表名获取对应的repository
+     *
+     * @param tableCode 表名
+     * @return repository
+     */
+    public Object getRepository(String tableCode) {
+        if (!repositoryMap.containsKey(tableCode)) {
+            throw new DatamationException("Not found repository for table " + tableCode);
+        }
+        return applicationContext.getBean(repositoryMap.get(tableCode));
+    }
+
+    @Override
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        buildDatamationRepository();
     }
 
     /**
@@ -58,13 +93,13 @@ public class DatamationRepository implements ApplicationContextAware {
      */
     private void buildDatamationRepository() {
         // 查询所有有效table数据
-        DmExample<DmTablePO> tableExample = new DmExample<>();
-        tableExample.createSpecification().add(DmCriteria.noDeleted());
-        List<DmTablePO> tableList = dmTableRepository.findAll(tableExample.build());
+        DmQuery tableQuery = new DmQuery();
+        tableQuery.createSpecification().add(DmCriteria.noDeleted());
+        List<DmTablePO> tableList = dmTableRepository.findAll(tableQuery.build());
         // 查询所有有效column数据
-        DmExample<DmColumnPO> columnExample = new DmExample<>();
-        columnExample.createSpecification().add(DmCriteria.noDeleted());
-        List<DmColumnPO> columnList = dmColumnRepository.findAll(columnExample.build());
+        DmQuery columnQuery = new DmQuery();
+        columnQuery.createSpecification().add(DmCriteria.noDeleted());
+        List<DmColumnPO> columnList = dmColumnRepository.findAll(columnQuery.build());
         // 将所有column按照tableCode分组
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
             .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
@@ -101,6 +136,8 @@ public class DatamationRepository implements ApplicationContextAware {
             poClass = poGenerate.generate(tableClassInfo);
             // 将po类添加到实体类集合，供hibernate加载
             entities.add(poClass);
+            // 添加表名与po类的映射
+            poMap.put(table.getCode(), poClass);
 
             // 初始化repository转换器
             repositoryConverter = new RepositoryConverter(poClass);
@@ -110,10 +147,13 @@ public class DatamationRepository implements ApplicationContextAware {
             repositoryBd = new RootBeanDefinition();
             repositoryBd.overrideFrom(tempBeanDefinition);
             repositoryBd.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass.getName());
-            // 注入到spring容器内，beanName为表名
+            repositoryBd.setAttribute("factoryBeanObjectType", repositoryClass.getName());
+            // 获取bean name
             repositoryName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
             // 将bean定义放入map中
             repositoryBeanDefinitionMap.put(repositoryName, repositoryBd);
+            // 添加表名与repository类的映射
+            repositoryMap.put(table.getCode(), repositoryClass);
         }
 
         // 判断是否有生成实体对象
@@ -122,16 +162,7 @@ public class DatamationRepository implements ApplicationContextAware {
             EntityManagerFactory emf = createEntityManagerFactory(beanFactory, poClassLoader, entities);
             // 以下代码为repository注入容器处理
             registerRepository(beanFactory, emf, repositoryBeanDefinitionMap);
-
-            BaseRepository repository = (BaseRepository) beanFactory.getBean(BEAN_NAME_PREFIX + "rentalStockRepository");
-            repository.findAll();
         }
-    }
-
-    @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        buildDatamationRepository();
     }
 
     /**
@@ -155,6 +186,7 @@ public class DatamationRepository implements ApplicationContextAware {
         );
         // 设置数据源
         persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
+        // 默认hibernate配置
         Map<String, Object> map = new HashMap<>();
         map.put("hibernate.ejb.loaded.classes", entities);
         map.put("hibernate.hbm2ddl.auto", "update");
@@ -173,6 +205,8 @@ public class DatamationRepository implements ApplicationContextAware {
      */
     private void registerRepository(DefaultListableBeanFactory beanFactory, EntityManagerFactory emf,
                                     Map<String, RootBeanDefinition> repositoryBeanDefinitionMap) {
+        String transactionManagerBeanName = BEAN_NAME_PREFIX + "transactionManager";
+        beanFactory.registerSingleton(transactionManagerBeanName, transactionManager(emf));
         RootBeanDefinition bd;
         RootBeanDefinition entityManagerBd;
         PropertyValue pv;
@@ -192,10 +226,20 @@ public class DatamationRepository implements ApplicationContextAware {
                         bd.getPropertyValues().getPropertyValueList().set(i, new PropertyValue(pv, entityManagerBd));
                     }
                 }
+                if ("transactionManager".equals(pv.getName())) {
+                    bd.getPropertyValues().getPropertyValueList().set(i,
+                        new PropertyValue("transactionManager", transactionManagerBeanName));
+                }
             }
             // 将repository注入容器中
             beanFactory.registerBeanDefinition(rbd.getKey(), bd.cloneBeanDefinition());
         }
+    }
+
+    private PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        JpaTransactionManager txManager = new JpaTransactionManager();
+        txManager.setEntityManagerFactory(entityManagerFactory);
+        return txManager;
     }
 
     /**

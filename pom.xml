@@ -56,7 +56,7 @@
     <jjwt.version>0.9.1</jjwt.version><!-- jwt常用工具包 -->
     <lombok.version>1.18.10</lombok.version><!-- lombok -->
     <dozer.version>5.5.1</dozer.version><!-- 对象转换工具 -->
-    <springsource.asm.version>3.2.0</springsource.asm.version><!-- 字节码操作工具类 -->
+    <ow2.asm.version>8.0.1</ow2.asm.version><!-- 字节码操作工具类 -->
   </properties>
 
   <!-- 只定义依赖的版本，并不实际依赖 -->
@@ -252,9 +252,9 @@
       </dependency>
       <!-- 字节码操作工具类 -->
       <dependency>
-        <groupId>org.objectweb.asm</groupId>
-        <artifactId>com.springsource.org.objectweb.asm</artifactId>
-        <version>${springsource.asm.version}</version>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${ow2.asm.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

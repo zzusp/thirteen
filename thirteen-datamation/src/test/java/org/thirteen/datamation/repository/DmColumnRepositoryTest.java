@@ -4,16 +4,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.thirteen.datamation.DatamationAppilcation;
 import org.thirteen.datamation.model.po.DmColumnPO;
-import org.thirteen.datamation.model.po.DmTablePO;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Transactional
 @Rollback
