@@ -41,8 +41,12 @@ public class DmColumnPO implements Serializable {
     private String javaType;
     @Column(name = "db_type", columnDefinition = "VARCHAR(50) COMMENT '数据库类型'")
     private String dbType;
+    @Column(name = "column_type", unique = true, columnDefinition = "TINYINT(2) COMMENT '字段类型 0：主键字段；1：逻辑删除字段；2：版本号字段'")
+    private Byte columnType;
     @Column(name = "length", columnDefinition = "INT COMMENT '字段长度'")
     private Integer length;
+    @Column(name = "order_number", columnDefinition = "INT COMMENT '显示顺序'")
+    private Integer orderNumber;
     @Column(name = "status", columnDefinition = "TINYINT(1) NOT NULL COMMENT '状态 0：禁用；1启用'")
     private Byte status;
     @Column(name = "create_by", columnDefinition = "CHAR(32) COMMENT '创建人'")

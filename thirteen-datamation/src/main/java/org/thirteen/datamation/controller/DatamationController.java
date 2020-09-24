@@ -1,4 +1,4 @@
-package org.thirteen.datamation;
+package org.thirteen.datamation.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,19 +15,26 @@ import java.util.Map;
 
 /**
  * @author Aaron.Sun
- * @description 应用信息接口
+ * @description 数据化配置通用接口
  * @date Created in 20:51 2020/1/15
  * @modified By
  */
-@Api(tags = "应用信息接口")
+@Api(tags = "数据化配置通用接口")
 @RestController
-@RequestMapping(value = "/sys-application")
+@RequestMapping(value = "/dm")
 public class DatamationController {
 
     private final DatamationService datamationService;
 
     public DatamationController(DatamationService datamationService) {
         this.datamationService = datamationService;
+    }
+
+    @ApiOperation(value = "刷新", notes = "刷新", response = ResponseResult.class)
+    @GetMapping(value = "/refresh ")
+    public ResponseResult<Map<String, Object>> refresh() {
+        datamationService.refresh();
+        return ResponseResult.ok();
     }
 
     @ApiOperation(value = "新增", notes = "新增", response = ResponseResult.class)

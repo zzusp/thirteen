@@ -3,6 +3,7 @@ package org.thirteen.datamation.core.generate.repository;
 import org.objectweb.asm.ClassWriter;
 import org.thirteen.datamation.core.generate.AbstractClassGenerator;
 import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.DmClassLoader;
 
 /**
  * @author Aaron.Sun
@@ -12,8 +13,8 @@ import org.thirteen.datamation.core.generate.ClassInfo;
  */
 public class RepositoryGenerator extends AbstractClassGenerator {
 
-    public RepositoryGenerator() {
-        super(RepositoryGenerator.class);
+    public RepositoryGenerator(DmClassLoader dmClassLoader) {
+        super(dmClassLoader, RepositoryGenerator.class);
     }
 
     /**

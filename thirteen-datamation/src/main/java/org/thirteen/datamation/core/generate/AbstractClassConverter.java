@@ -6,8 +6,6 @@ import org.thirteen.datamation.model.po.DmTablePO;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Aaron.Sun
@@ -19,7 +17,6 @@ public abstract class AbstractClassConverter {
 
     protected static final String PO_SUFFIX = "PO";
     protected static final String REPOSITORY_SUFFIX = "Repository";
-    private static final Pattern LINE_PATTERN = Pattern.compile("_(\\w)");
 
     /**
      * 获取生成class所需要的所有信息
@@ -79,44 +76,10 @@ public abstract class AbstractClassConverter {
     protected abstract FieldInfo columnToField(DmColumnPO column);
 
     /**
-     * 将包含下划线的字符串转为驼峰命名（首字母大写）
-     *
-     * @param str 包含下划线的字符串
-     * @return 驼峰命名
-     */
-    public static String lineToHumpAndStartWithCapitalize(String str) {
-        char[] chars = lineToHump(str).toCharArray();
-        // 如果为小写字母，则将ascii编码前移32位
-        char a = 'a';
-        char z = 'z';
-        if (chars[0] >= a && chars[0] <= z) {
-            chars[0] = (char) (chars[0] - 32);
-        }
-        return String.valueOf(chars);
-    }
-
-    /**
-     * 将包含下划线的字符串转为驼峰命名
-     *
-     * @param str 包含下划线的字符串
-     * @return 驼峰命名
-     */
-    public static String lineToHump(String str) {
-        str = str.toLowerCase();
-        Matcher matcher = LINE_PATTERN.matcher(str);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(sb, matcher.group(1).toUpperCase());
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
-    }
-
-    /**
      * 数据库类型转java类型
      *
      * @param dbType 数据库类型
-     * @return java类型
+     * @return java类型（包装类型）
      */
     public static String getJavaType(String dbType) {
         // 先转大写
@@ -124,19 +87,19 @@ public abstract class AbstractClassConverter {
         String javaType;
         switch (dbType) {
             case "INT":
-                javaType = "Ijava/lang/Integer;";
+                javaType = "Ljava/lang/Integer;";
                 break;
             case "TINYINT":
-                javaType = "Bjava/lang/Byte;";
+                javaType = "Ljava/lang/Byte;";
                 break;
             case "BIGINT":
-                javaType = "Zjava/lang/Long;";
+                javaType = "Ljava/lang/Long;";
                 break;
             case "FLOAT":
-                javaType = "Fjava/lang/Float;";
+                javaType = "Ljava/lang/Float;";
                 break;
             case "DOUBLE":
-                javaType = "Djava/lang/Double;";
+                javaType = "Ljava/lang/Double;";
                 break;
             case "DATE":
                 javaType = "Ljava/time/LocalDate;";

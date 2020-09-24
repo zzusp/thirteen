@@ -15,6 +15,11 @@ import java.util.Map;
 public interface DatamationService {
 
     /**
+     * 刷新
+     */
+    void refresh();
+
+    /**
      * 新增
      *
      * @param tableCode 表名

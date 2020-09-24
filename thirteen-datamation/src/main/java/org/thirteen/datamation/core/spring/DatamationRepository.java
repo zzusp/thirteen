@@ -13,8 +13,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.CollectionUtils;
 import org.thirteen.datamation.core.criteria.DmCriteria;
 import org.thirteen.datamation.core.criteria.DmQuery;
+import org.thirteen.datamation.core.criteria.DmSpecification;
 import org.thirteen.datamation.core.exception.DatamationException;
 import org.thirteen.datamation.core.generate.ClassInfo;
+import org.thirteen.datamation.core.generate.DmClassLoader;
 import org.thirteen.datamation.core.generate.po.PoConverter;
 import org.thirteen.datamation.core.generate.po.PoGenerator;
 import org.thirteen.datamation.core.generate.repository.RepositoryConverter;
@@ -31,6 +33,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.uncapitalize;
+import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
 
 /**
  * @author Aaron.Sun
@@ -41,32 +45,31 @@ import static java.util.stream.Collectors.toSet;
 
 public class DatamationRepository implements ApplicationContextAware {
 
+    /** spring中，repository的bean定义中，属性entityManager的key */
+    private static final String SPRING_ENTITY_MANAGER = "entityManager";
+    /** spring中，repository的bean定义中，属性transactionManager的key */
+    private static final String SPRING_TRANSACTION_MANAGER = "transactionManager";
+
+    /** 手动生成的bean统一添加前缀 */
     private static final String BEAN_NAME_PREFIX = "datamation:";
 
     private ApplicationContext applicationContext;
     private final DmTableRepository dmTableRepository;
     private final DmColumnRepository dmColumnRepository;
+    // 记录repository bean定义的map。key为beanName，value为bean定义
+    Map<String, RootBeanDefinition> repositoryBeanDefinitionMap;
+    /** 实体管理工厂 */
+    private EntityManagerFactory emf;
     /** 表名与po类的映射 */
-    private final Map<String, Class<?>> poMap = new HashMap<>();
+    private Map<String, Class<?>> poMap;
+    /** 表名与类信息（用于生成po）对象的映射 */
+    private Map<String, ClassInfo> poClassInfoMap;
     /** 表名与repository类的映射 */
-    private final Map<String, Class<?>> repositoryMap = new HashMap<>();
+    private Map<String, Class<?>> repositoryMap;
 
     public DatamationRepository(DmTableRepository dmTableRepository, DmColumnRepository dmColumnRepository) {
         this.dmTableRepository = dmTableRepository;
         this.dmColumnRepository = dmColumnRepository;
-    }
-
-    /**
-     * 由表名获取对应的po class
-     *
-     * @param tableCode 表名
-     * @return po class
-     */
-    public Class<?> getPoClass(String tableCode) {
-        if (!poMap.containsKey(tableCode)) {
-            throw new DatamationException("Not found repository for table " + tableCode);
-        }
-        return poMap.get(tableCode);
     }
 
     /**
@@ -82,37 +85,102 @@ public class DatamationRepository implements ApplicationContextAware {
         return applicationContext.getBean(repositoryMap.get(tableCode));
     }
 
+    /**
+     * 获取EntityManagerFactory
+     *
+     * @return EntityManagerFactory
+     */
+    public EntityManagerFactory getEntityManagerFactory() {
+        return emf;
+    }
+
+    /**
+     * 由表名获取对应的po class
+     *
+     * @param tableCode 表名
+     * @return po class
+     */
+    public Class<?> getPoClass(String tableCode) {
+        if (!poMap.containsKey(tableCode)) {
+            throw new DatamationException("Not found po for table " + tableCode);
+        }
+        return poMap.get(tableCode);
+    }
+
+    /**
+     * 由表名获取对应类信息（用于生成po）
+     *
+     * @param tableCode 表名
+     * @return classInfo
+     */
+    public ClassInfo getPoClassInfo(String tableCode) {
+        if (!poClassInfoMap.containsKey(tableCode)) {
+            throw new DatamationException("Not found poClassInfo for table " + tableCode);
+        }
+        return poClassInfoMap.get(tableCode);
+    }
+
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         buildDatamationRepository();
     }
 
+    private void destroyBeforeBuild() {
+        // 重置参数值
+        poMap = new HashMap<>();
+        poClassInfoMap = new HashMap<>();
+        repositoryMap = new HashMap<>();
+        // 手动关闭emf
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
+        // 获取beanFactory用于手动注册bd
+        DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
+        // 销毁自定义事务
+        beanFactory.destroySingleton(BEAN_NAME_PREFIX + SPRING_TRANSACTION_MANAGER);
+        if (repositoryBeanDefinitionMap != null) {
+            // 销毁所有手动生成的repository
+            for (String beanName : repositoryBeanDefinitionMap.keySet()) {
+                beanFactory.removeBeanDefinition(beanName);
+            }
+        }
+        // 重置参数值
+        repositoryBeanDefinitionMap = new HashMap<>();
+        emf = null;
+    }
+
     /**
      * 构建datamationRepository
      */
-    private void buildDatamationRepository() {
+    public void buildDatamationRepository() {
+        // 构建前清空所有
+        destroyBeforeBuild();
+        // 查询对象
+        DmSpecification dmSpecification = DmSpecification.of().add(DmCriteria.equal("delFlag", DEL_FLAG_NORMAL));
         // 查询所有有效table数据
         DmQuery tableQuery = new DmQuery();
-        tableQuery.createSpecification().add(DmCriteria.noDeleted());
+        tableQuery.copySpecification(dmSpecification);
         List<DmTablePO> tableList = dmTableRepository.findAll(tableQuery.build());
         // 查询所有有效column数据
         DmQuery columnQuery = new DmQuery();
-        columnQuery.createSpecification().add(DmCriteria.noDeleted());
+        columnQuery.copySpecification(dmSpecification);
         List<DmColumnPO> columnList = dmColumnRepository.findAll(columnQuery.build());
         // 将所有column按照tableCode分组
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
             .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
 
+        // 自定义类加载器
+        DmClassLoader dmClassLoader = new DmClassLoader();
         // 动态生成po类
         PoConverter poConverter = new PoConverter();
-        PoGenerator poGenerate = new PoGenerator();
+        PoGenerator poGenerate = new PoGenerator(dmClassLoader);
         ClassLoader poClassLoader = poGenerate.getNeighborClassLoader();
-        ClassInfo tableClassInfo;
+        ClassInfo poClassInfo;
         Class<?> poClass;
         // 动态生成repository类
         RepositoryConverter repositoryConverter;
-        RepositoryGenerator repositoryGenerate = new RepositoryGenerator();
+        RepositoryGenerator repositoryGenerate = new RepositoryGenerator(dmClassLoader);
         Class<?> repositoryClass;
 
         // 获取beanFactory用于手动注册bd
@@ -120,24 +188,28 @@ public class DatamationRepository implements ApplicationContextAware {
         // 实体类集合
         List<Class<?>> entities = new ArrayList<>();
         // 记录repository bean定义的map。key为beanName，value为bean定义
-        Map<String, RootBeanDefinition> repositoryBeanDefinitionMap = new HashMap<>(tableList.size() << 1);
+        repositoryBeanDefinitionMap = new HashMap<>(tableList.size() << 1);
         String repositoryName;
         RootBeanDefinition repositoryBd;
         // bean定义构建原型
         String tempBeanName = beanFactory.getBeanNamesForType(DmTableRepository.class)[0];
+        // 设置自定义类加载器到spring容器
+        beanFactory.setBeanClassLoader(dmClassLoader);
         RootBeanDefinition tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition(tempBeanName);
         // 遍历所有table
         for (DmTablePO table : tableList) {
             // 将所有column关联到对应的table
             table.getColumns().addAll(columnMap.get(table.getCode()));
             // 获取生成po类所需要的信息
-            tableClassInfo = poConverter.getClassInfo(table);
+            poClassInfo = poConverter.getClassInfo(table);
             // 生成po类
-            poClass = poGenerate.generate(tableClassInfo);
+            poClass = poGenerate.generate(poClassInfo);
             // 将po类添加到实体类集合，供hibernate加载
             entities.add(poClass);
             // 添加表名与po类的映射
             poMap.put(table.getCode(), poClass);
+            // 添加表名与类信息的映射
+            poClassInfoMap.put(table.getCode(), poClassInfo);
 
             // 初始化repository转换器
             repositoryConverter = new RepositoryConverter(poClass);
@@ -146,10 +218,10 @@ public class DatamationRepository implements ApplicationContextAware {
             // 获取已加载到spring中的repository bean定义，作为原型
             repositoryBd = new RootBeanDefinition();
             repositoryBd.overrideFrom(tempBeanDefinition);
-            repositoryBd.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass.getName());
+            repositoryBd.getConstructorArgumentValues().addIndexedArgumentValue(0, repositoryClass);
             repositoryBd.setAttribute("factoryBeanObjectType", repositoryClass.getName());
             // 获取bean name
-            repositoryName = BEAN_NAME_PREFIX + lowerFirst(repositoryClass.getSimpleName());
+            repositoryName = BEAN_NAME_PREFIX + uncapitalize(repositoryClass.getSimpleName());
             // 将bean定义放入map中
             repositoryBeanDefinitionMap.put(repositoryName, repositoryBd);
             // 添加表名与repository类的映射
@@ -159,7 +231,7 @@ public class DatamationRepository implements ApplicationContextAware {
         // 判断是否有生成实体对象
         if (!entities.isEmpty()) {
             // 创建EntityManagerFactory
-            EntityManagerFactory emf = createEntityManagerFactory(beanFactory, poClassLoader, entities);
+            emf = createEntityManagerFactory(beanFactory, poClassLoader, entities);
             // 以下代码为repository注入容器处理
             registerRepository(beanFactory, emf, repositoryBeanDefinitionMap);
         }
@@ -205,8 +277,9 @@ public class DatamationRepository implements ApplicationContextAware {
      */
     private void registerRepository(DefaultListableBeanFactory beanFactory, EntityManagerFactory emf,
                                     Map<String, RootBeanDefinition> repositoryBeanDefinitionMap) {
-        String transactionManagerBeanName = BEAN_NAME_PREFIX + "transactionManager";
-        beanFactory.registerSingleton(transactionManagerBeanName, transactionManager(emf));
+        // 因EntityManagerFactory是手动初始化的，所以与之关联的事务管理也需要手动创建并注册
+        beanFactory.registerSingleton(BEAN_NAME_PREFIX + SPRING_TRANSACTION_MANAGER, transactionManager(emf));
+
         RootBeanDefinition bd;
         RootBeanDefinition entityManagerBd;
         PropertyValue pv;
@@ -219,16 +292,17 @@ public class DatamationRepository implements ApplicationContextAware {
                 // 替换entityManager属性中，org.springframework.orm.jpa.SharedEntityManagerCreator定义中构造方法参数中的
                 // EntityManagerFactory。之所以不直接替换entityManager，而是替换entityManagerFactory，
                 // 是因为要将entityManager的创建和关闭交给spring容器管理
-                if ("entityManager".equals(pv.getName())) {
+                if (SPRING_ENTITY_MANAGER.equals(pv.getName())) {
                     entityManagerBd = (RootBeanDefinition) pv.getValue();
                     if (entityManagerBd != null) {
                         entityManagerBd.getConstructorArgumentValues().addIndexedArgumentValue(0, emf);
                         bd.getPropertyValues().getPropertyValueList().set(i, new PropertyValue(pv, entityManagerBd));
                     }
                 }
-                if ("transactionManager".equals(pv.getName())) {
+                // 将事务管理器改为自定义的事务管理器
+                if (SPRING_TRANSACTION_MANAGER.equals(pv.getName())) {
                     bd.getPropertyValues().getPropertyValueList().set(i,
-                        new PropertyValue("transactionManager", transactionManagerBeanName));
+                        new PropertyValue(SPRING_TRANSACTION_MANAGER, BEAN_NAME_PREFIX + SPRING_TRANSACTION_MANAGER));
                 }
             }
             // 将repository注入容器中
@@ -236,27 +310,16 @@ public class DatamationRepository implements ApplicationContextAware {
         }
     }
 
+    /**
+     * 生成事务管理器
+     *
+     * @param entityManagerFactory 实体管理工厂
+     * @return 事务管理器
+     */
     private PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager txManager = new JpaTransactionManager();
         txManager.setEntityManagerFactory(entityManagerFactory);
         return txManager;
-    }
-
-    /**
-     * 首字母小写
-     *
-     * @param str 字符串
-     * @return 首字母小写的字符串
-     */
-    private String lowerFirst(String str) {
-        char[] charArr = str.toCharArray();
-        // 如果为大写字母，则将ascii编码前移32位
-        char a = 'A';
-        char z = 'Z';
-        if (charArr[0] >= a && charArr[0] <= z) {
-            charArr[0] += 32;
-        }
-        return String.valueOf(charArr);
     }
 
 }

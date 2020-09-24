@@ -31,8 +31,16 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /** 生成类的邻类 */
     private final Class<?> neighbor;
 
-    public AbstractClassGenerator(Class<?> neighbor) {
-        this.neighbor = neighbor;
+    public AbstractClassGenerator(DmClassLoader dmClassLoader, Class<?> neighbor) {
+        Class<?> classTemp = null;
+        try {
+            dmClassLoader.loadNeighbor(neighbor);
+            classTemp = dmClassLoader.loadClass(neighbor.getName());
+        } catch (ClassNotFoundException | IOException e) {
+            logger.error("生成器初始化失败，请检查DmClassLoader是否初始化，邻类是否存在");
+            logger.error("错误信息：", e.getCause());
+        }
+        this.neighbor = classTemp;
         this.defaultPackage = neighbor.getPackageName().replaceAll("\\.", "\\/") + "/";
     }
 
@@ -64,7 +72,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     public void writeClass(ClassInfo classInfo) throws IOException, URISyntaxException {
         String classFilePath = ClassLoader.getSystemResource("").toURI().getPath()
             + this.defaultPackage + classInfo.getClassName() + ".class";
-        //将二进制流写到本地磁盘上
+        // 将二进制流写到本地磁盘上
         try (FileOutputStream fos = new FileOutputStream(classFilePath)) {
             fos.write(getClassByteArray(classInfo));
         }

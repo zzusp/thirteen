@@ -46,14 +46,6 @@ public class DmCriteria implements Serializable {
         return new DmCriteria().field(field).operator(IN).values(Arrays.asList(values.toArray()));
     }
 
-    public static DmCriteria deleted() {
-        return new DmCriteria().field(DEL_FLAG_KEY).operator(EQUAL).value(DEL_FLAG_DELETE);
-    }
-
-    public static DmCriteria noDeleted() {
-        return new DmCriteria().field(DEL_FLAG_KEY).operator(EQUAL).value(DEL_FLAG_NORMAL);
-    }
-
     public DmCriteria add(DmCriteria criteria) {
         if (this.criterias == null) {
             this.criterias = new ArrayList<>();

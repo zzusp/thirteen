@@ -14,6 +14,8 @@ import org.thirteen.datamation.model.po.DmTablePO;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.thirteen.datamation.util.StringUtils.lineToHumpAndStartWithCapitalize;
+
 /**
  * @author Aaron.Sun
  * @description 数据库配置信息转为生成类所需要的信息
@@ -30,14 +32,14 @@ public class RepositoryConverter extends AbstractClassConverter {
     private final String pkJavaType;
 
     public RepositoryConverter(Class<?> poClass) {
-        this(Type.getInternalName(poClass), "Ljava/lang/String;");
+        this(poClass, Type.getInternalName(poClass), "Ljava/lang/String;");
     }
 
-    public RepositoryConverter(String poClassName, String pkJavaType) {
+    public RepositoryConverter(Class<?> poClass, String poClassName, String pkJavaType) {
         // po是否存在校验。未找到PO类时，应中断运行，所以抛出中断异常
         try {
             String regex = "/";
-            RepositoryGenerator.class.getClassLoader().loadClass(poClassName.replaceAll(regex, "."));
+            poClass.getClassLoader().loadClass(poClassName.replaceAll(regex, "."));
         } catch (ClassNotFoundException e) {
             logger.error("po class not found: {}", poClassName);
             throw new DatamationException("po class not found: " + poClassName, e);

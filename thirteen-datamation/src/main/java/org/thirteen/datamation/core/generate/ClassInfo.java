@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_DELETE_FLAG;
+import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_ID;
+
 /**
  * @author Aaron.Sun
  * @description 生成一个class所需要的所有信息
@@ -31,6 +35,53 @@ public class ClassInfo implements Serializable {
 
     public ClassInfo() {
         this.superName = "java/lang/Object";
+    }
+
+    /**
+     * 获取实体类主键字段，驼峰命名形式（不支持联合主键）
+     *
+     * @return 实体类主键字段，驼峰命名形式
+     */
+    public String getIdField() {
+        if (isEmpty(fieldInfos)) {
+            return null;
+        }
+        String id = null;
+        for (FieldInfo fieldInfo : fieldInfos) {
+            if (COLUMN_TYPE_ID.equals(fieldInfo.getColumnType())) {
+                id = fieldInfo.getName();
+                break;
+            }
+        }
+        return id;
+    }
+
+    /**
+     * 获取实体类删除标识字段，驼峰命名形式
+     *
+     * @return 实体类删除标识字段，驼峰命名形式
+     */
+    public String getDeleteFlagField() {
+        if (isEmpty(fieldInfos)) {
+            return null;
+        }
+        String deleteFlag = null;
+        for (FieldInfo fieldInfo : fieldInfos) {
+            if (COLUMN_TYPE_DELETE_FLAG.equals(fieldInfo.getColumnType())) {
+                deleteFlag = fieldInfo.getName();
+                break;
+            }
+        }
+        return deleteFlag;
+    }
+
+    /**
+     * 判断是否包含删除标识字段
+     *
+     * @return 是否包含删除标识字段
+     */
+    public boolean containsDeleteFlag() {
+        return getDeleteFlagField() != null;
     }
 
     public String getClassName() {

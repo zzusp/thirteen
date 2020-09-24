@@ -1,6 +1,5 @@
 package org.thirteen.datamation.core.generate.po;
 
-import org.springframework.util.StringUtils;
 import org.thirteen.datamation.core.generate.AbstractClassConverter;
 import org.thirteen.datamation.core.generate.AnnotationInfo;
 import org.thirteen.datamation.core.generate.ClassInfo;
@@ -10,6 +9,12 @@ import org.thirteen.datamation.model.po.DmTablePO;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_ID;
+import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_VERSION;
+import static org.thirteen.datamation.util.StringUtils.lineToHump;
+import static org.thirteen.datamation.util.StringUtils.lineToHumpAndStartWithCapitalize;
 
 /**
  * @author Aaron.Sun
@@ -71,7 +76,8 @@ public class PoConverter extends AbstractClassConverter {
     @Override
     protected List<AnnotationInfo> columnToAnnotation(DmColumnPO column) {
         List<AnnotationInfo> annotationInfos = new ArrayList<>();
-        if ("id".equals(column.getCode())) {
+        // 判断是否为主键字段
+        if (COLUMN_TYPE_ID.equals(column.getColumnType())) {
             AnnotationInfo idAnno = new AnnotationInfo();
             idAnno.setDesc("Ljavax/persistence/Id;");
             AnnotationInfo genericGeneratorAnno = new AnnotationInfo();
@@ -84,6 +90,12 @@ public class PoConverter extends AbstractClassConverter {
             annotationInfos.add(idAnno);
             annotationInfos.add(genericGeneratorAnno);
             annotationInfos.add(generatedValueAnno);
+        }
+        // 判断是否为版本号字段
+        else if (COLUMN_TYPE_VERSION.equals(column.getColumnType())) {
+            AnnotationInfo versionAnno = new AnnotationInfo();
+            versionAnno.setDesc("Ljavax/persistence/Version;");
+            annotationInfos.add(versionAnno);
         }
         // column注解
         AnnotationInfo columnAnno = new AnnotationInfo();
@@ -99,7 +111,7 @@ public class PoConverter extends AbstractClassConverter {
             sb.append(" NOT NULL ");
         }
         sb.append(" COMMENT '").append(column.getName());
-        if (!StringUtils.isEmpty(column.getRemark())) {
+        if (isNotEmpty(column.getRemark())) {
             sb.append(" ").append(column.getRemark());
         }
         sb.append("'");
@@ -120,6 +132,7 @@ public class PoConverter extends AbstractClassConverter {
         FieldInfo fieldInfo = new FieldInfo();
         fieldInfo.setName(lineToHump(column.getCode()));
         fieldInfo.setAccess("private");
+        fieldInfo.setColumnType(column.getColumnType());
         return fieldInfo;
     }
 

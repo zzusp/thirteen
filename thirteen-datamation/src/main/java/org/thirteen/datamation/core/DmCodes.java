@@ -11,15 +11,14 @@ public class DmCodes {
     private DmCodes() {
     }
 
-    // 字段
-
-    /** 主键ID字段 */
-    public static final String ID_FIELD = "id";
-    /** 表中删除标识列 字段名称 */
-    public static final String DEL_FLAG_KEY = "delFlag";
-
     // 字段值
 
+    /** 字段类型：主键字段 */
+    public static final Byte COLUMN_TYPE_ID = 0;
+    /** 字段类型：逻辑删除字段 */
+    public static final Byte COLUMN_TYPE_DELETE_FLAG = 1;
+    /** 字段类型：版本号字段 */
+    public static final Byte COLUMN_TYPE_VERSION = 2;
     /** 删除标识：未删除 */
     public static final Byte DEL_FLAG_NORMAL = 0;
     /** 删除标识：已删除 */

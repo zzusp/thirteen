@@ -15,10 +15,12 @@ public class FieldInfo implements Serializable {
 
     /** 字段名称 */
     private String name;
-    /** 字段类型 */
+    /** 字段class */
     private String fieldClass;
     /** 字段的访问标志 */
     private String access;
+    /** 字段类型 */
+    private Byte columnType;
     /** 类注解信息集合 */
     private List<AnnotationInfo> annotationInfos;
 
@@ -46,6 +48,14 @@ public class FieldInfo implements Serializable {
         this.access = access;
     }
 
+    public Byte getColumnType() {
+        return columnType;
+    }
+
+    public void setColumnType(Byte columnType) {
+        this.columnType = columnType;
+    }
+
     public List<AnnotationInfo> getAnnotationInfos() {
         return annotationInfos;
     }
@@ -60,6 +70,7 @@ public class FieldInfo implements Serializable {
             "name='" + name + '\'' +
             ", fieldClass='" + fieldClass + '\'' +
             ", access='" + access + '\'' +
+            ", columnType='" + columnType + '\'' +
             ", annotationInfos=" + annotationInfos +
             '}';
     }

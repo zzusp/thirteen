@@ -42,6 +42,20 @@ public class DmQuery {
     }
 
     /**
+     * 拷贝已有的查询参数对象
+     *
+     * @param source 已有的查询参数对象
+     * @return datamation查询参数对象
+     */
+    public DmSpecification copySpecification(DmSpecification source) {
+        specification = DmSpecification.of();
+        specification.setCriterias(source.getCriterias());
+        specification.setPage(source.getPage());
+        specification.setSorts(source.getSorts());
+        return specification;
+    }
+
+    /**
      * 生成jpa数据查询参数对象
      *
      * @return jpa查询参数对象
