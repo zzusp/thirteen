@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.thirteen.datamation.core.criteria.DmCriteria;
+import org.thirteen.datamation.core.criteria.DmPage;
 import org.thirteen.datamation.core.criteria.DmQuery;
 import org.thirteen.datamation.core.criteria.DmSpecification;
 import org.thirteen.datamation.core.generate.ClassInfo;
@@ -23,6 +24,7 @@ import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_DELETE;
+import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
 
 /**
  * @author Aaron.Sun
@@ -67,12 +69,14 @@ public class DatamationServiceImpl implements DatamationService {
     @SuppressWarnings("unchecked")
     @Override
     public void delete(String tableCode, String id) {
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
         // 判断是否包含删除标识字段
-        if (containsDeleteFlag(tableCode)) {
+        if (delFlag != null) {
             // 查询语句
             String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
                 getClassInfo(tableCode).getClassName(),
-                getClassInfo(tableCode).getDeleteFlagField(),
+                delFlag,
                 getClassInfo(tableCode).getIdField());
             // 创建实体管理器
             EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
@@ -94,17 +98,17 @@ public class DatamationServiceImpl implements DatamationService {
         String sql;
         // 待处理参数的序号
         int paramIndex;
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
         // 判断是否包含删除标识字段
-        if (containsDeleteFlag(tableCode)) {
+        if (delFlag != null) {
             // 查询参数
             params = new Object[ids.size() + 1];
             params[0] = DEL_FLAG_DELETE;
             // 待处理参数序号为2
             paramIndex = 2;
             // 查询语句
-            sql = String.format("UPDATE %s SET %s = ?1 WHERE",
-                getClassInfo(tableCode).getClassName(),
-                getClassInfo(tableCode).getDeleteFlagField());
+            sql = String.format("UPDATE %s SET %s = ?1 WHERE", getClassInfo(tableCode).getClassName(), delFlag);
         } else {
             // 查询参数
             params = new Object[ids.size()];
@@ -130,15 +134,16 @@ public class DatamationServiceImpl implements DatamationService {
         em.getTransaction().commit();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> findById(String tableCode, String id) {
-        return poToMap(getRepository(tableCode).findById(id));
+        return findOneBySpecification(tableCode, DmSpecification.of()
+            .add(DmCriteria.equal(getClassInfo(tableCode).getIdField(), id)));
     }
 
     @Override
-    public PagerResult<Map<String, Object>> findByIds(String tableCode, List<String> ids) {
-        return findAllBySpecification(tableCode, DmSpecification.of().add(DmCriteria.in(getIdField(tableCode), ids)));
+    public List<Map<String, Object>> findByIds(String tableCode, List<String> ids) {
+        return findAllBySpecification(tableCode, DmSpecification.of()
+            .add(DmCriteria.in(getClassInfo(tableCode).getIdField(), ids))).getList();
     }
 
     @Override
@@ -149,34 +154,44 @@ public class DatamationServiceImpl implements DatamationService {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> findOneBySpecification(String tableCode, DmSpecification dmSpecification) {
-        DmQuery dmQuery = new DmQuery();
-        Optional<?> optional = getRepository(tableCode).findOne(dmQuery.createSpecification(dmSpecification.getCriterias()));
+        // 如果包含逻辑删除字段，默认添加 未删除数据 的查询条件
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        if (delFlag != null) {
+            dmSpecification.add(DmCriteria.equal(delFlag, DEL_FLAG_NORMAL));
+        }
+        Optional<?> optional = getRepository(tableCode).findOne(DmQuery.createSpecification(dmSpecification));
         return optional.map(this::poToMap).orElse(null);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public PagerResult<Map<String, Object>> findAllBySpecification(String tableCode, DmSpecification dmSpecification) {
-        DmQuery dmQuery = new DmQuery();
         Specification<?> specification = null;
         Sort sort = null;
+        // 如果包含逻辑删除字段，默认添加 未删除数据 的查询条件
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        if (delFlag != null) {
+            dmSpecification.add(DmCriteria.equal(delFlag, DEL_FLAG_NORMAL));
+        }
         // 判断条件参数是否为空
         if (CollectionUtils.isNotEmpty(dmSpecification.getCriterias())) {
-            specification = dmQuery.createSpecification(dmSpecification.getCriterias());
+            specification = DmQuery.createSpecification(dmSpecification);
         }
         // 判断排序参数是否为空
         if (CollectionUtils.isNotEmpty(dmSpecification.getSorts())) {
-            sort = dmQuery.createSort(dmSpecification.getSorts());
+            sort = DmQuery.createSort(dmSpecification);
         }
+        // 分页查询参数
+        DmPage dmPage = dmSpecification.getPage();
         // 判断分页参数是否为空
-        if (dmSpecification.getPage() != null) {
+        if (dmPage != null) {
             PageRequest pageRequest;
             Page<?> page;
             // 判断排序参数是否不为空，如果不为空可与分页参数组合
             if (sort != null) {
-                pageRequest = PageRequest.of(dmSpecification.getPage().getPageNum(), dmSpecification.getPage().getPageSize(), sort);
+                pageRequest = PageRequest.of(dmPage.getPageNum(), dmPage.getPageSize(), sort);
             } else {
-                pageRequest = PageRequest.of(dmSpecification.getPage().getPageNum(), dmSpecification.getPage().getPageSize());
+                pageRequest = PageRequest.of(dmPage.getPageNum(), dmPage.getPageSize());
             }
             // 判断条件参数是否不为空，调用对应查询方法
             if (specification != null) {
@@ -221,25 +236,6 @@ public class DatamationServiceImpl implements DatamationService {
      */
     private ClassInfo getClassInfo(String tableCode) {
         return datamationRepository.getPoClassInfo(tableCode);
-    }
-
-    /**
-     * 由表名获取对应实体类的主键字段，驼峰命名形式（不支持联合主键）
-     *
-     * @param tableCode 表名
-     * @return 主键字段，驼峰命名形式
-     */
-    private String getIdField(String tableCode) {
-        return getClassInfo(tableCode).getIdField();
-    }
-
-    /**
-     * 判断是否包含删除标识字段
-     *
-     * @return 是否包含删除标识字段
-     */
-    private boolean containsDeleteFlag(String tableCode) {
-        return getClassInfo(tableCode).containsDeleteFlag();
     }
 
     /**

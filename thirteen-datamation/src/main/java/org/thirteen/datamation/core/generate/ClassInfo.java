@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
-import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_DELETE_FLAG;
+import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_DEL_FLAG;
 import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_ID;
 
 /**
@@ -61,18 +61,18 @@ public class ClassInfo implements Serializable {
      *
      * @return 实体类删除标识字段，驼峰命名形式
      */
-    public String getDeleteFlagField() {
+    public String getDelFlagField() {
         if (isEmpty(fieldInfos)) {
             return null;
         }
-        String deleteFlag = null;
+        String delFlag = null;
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (COLUMN_TYPE_DELETE_FLAG.equals(fieldInfo.getColumnType())) {
-                deleteFlag = fieldInfo.getName();
+            if (COLUMN_TYPE_DEL_FLAG.equals(fieldInfo.getColumnType())) {
+                delFlag = fieldInfo.getName();
                 break;
             }
         }
-        return deleteFlag;
+        return delFlag;
     }
 
     /**
@@ -80,8 +80,8 @@ public class ClassInfo implements Serializable {
      *
      * @return 是否包含删除标识字段
      */
-    public boolean containsDeleteFlag() {
-        return getDeleteFlagField() != null;
+    public boolean containsDelFlag() {
+        return getDelFlagField() != null;
     }
 
     public String getClassName() {

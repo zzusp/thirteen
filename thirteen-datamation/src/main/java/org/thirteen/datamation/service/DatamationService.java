@@ -83,7 +83,7 @@ public interface DatamationService {
      * @param ids 主键数组
      * @return VO对象集合
      */
-    PagerResult<Map<String, Object>> findByIds(String tableCode, List<String> ids);
+    List<Map<String, Object>> findByIds(String tableCode, List<String> ids);
 
     /**
      * 获取所有数据

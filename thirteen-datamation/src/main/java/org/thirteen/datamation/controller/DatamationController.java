@@ -46,7 +46,7 @@ public class DatamationController {
         return ResponseResult.ok();
     }
 
-    @ApiOperation(value = "批量新增", notes = "批量新增", response = ResponseResult.class)
+    @ApiOperation(value = "批量新增", notes = "批量新增（循环新增，非一条sql语句）", response = ResponseResult.class)
     @PostMapping(value = "/insertAll")
     public ResponseResult<String> insertAll(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
@@ -64,7 +64,7 @@ public class DatamationController {
         return ResponseResult.ok();
     }
 
-    @ApiOperation(value = "批量修改", notes = "批量修改", response = ResponseResult.class)
+    @ApiOperation(value = "批量修改", notes = "批量修改（循环修改，非一条sql语句）", response = ResponseResult.class)
     @PostMapping(value = "/updateAll")
     public ResponseResult<String> updateAll(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
@@ -82,7 +82,7 @@ public class DatamationController {
         return ResponseResult.ok();
     }
 
-    @ApiOperation(value = "由ID集合批量删除信息", notes = "由ID集合批量删除信息", response = ResponseResult.class)
+    @ApiOperation(value = "由ID集合批量删除信息", notes = "由ID集合批量删除信息（单条sql语句）", response = ResponseResult.class)
     @DeleteMapping(value = "/deleteInBatch")
     public ResponseResult<String> deleteInBatch(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
@@ -101,7 +101,7 @@ public class DatamationController {
 
     @ApiOperation(value = "由ID集合获取详细信息", notes = "由ID集合获取详细信息", response = ResponseResult.class)
     @GetMapping(value = "/findByIds")
-    public ResponseResult<PagerResult<Map<String, Object>>> getById(
+    public ResponseResult<List<Map<String, Object>>> getById(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "ID集合") @RequestParam("ids") List<String> ids) {
         return ResponseResult.ok(datamationService.findByIds(tableCode, ids));

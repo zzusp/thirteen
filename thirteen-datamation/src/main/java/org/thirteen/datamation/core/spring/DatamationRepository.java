@@ -126,6 +126,9 @@ public class DatamationRepository implements ApplicationContextAware {
         buildDatamationRepository();
     }
 
+    /**
+     * 创建repository前的清空操作
+     */
     private void destroyBeforeBuild() {
         // 重置参数值
         poMap = new HashMap<>();
@@ -159,13 +162,9 @@ public class DatamationRepository implements ApplicationContextAware {
         // 查询对象
         DmSpecification dmSpecification = DmSpecification.of().add(DmCriteria.equal("delFlag", DEL_FLAG_NORMAL));
         // 查询所有有效table数据
-        DmQuery tableQuery = new DmQuery();
-        tableQuery.copySpecification(dmSpecification);
-        List<DmTablePO> tableList = dmTableRepository.findAll(tableQuery.build());
+        List<DmTablePO> tableList = dmTableRepository.findAll(DmQuery.createSpecification(dmSpecification));
         // 查询所有有效column数据
-        DmQuery columnQuery = new DmQuery();
-        columnQuery.copySpecification(dmSpecification);
-        List<DmColumnPO> columnList = dmColumnRepository.findAll(columnQuery.build());
+        List<DmColumnPO> columnList = dmColumnRepository.findAll(DmQuery.createSpecification(dmSpecification));
         // 将所有column按照tableCode分组
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
             .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));

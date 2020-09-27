@@ -7,6 +7,7 @@ import org.thirteen.datamation.core.exception.ParamErrorException;
 import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.StringUtils;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -29,39 +30,17 @@ public class DmQuery {
     /** 条件最大深度 */
     private static final Integer MAX_DEEP = 5;
 
-    private DmSpecification specification;
+    private DmQuery() {
+    }
 
     /**
      * 由搜索条件参数生成jpa数据查询参数对象
      *
-     * @return datamation查询参数对象
-     */
-    public DmSpecification createSpecification() {
-        specification = DmSpecification.of();
-        return specification;
-    }
-
-    /**
-     * 拷贝已有的查询参数对象
-     *
-     * @param source 已有的查询参数对象
-     * @return datamation查询参数对象
-     */
-    public DmSpecification copySpecification(DmSpecification source) {
-        specification = DmSpecification.of();
-        specification.setCriterias(source.getCriterias());
-        specification.setPage(source.getPage());
-        specification.setSorts(source.getSorts());
-        return specification;
-    }
-
-    /**
-     * 生成jpa数据查询参数对象
-     *
+     * @param dmSpecification datamation查询参数对象
      * @return jpa查询参数对象
      */
-    public <T> Specification<T> build() {
-        return this.createSpecification(specification.getCriterias());
+    public static <T> Specification<T> createSpecification(DmSpecification dmSpecification) {
+        return createSpecification(dmSpecification.getCriterias());
     }
 
     /**
@@ -70,8 +49,20 @@ public class DmQuery {
      * @param criterias 搜索条件参数集合
      * @return jpa查询参数对象
      */
-    public <T> Specification<T> createSpecification(List<DmCriteria> criterias) {
-        return (Root<T> root, CriteriaQuery<?> query, javax.persistence.criteria.CriteriaBuilder cb) -> this.setCriteria(root, cb, criterias, 0);
+    public static <T> Specification<T> createSpecification(List<DmCriteria> criterias) {
+        Assert.notEmpty(criterias, "条件参数集合不可为空");
+        return (Root<T> root, CriteriaQuery<?> query, javax.persistence.criteria.CriteriaBuilder cb)
+            -> setCriteria(root, cb, criterias, 0);
+    }
+
+    /**
+     * 由排序参数生成jpa数据查询排序对象
+     *
+     * @param dmSpecification datamation查询参数对象
+     * @return jpa数据查询排序对象
+     */
+    public static Sort createSort(DmSpecification dmSpecification) {
+        return createSort(dmSpecification.getSorts());
     }
 
     /**
@@ -80,7 +71,7 @@ public class DmQuery {
      * @param sorts 排序参数集合
      * @return jpa数据查询排序对象
      */
-    public Sort createSort(List<DmSort> sorts) {
+    public static Sort createSort(List<DmSort> sorts) {
         Assert.notEmpty(sorts, "排序参数集合不可为空");
         List<Sort.Order> orders = new ArrayList<>();
         for (DmSort item : sorts) {
@@ -109,7 +100,7 @@ public class DmQuery {
      * @return jpa查询参数对象
      */
     @SuppressWarnings("squid:S3776")
-    private <T> Predicate setCriteria(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, List<DmCriteria> criterias, int deep) {
+    private static <T> Predicate setCriteria(Root<T> root, CriteriaBuilder cb, List<DmCriteria> criterias, int deep) {
         Assert.notEmpty(criterias, "条件参数集合不可为空");
         if (criterias.size() > MAX_CRITERIA_SIZE) {
             throw new ParamErrorException("条件参数集合大小不可大于10");
@@ -132,9 +123,9 @@ public class DmQuery {
             }
             // 判断条件组是否为空
             if (CollectionUtils.isNotEmpty(item.getCriterias())) {
-                predicate = this.setCriteria(root, cb, item.getCriterias(), deep);
+                predicate = setCriteria(root, cb, item.getCriterias(), deep);
             } else {
-                predicate = this.predicateHandle(root, cb, item);
+                predicate = predicateHandle(root, cb, item);
             }
             // 判断jpa查询参数是否为空
             if (result == null) {
@@ -162,7 +153,7 @@ public class DmQuery {
      * @return 处理后的谓语对象
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private <T> Predicate predicateHandle(Root<T> root, javax.persistence.criteria.CriteriaBuilder cb, DmCriteria item) {
+    private static <T> Predicate predicateHandle(Root<T> root, CriteriaBuilder cb, DmCriteria item) {
         Predicate predicate = null;
         boolean hasValue = item.getValue() != null && !"".equals(String.valueOf(item.getValue()));
         boolean hasValues = CollectionUtils.isNotEmpty(item.getValues());
