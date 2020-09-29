@@ -10,7 +10,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.util.CollectionUtils;
 import org.thirteen.datamation.core.criteria.DmCriteria;
 import org.thirteen.datamation.core.criteria.DmQuery;
 import org.thirteen.datamation.core.criteria.DmSpecification;
@@ -23,9 +22,12 @@ import org.thirteen.datamation.core.generate.repository.RepositoryConverter;
 import org.thirteen.datamation.core.generate.repository.RepositoryGenerator;
 import org.thirteen.datamation.core.orm.jpa.persistenceunit.PersistenceUnitInfoImpl;
 import org.thirteen.datamation.model.po.DmColumnPO;
+import org.thirteen.datamation.model.po.DmRelationPO;
 import org.thirteen.datamation.model.po.DmTablePO;
 import org.thirteen.datamation.repository.DmColumnRepository;
+import org.thirteen.datamation.repository.DmRelationRepository;
 import org.thirteen.datamation.repository.DmTableRepository;
+import org.thirteen.datamation.util.CollectionUtils;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -56,7 +58,8 @@ public class DatamationRepository implements ApplicationContextAware {
     private ApplicationContext applicationContext;
     private final DmTableRepository dmTableRepository;
     private final DmColumnRepository dmColumnRepository;
-    // 记录repository bean定义的map。key为beanName，value为bean定义
+    private final DmRelationRepository dmRelationRepository;
+    /** 记录repository bean定义的map。key为beanName，value为bean定义 */
     Map<String, RootBeanDefinition> repositoryBeanDefinitionMap;
     /** 实体管理工厂 */
     private EntityManagerFactory emf;
@@ -66,10 +69,16 @@ public class DatamationRepository implements ApplicationContextAware {
     private Map<String, ClassInfo> poClassInfoMap;
     /** 表名与repository类的映射 */
     private Map<String, Class<?>> repositoryMap;
+    /** 表名与表名的关联的映射 */
+    private Map<String, Set<String>> tableRelationMap;
+    /** 表名与关联对象的映射 */
+    private Map<String, DmRelationPO> relationMap;
 
-    public DatamationRepository(DmTableRepository dmTableRepository, DmColumnRepository dmColumnRepository) {
+    public DatamationRepository(DmTableRepository dmTableRepository, DmColumnRepository dmColumnRepository,
+                                DmRelationRepository dmRelationRepository) {
         this.dmTableRepository = dmTableRepository;
         this.dmColumnRepository = dmColumnRepository;
+        this.dmRelationRepository = dmRelationRepository;
     }
 
     /**
@@ -120,6 +129,71 @@ public class DatamationRepository implements ApplicationContextAware {
         return poClassInfoMap.get(tableCode);
     }
 
+    /**
+     * 获取两个表之间的关联
+     *
+     * @param tableCode 表名
+     * @param otherTableCode 表名
+     * @return 两表间关联
+     */
+    public List<DmRelationPO> getRelation(String tableCode, String otherTableCode) {
+        Set<String> checkedTable = new HashSet<>();
+        checkedTable.add(tableCode);
+        // 检查两个表间是否有关联
+        List<String> tableCodes = checkRelation(tableCode, otherTableCode, checkedTable, new LinkedList<>());
+        if (tableCodes.isEmpty()) {
+            // 没有关联抛出异常
+            throw new DatamationException("There is no correlation between table: " + tableCode + " and table: " + otherTableCode);
+        }
+        // 补上源表表名
+        tableCodes.add(tableCode);
+        // 顺序逆转
+        Collections.reverse(tableCodes);
+        List<DmRelationPO> relations = new ArrayList<>();
+        String key;
+        for (int i = 1; i < tableCodes.size(); i++) {
+            key = tableCodes.get(i - 1) + tableCodes.get(i);
+            relations.add(relationMap.get(key));
+        }
+        return relations;
+    }
+
+    /**
+     * 检查两个表之间是否有关联
+     *
+     * @param tableCode 表名
+     * @param otherTableCode 表名
+     * @param checkedTable 检查过的表名集合
+     * @param result 用来接收递归结果的对象
+     * @return 两表间所有的关联表（包含目标表表名，不包含源表表名，关联顺序为倒叙）
+     */
+    private LinkedList<String> checkRelation(String tableCode, String otherTableCode, Set<String> checkedTable,
+                                             LinkedList<String> result) {
+        if (CollectionUtils.isEmpty(tableRelationMap)) {
+            return new LinkedList<>();
+        }
+        Set<String> relations = tableRelationMap.get(tableCode);
+        // 判断是否关联
+        if (relations.contains(otherTableCode)) {
+            result.add(otherTableCode);
+            return result;
+        }
+        for (String relation : relations) {
+            // 跳过已检查过的数据
+            if (checkedTable.contains(relation)) {
+                continue;
+            }
+            checkedTable.add(relation);
+            // 递归调用，判断是否找到
+            if (!org.springframework.util.CollectionUtils.isEmpty(checkRelation(relation, otherTableCode, checkedTable, result))) {
+                // 如果找到，设置返回结果
+                result.add(relation);
+                return result;
+            }
+        }
+        return new LinkedList<>();
+    }
+
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -134,6 +208,8 @@ public class DatamationRepository implements ApplicationContextAware {
         poMap = new HashMap<>();
         poClassInfoMap = new HashMap<>();
         repositoryMap = new HashMap<>();
+        tableRelationMap = new HashMap<>();
+        relationMap = new HashMap<>();
         // 手动关闭emf
         if (emf != null && emf.isOpen()) {
             emf.close();
@@ -168,6 +244,26 @@ public class DatamationRepository implements ApplicationContextAware {
         // 将所有column按照tableCode分组
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
             .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
+        // 查询所有table间关联数据
+        List<DmRelationPO> relationList = dmRelationRepository.findAll();
+        if (CollectionUtils.isNotEmpty(relationList)) {
+            // 表名与表名的关联的映射map
+            tableRelationMap = new HashMap<>(relationList.size() << 1);
+            // 表名与关联对象的映射map
+            relationMap = new HashMap<>(relationList.size() << 1);
+            for (DmRelationPO relation : relationList) {
+                relationMap.put(relation.getSourceTableCode() + "-" + relation.getTargetTableCode(), relation);
+                relationMap.put(relation.getTargetTableCode() + "-" + relation.getSourceTableCode(), relation);
+                if (!tableRelationMap.containsKey(relation.getSourceTableCode())) {
+                    tableRelationMap.put(relation.getSourceTableCode(), new HashSet<>());
+                }
+                if (!tableRelationMap.containsKey(relation.getTargetTableCode())) {
+                    tableRelationMap.put(relation.getTargetTableCode(), new HashSet<>());
+                }
+                tableRelationMap.get(relation.getSourceTableCode()).add(relation.getTargetTableCode());
+                tableRelationMap.get(relation.getTargetTableCode()).add(relation.getSourceTableCode());
+            }
+        }
 
         // 自定义类加载器
         DmClassLoader dmClassLoader = new DmClassLoader();

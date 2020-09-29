@@ -34,7 +34,7 @@ public class DmCriteria implements Serializable {
     protected List<DmCriteria> criterias;
 
     public static DmCriteria of() {
-        return new DmCriteria().operator(EQUAL).and().required(false).criterias(new ArrayList<>());
+        return new DmCriteria().operator(EQUAL).and().required(false).criteria(new ArrayList<>());
     }
 
     @SuppressWarnings("squid:S1221")
@@ -80,7 +80,7 @@ public class DmCriteria implements Serializable {
         return this;
     }
 
-    public DmCriteria criterias(List<DmCriteria> criterias) {
+    public DmCriteria criteria(List<DmCriteria> criterias) {
         this.criterias = new ArrayList<>();
         this.criterias.addAll(criterias);
         return this;

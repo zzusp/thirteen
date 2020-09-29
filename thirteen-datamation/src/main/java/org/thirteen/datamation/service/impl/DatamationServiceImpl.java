@@ -6,16 +6,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.thirteen.datamation.core.criteria.DmCriteria;
-import org.thirteen.datamation.core.criteria.DmPage;
-import org.thirteen.datamation.core.criteria.DmQuery;
-import org.thirteen.datamation.core.criteria.DmSpecification;
+import org.thirteen.datamation.core.criteria.*;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.spring.DatamationRepository;
+import org.thirteen.datamation.model.po.DmRelationPO;
 import org.thirteen.datamation.service.DatamationService;
 import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.JsonUtil;
+import org.thirteen.datamation.util.StringUtils;
 import org.thirteen.datamation.web.PagerResult;
 
 import javax.persistence.EntityManager;
@@ -160,7 +159,7 @@ public class DatamationServiceImpl implements DatamationService {
             dmSpecification.add(DmCriteria.equal(delFlag, DEL_FLAG_NORMAL));
         }
         Optional<?> optional = getRepository(tableCode).findOne(DmQuery.createSpecification(dmSpecification));
-        return optional.map(this::poToMap).orElse(null);
+        return optional.map(o -> findOneCascadeHandle(poToMap(o), tableCode, dmSpecification.getCascades())).orElse(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -215,6 +214,89 @@ public class DatamationServiceImpl implements DatamationService {
             return PagerResult.of(poToMap(getRepository(tableCode).findAll(sort)));
         }
         return PagerResult.of(poToMap(getRepository(tableCode).findAll()));
+    }
+
+    /**
+     * 单条数据查询，级联查询处理
+     *
+     * @param vo 查询结果
+     * @param dmCascades 级联查询条件
+     * @return 查询结果
+     */
+    @SuppressWarnings("squid:S3252")
+    private Map<String, Object> findOneCascadeHandle(Map<String, Object> vo, String tableCode, List<DmCascade> dmCascades) {
+        if (vo == null) {
+            return null;
+        }
+        // 如果级联查询为空，则不进行级联查询
+        if (CollectionUtils.isEmpty(dmCascades)) {
+            return vo;
+        }
+        String tableCodeTemp;
+        List<DmRelationPO> relations;
+        Map<String, Object> cascadeResult = vo;
+        List<Map<String, Object>> cascadeResults = new ArrayList<>();
+        for (DmCascade dmCascade : dmCascades) {
+            tableCodeTemp = tableCode;
+            // 判断是否有关联，没有关联会抛出异常
+            relations = datamationRepository.getRelation(tableCodeTemp, dmCascade.getTableCode());
+
+            // 拼接结果
+            if (cascadeResult != null) {
+                vo.put(dmCascade.getTableCode(), cascadeResult);
+            }
+            if (!cascadeResults.isEmpty()) {
+                vo.put(dmCascade.getTableCode(), cascadeResults);
+            }
+        }
+        return vo;
+    }
+
+    private void test(DmCascade dmCascade, List<DmRelationPO> relations, Map<String, Object> vo,
+                      List<Map<String, Object>> vos, String tableCode) {
+        String tableCodeTemp = tableCode;
+        Map<String, Object> cascadeResult = vo;
+        List<Map<String, Object>> cascadeResults = new ArrayList<>();
+        DmSpecification dmSpecification;
+        String sourceColumn;
+        String targetColumn;
+        String targetTable;
+        boolean oneToManyFlag;
+        for (DmRelationPO relation : relations) {
+            oneToManyFlag = false;
+            if (tableCodeTemp.equals(relation.getSourceTableCode())) {
+                sourceColumn = relation.getSourceColumnCode();
+                targetColumn = relation.getTargetColumnCode();
+                targetTable = relation.getTargetTableCode();
+                // 判断关联类型，设置一对多关联flag
+                if (relation.getRelationType() == 1) {
+                    oneToManyFlag = true;
+                }
+            } else {
+                sourceColumn = relation.getTargetColumnCode();
+                targetColumn = relation.getSourceColumnCode();
+                targetTable = relation.getSourceTableCode();
+            }
+            // 拼接上级联查询条件
+            if (cascadeResult != null) {
+                dmCascade.add(DmCriteria.equal(targetColumn, cascadeResult.get(sourceColumn)));
+            }
+            if (!cascadeResults.isEmpty()) {
+                // 如果查询条件为集合，则按返回结果也为集合处理
+                oneToManyFlag = true;
+                dmCascade.add(DmCriteria.equal(targetColumn, cascadeResults));
+            }
+            dmSpecification = DmSpecification.of(dmCascade.getCriterias());
+            // 判断关联类型，执行对应的查询，并封装查询结果
+            if (oneToManyFlag) {
+                cascadeResult = null;
+                cascadeResults = findAllBySpecification(targetTable, dmSpecification).getList();
+                continue;
+            }
+            cascadeResults = new ArrayList<>();
+            cascadeResult = findOneBySpecification(targetTable, dmSpecification);
+            tableCodeTemp = tableCode;
+        }
     }
 
     /**
