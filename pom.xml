@@ -33,7 +33,7 @@
     <spring.data.redis.version>2.2.3.RELEASE</spring.data.redis.version><!-- spring-data-redis -->
     <spring.data.jpa.version>2.2.3.RELEASE</spring.data.jpa.version><!-- spring-data-jpa -->
     <spring.test.version>5.2.2.RELEASE</spring.test.version><!-- spring test 测试包 -->
-    <junit.version>4.12</junit.version><!-- Junit测试包 -->
+    <junit.version>4.13.1</junit.version><!-- Junit测试包 -->
     <jedis.version>3.1.0</jedis.version><!-- redis的java版本的客户端实现 -->
     <mysql.version>8.0.18</mysql.version><!-- mysql连接 -->
     <slf4j.version>2.0.0-alpha1</slf4j.version><!-- 日志工具 -->
