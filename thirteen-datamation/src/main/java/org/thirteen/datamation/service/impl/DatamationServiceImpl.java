@@ -273,9 +273,8 @@ public class DatamationServiceImpl implements DatamationService {
      * @param relations 关联集合
      * @param vos 源表查询结果
      * @param tableCode 源表名
-     * @return 级联查询结果
      */
-    private List<Map<String, Object>> cascadeQuery(DmCascade dmCascade, List<DmRelationPO> relations,
+    private void cascadeQuery(DmCascade dmCascade, List<DmRelationPO> relations,
                                                    List<Map<String, Object>> vos, String tableCode) {
         String tableCodeTemp = tableCode;
         List<Map<String, Object>> cascadeResults = vos;
@@ -328,7 +327,6 @@ public class DatamationServiceImpl implements DatamationService {
                 vo.put(StringUtils.lineToHump(lastTargetTable), vo.remove(SUB_DATA_KEY));
             }
         }
-        return cascadeResults;
     }
 
     /**
