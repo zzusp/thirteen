@@ -96,19 +96,17 @@ public interface DatamationService {
     /**
      * 由条件基类获取一条数据
      *
-     * @param tableCode 表名
      * @param dmSpecification 条件基类
      * @return VO对象集合
      */
-    Map<String, Object> findOneBySpecification(String tableCode, DmSpecification dmSpecification);
+    Map<String, Object> findOneBySpecification(DmSpecification dmSpecification);
 
     /**
      * 由条件基类查询所有数据
      *
-     * @param tableCode 表名
      * @param dmSpecification 条件基类
      * @return VO对象集合
      */
-    PagerResult<Map<String, Object>> findAllBySpecification(String tableCode, DmSpecification dmSpecification);
+    PagerResult<Map<String, Object>> findAllBySpecification(DmSpecification dmSpecification);
 
 }

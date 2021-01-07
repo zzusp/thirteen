@@ -14,25 +14,36 @@ import java.util.List;
 public class DmSpecification implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    /** 查询表 */
+    private String table;
     /** 条件参数对象 */
     private List<DmCriteria> criterias;
-    /** 级联条件参数对象 */
-    private List<DmCascade> cascades;
+    /** 关联查询参数对象 */
+    private List<DmLookup> lookups;
     /** 分页参数对象 */
     private DmPage page;
     /** 排序参数对象集合 */
     private List<DmSort> sorts;
 
     public static DmSpecification of() {
-        return of(new ArrayList<>(), null, new ArrayList<>());
+        return of(null, new ArrayList<>(), null, new ArrayList<>());
     }
 
-    public static DmSpecification of(List<DmCriteria> criterias) {
-        return of(criterias, null, new ArrayList<>());
+    public static DmSpecification of(String table) {
+        return of(table, new ArrayList<>(), null, new ArrayList<>());
     }
 
-    public static DmSpecification of(List<DmCriteria> criterias, DmPage page, List<DmSort> sorts) {
-        return new DmSpecification().criteria(criterias).page(page).sorts(sorts);
+    public static DmSpecification of(String table, List<DmCriteria> criterias) {
+        return of(table, criterias, null, new ArrayList<>());
+    }
+
+    public static DmSpecification of(String table, List<DmCriteria> criterias, DmPage page, List<DmSort> sorts) {
+        return new DmSpecification().table(table).criteria(criterias).page(page).sorts(sorts);
+    }
+
+    public DmSpecification table(String table) {
+        this.table = table;
+        return this;
     }
 
     public DmSpecification criteria(List<DmCriteria> criterias) {
@@ -41,9 +52,9 @@ public class DmSpecification implements Serializable {
         return this;
     }
 
-    public DmSpecification cascade(List<DmCascade> cascades) {
-        this.cascades = new ArrayList<>();
-        this.cascades.addAll(cascades);
+    public DmSpecification lookup(List<DmLookup> lookups) {
+        this.lookups = new ArrayList<>();
+        this.lookups.addAll(lookups);
         return this;
     }
 
@@ -55,11 +66,11 @@ public class DmSpecification implements Serializable {
         return this;
     }
 
-    public DmSpecification add(DmCascade cascade) {
-        if (this.cascades == null) {
-            this.cascades = new ArrayList<>();
+    public DmSpecification add(DmLookup lookup) {
+        if (this.lookups == null) {
+            this.lookups = new ArrayList<>();
         }
-        this.cascades.add(cascade);
+        this.lookups.add(lookup);
         return this;
     }
 
@@ -82,6 +93,14 @@ public class DmSpecification implements Serializable {
         return this;
     }
 
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
     public List<DmCriteria> getCriterias() {
         return criterias;
     }
@@ -90,12 +109,12 @@ public class DmSpecification implements Serializable {
         this.criterias = criterias;
     }
 
-    public List<DmCascade> getCascades() {
-        return cascades;
+    public List<DmLookup> getLookups() {
+        return lookups;
     }
 
-    public void setCascades(List<DmCascade> cascades) {
-        this.cascades = cascades;
+    public void setLookups(List<DmLookup> lookups) {
+        this.lookups = lookups;
     }
 
     public DmPage getPage() {

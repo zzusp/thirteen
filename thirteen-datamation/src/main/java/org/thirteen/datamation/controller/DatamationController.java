@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import org.thirteen.datamation.core.criteria.DmSpecification;
 import org.thirteen.datamation.service.DatamationService;
-import org.thirteen.datamation.util.JsonUtil;
 import org.thirteen.datamation.web.PagerResult;
 import org.thirteen.datamation.web.ResponseResult;
 
@@ -117,19 +116,15 @@ public class DatamationController {
     @ApiOperation(value = "由条件查询单条信息", notes = "由条件查询单条信息", response = ResponseResult.class)
     @GetMapping(value = "/findOneByParam")
     public ResponseResult<Map<String, Object>> findOneByParam(
-        @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
-        @ApiParam(required = true, value = "条件") @RequestParam("specification") String specification) {
-        return ResponseResult.ok(datamationService.findOneBySpecification(tableCode,
-            JsonUtil.parseObject(specification, DmSpecification.class)));
+        @ApiParam(required = true, value = "条件") @RequestBody DmSpecification specification) {
+        return ResponseResult.ok(datamationService.findOneBySpecification(specification));
     }
 
     @ApiOperation(value = "由条件查询多条信息", notes = "由条件查询多条信息", response = ResponseResult.class)
     @GetMapping(value = "/findAllByParam")
     public ResponseResult<PagerResult<Map<String, Object>>> findAllByParam(
-        @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
-        @ApiParam(required = true, value = "条件") @RequestParam("specification") String specification) {
-        return ResponseResult.ok(datamationService.findAllBySpecification(tableCode,
-            JsonUtil.parseObject(specification, DmSpecification.class)));
+        @ApiParam(required = true, value = "条件") @RequestBody DmSpecification specification) {
+        return ResponseResult.ok(datamationService.findAllBySpecification(specification));
     }
 
 }

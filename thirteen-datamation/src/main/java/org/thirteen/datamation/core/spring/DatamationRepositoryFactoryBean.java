@@ -26,7 +26,7 @@ public class DatamationRepositoryFactoryBean implements FactoryBean<DatamationRe
 
     @Override
     public DatamationRepository getObject() {
-        return new DatamationRepository(dmTableRepository, dmColumnRepository, dmRelationRepository);
+        return new DatamationRepository(dmTableRepository, dmColumnRepository);
     }
 
     @Override

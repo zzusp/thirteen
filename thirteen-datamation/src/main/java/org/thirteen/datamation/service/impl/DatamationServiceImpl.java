@@ -10,7 +10,6 @@ import org.thirteen.datamation.core.criteria.*;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.spring.DatamationRepository;
-import org.thirteen.datamation.model.po.DmRelationPO;
 import org.thirteen.datamation.service.DatamationService;
 import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.JsonUtil;
@@ -138,40 +137,41 @@ public class DatamationServiceImpl implements DatamationService {
 
     @Override
     public Map<String, Object> findById(String tableCode, String id) {
-        return findOneBySpecification(tableCode, DmSpecification.of()
+        return findOneBySpecification(DmSpecification.of(tableCode)
             .add(DmCriteria.equal(getClassInfo(tableCode).getIdField(), id)));
     }
 
     @Override
     public List<Map<String, Object>> findByIds(String tableCode, List<String> ids) {
-        return findAllBySpecification(tableCode, DmSpecification.of()
+        return findAllBySpecification(DmSpecification.of(tableCode)
             .add(DmCriteria.in(getClassInfo(tableCode).getIdField(), ids))).getList();
     }
 
     @Override
     public PagerResult<Map<String, Object>> findAll(String tableCode) {
-        return findAllBySpecification(tableCode, DmSpecification.of());
+        return findAllBySpecification(DmSpecification.of(tableCode));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, Object> findOneBySpecification(String tableCode, DmSpecification dmSpecification) {
+    public Map<String, Object> findOneBySpecification(DmSpecification dmSpecification) {
         // 如果包含逻辑删除字段，默认添加 未删除数据 的查询条件
-        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        String delFlag = getClassInfo(dmSpecification.getTable()).getDelFlagField();
         if (delFlag != null) {
             dmSpecification.add(DmCriteria.equal(delFlag, DEL_FLAG_NORMAL));
         }
-        Optional<?> optional = getRepository(tableCode).findOne(DmQuery.createSpecification(dmSpecification));
-        return optional.map(o -> findOneCascadeHandle(poToMap(o), tableCode, dmSpecification.getCascades())).orElse(null);
+        Optional<?> optional = getRepository(dmSpecification.getTable()).findOne(DmQuery.createSpecification(dmSpecification));
+        return optional.map(v -> lookupHandle(dmSpecification.getLookups(), poToMap(v))).orElse(null);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public PagerResult<Map<String, Object>> findAllBySpecification(String tableCode, DmSpecification dmSpecification) {
+    public PagerResult<Map<String, Object>> findAllBySpecification(DmSpecification dmSpecification) {
+        String table = dmSpecification.getTable();
         Specification<?> specification = null;
         Sort sort = null;
         // 如果包含逻辑删除字段，默认添加 未删除数据 的查询条件
-        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        String delFlag = getClassInfo(table).getDelFlagField();
         if (delFlag != null) {
             dmSpecification.add(DmCriteria.equal(delFlag, DEL_FLAG_NORMAL));
         }
@@ -197,164 +197,98 @@ public class DatamationServiceImpl implements DatamationService {
             }
             // 判断条件参数是否不为空，调用对应查询方法
             if (specification != null) {
-                page = getRepository(tableCode).findAll(specification, pageRequest);
+                page = getRepository(table).findAll(specification, pageRequest);
             } else {
-                page = getRepository(tableCode).findAll(pageRequest);
+                page = getRepository(table).findAll(pageRequest);
             }
             // 处理查询结果，直接返回
-            return PagerResult.of(page.getTotalElements(), findAllCascadeHandle(poToMap(page.getContent()), tableCode,
-                dmSpecification.getCascades()));
+            return PagerResult.of(page.getTotalElements(), lookupHandle(dmSpecification.getLookups(), poToMap(page.getContent())));
         }
 
         // 判断条件参数与分页参数是否为空，调用对应的查询方法
 
         if (specification != null && sort != null) {
-            return PagerResult.of(poToMap(getRepository(tableCode).findAll(specification, sort)));
+            return PagerResult.of(lookupHandle(dmSpecification.getLookups(), poToMap(getRepository(table).findAll(specification, sort))));
         }
         if (specification != null) {
-            return PagerResult.of(poToMap(getRepository(tableCode).findAll(specification)));
+            return PagerResult.of(lookupHandle(dmSpecification.getLookups(), poToMap(getRepository(table).findAll(specification))));
         }
         if (sort != null) {
-            return PagerResult.of(poToMap(getRepository(tableCode).findAll(sort)));
+            return PagerResult.of(lookupHandle(dmSpecification.getLookups(), poToMap(getRepository(table).findAll(sort))));
         }
-        return PagerResult.of(poToMap(getRepository(tableCode).findAll()));
+        return PagerResult.of(lookupHandle(dmSpecification.getLookups(), poToMap(getRepository(table).findAll())));
     }
 
     /**
-     * 单条数据查询，级联查询处理
+     * 关联查询处理
      *
-     * @param vo 查询结果
-     * @param tableCode 表名
-     * @param dmCascades 级联查询条件
-     * @return 查询结果
+     * @param dmLookups 关联查询对象
+     * @param data 源数据查询结果
+     * @return 关联查询结果
      */
-    @SuppressWarnings("squid:S3252")
-    private Map<String, Object> findOneCascadeHandle(Map<String, Object> vo, String tableCode, List<DmCascade> dmCascades) {
-        if (vo == null) {
-            return null;
-        }
-        return findAllCascadeHandle(Collections.singletonList(vo), tableCode, dmCascades).get(0);
+    private Map<String, Object> lookupHandle(List<DmLookup> dmLookups, Map<String, Object> data) {
+        return lookupHandle(dmLookups, Collections.singletonList(data)).get(0);
     }
 
     /**
-     * 多条数据查询，级联查询处理
+     * 关联查询处理
      *
-     * @param vos 查询结果
-     * @param tableCode 表名
-     * @param dmCascades 级联查询条件
-     * @return 查询结果
+     * @param dmLookups 关联查询对象
+     * @param dataList 源数据查询结果
+     * @return 关联查询结果
      */
-    @SuppressWarnings("squid:S3252")
-    private List<Map<String, Object>> findAllCascadeHandle(List<Map<String, Object>> vos, String tableCode,
-                                                           List<DmCascade> dmCascades) {
-        if (CollectionUtils.isEmpty(vos)) {
-            return vos;
+    private List<Map<String, Object>> lookupHandle(List<DmLookup> dmLookups, List<Map<String, Object>> dataList) {
+        if (CollectionUtils.isEmpty(dmLookups) || CollectionUtils.isEmpty(dataList)) {
+            return dataList;
         }
-        // 如果级联查询为空，则不进行级联查询
-        if (CollectionUtils.isEmpty(dmCascades)) {
-            return vos;
-        }
-        String tableCodeTemp;
-        List<DmRelationPO> relations;
-        for (DmCascade dmCascade : dmCascades) {
-            tableCodeTemp = tableCode;
-            // 判断是否有关联，没有关联会抛出异常
-            relations = datamationRepository.getRelation(tableCodeTemp, dmCascade.getTableCode());
-            // 级联查询
-            cascadeQuery(dmCascade, relations, vos, tableCodeTemp);
-        }
-        return vos;
-    }
-
-    /**
-     * 级联查询
-     *
-     * @param dmCascade 级联查询条件
-     * @param relations 关联集合
-     * @param vos 源表查询结果
-     * @param tableCode 源表名
-     */
-    private void cascadeQuery(DmCascade dmCascade, List<DmRelationPO> relations,
-                                                   List<Map<String, Object>> vos, String tableCode) {
-        String tableCodeTemp = tableCode;
-        List<Map<String, Object>> cascadeResults = vos;
-        DmCascade dmCascadeTemp;
+        // 关联表
+        String from;
+        // 是否为一对一
+        boolean unwind;
+        // 结果集的key
+        String as;
+        // 外键结果集
+        List<Object> localFieldValues;
+        // 来源表的外键字段
+        String localField;
+        // 关联表的外键字段
+        String foreignField;
+        // 查询关联表的条件对象
         DmSpecification dmSpecification;
-        String sourceColumn;
-        String targetColumn;
-        // 目标表
-        String targetTable;
-        String lastTargetTable = "";
-        // 来源表的关联列的值的集合
-        List<Object> columnValues;
-        for (DmRelationPO relation : relations) {
-            // 如果级联查询结果为空
-            if (cascadeResults.isEmpty()) {
-                break;
+        // 关联表查询结果
+        List<Map<String, Object>> foreignResult;
+        Map<Object, List<Map<String, Object>>> foreignMap;
+        for (DmLookup lookup : dmLookups) {
+            from = lookup.getFrom();
+            unwind = lookup.getUnwind() != null ? false : lookup.getUnwind();
+            as = StringUtils.isEmpty(lookup.getAs()) ? StringUtils.lineToHump(lookup.getFrom()) : lookup.getAs();
+            localFieldValues = new ArrayList<>();
+            localField = lookup.getLocalField();
+            foreignField = lookup.getForeignField();
+            foreignResult = new ArrayList<>();
+            for (Map<String, Object> data : dataList) {
+                localFieldValues.add(data.get(localField));
             }
-            if (tableCodeTemp.equals(relation.getSourceTableCode())) {
-                sourceColumn = relation.getSourceColumnCode();
-                targetColumn = relation.getTargetColumnCode();
-                targetTable = relation.getTargetTableCode();
+            dmSpecification = DmSpecification.of(from).add(DmCriteria.in(foreignField, localFieldValues));
+            // 一次查询出关联表的所有数据，避免多次循环查询
+            // 判断结果集是一对一还是一对多
+            if (unwind) {
+                foreignResult.add(findOneBySpecification(dmSpecification));
             } else {
-                sourceColumn = relation.getTargetColumnCode();
-                targetColumn = relation.getSourceColumnCode();
-                targetTable = relation.getSourceTableCode();
+                foreignResult.addAll(findAllBySpecification(dmSpecification).getList());
             }
-            if (dmCascade.getTableCode().equals(targetTable)) {
-                dmCascadeTemp = dmCascade;
-            } else {
-                dmCascadeTemp = DmCascade.of(targetTable);
+            if (CollectionUtils.isEmpty(foreignResult)) {
+                continue;
             }
-            // 拼接级联查询条件
-            columnValues = new ArrayList<>();
-            for (Map<String, Object> v : cascadeResults) {
-                columnValues.add(v.get(sourceColumn));
-            }
-            // 如果查询条件为集合，则按返回结果也为集合处理
-            dmCascadeTemp.add(DmCriteria.in(targetColumn, columnValues));
-            dmSpecification = DmSpecification.of(dmCascadeTemp.getCriterias());
-            // 执行查询，并封装查询结果
-            cascadeResults = findAllBySpecification(targetTable, dmSpecification).getList();
-            tableCodeTemp = targetTable;
-
-            // 关系处理
-            relationHandle(vos, cascadeResults, sourceColumn, targetColumn);
-            lastTargetTable = targetTable;
-        }
-        if (StringUtils.isNotEmpty(lastTargetTable)) {
-            for (Map<String, Object> vo : vos) {
-                vo.put(StringUtils.lineToHump(lastTargetTable), vo.remove(SUB_DATA_KEY));
+            String finalForeignField = foreignField;
+            // 按照外键分组
+            foreignMap = foreignResult.stream().collect(Collectors.groupingBy(v -> v.get(finalForeignField), Collectors.toList()));
+            // 设置查询结果到对应的结果集
+            for (Map<String, Object> data : dataList) {
+                data.put(as, foreignMap.get(localField));
             }
         }
-    }
-
-    /**
-     * 关系处理
-     *
-     * @param models 元数据
-     * @param subData 每次级联的结果
-     * @param sourceColumn 源列
-     * @param targetColumn 目标列
-     */
-    @SuppressWarnings("unchecked")
-    private void relationHandle(List<Map<String, Object>> models, List<Map<String, Object>> subData, String sourceColumn,
-                                String targetColumn) {
-        if (CollectionUtils.isNotEmpty(models) && CollectionUtils.isNotEmpty(subData)) {
-            Map<Object, Set<Map<String, Object>>> subMap = subData.stream()
-                .collect(Collectors.groupingBy(v -> v.get(targetColumn), Collectors.toSet()));
-            for (Map<String, Object> model : models) {
-                if (model.containsKey(SUB_DATA_KEY)) {
-                    Set<Map<String, Object>> newSubData = new HashSet<>();
-                    for (Map<String, Object> sub : (Set<Map<String, Object>>) model.get(SUB_DATA_KEY)) {
-                        newSubData.addAll(subMap.get(sub.get(sourceColumn)));
-                    }
-                    model.put(SUB_DATA_KEY, newSubData);
-                } else {
-                    model.put(SUB_DATA_KEY, subMap.get(model.get(sourceColumn)));
-                }
-            }
-        }
+        return dataList;
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.thirteen.datamation.core.criteria;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * @author Aaron.Sun
@@ -24,6 +23,7 @@ public class DmLookup implements Serializable {
     private Boolean unwind;
 
     private DmLookup() {
+        this.unwind = false;
     }
 
     private DmLookup(String from, String localField, String foreignField, String as, Boolean unwind) {
@@ -63,4 +63,43 @@ public class DmLookup implements Serializable {
         return this;
     }
 
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getLocalField() {
+        return localField;
+    }
+
+    public void setLocalField(String localField) {
+        this.localField = localField;
+    }
+
+    public String getForeignField() {
+        return foreignField;
+    }
+
+    public void setForeignField(String foreignField) {
+        this.foreignField = foreignField;
+    }
+
+    public String getAs() {
+        return as;
+    }
+
+    public void setAs(String as) {
+        this.as = as;
+    }
+
+    public Boolean getUnwind() {
+        return unwind;
+    }
+
+    public void setUnwind(Boolean unwind) {
+        this.unwind = unwind;
+    }
 }
