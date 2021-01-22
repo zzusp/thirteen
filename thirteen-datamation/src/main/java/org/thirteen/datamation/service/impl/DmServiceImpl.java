@@ -10,7 +10,7 @@ import org.thirteen.datamation.core.criteria.*;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.spring.DatamationRepository;
-import org.thirteen.datamation.service.DatamationService;
+import org.thirteen.datamation.service.DmService;
 import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.JsonUtil;
 import org.thirteen.datamation.util.StringUtils;
@@ -32,13 +32,13 @@ import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
  * @modified by
  */
 @Service
-public class DatamationServiceImpl implements DatamationService {
+public class DmServiceImpl implements DmService {
 
     private static final String SUB_DATA_KEY = "subData";
 
     private final DatamationRepository datamationRepository;
 
-    public DatamationServiceImpl(DatamationRepository datamationRepository) {
+    public DmServiceImpl(DatamationRepository datamationRepository) {
         this.datamationRepository = datamationRepository;
     }
 

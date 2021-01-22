@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import org.thirteen.datamation.core.criteria.DmSpecification;
-import org.thirteen.datamation.service.DatamationService;
+import org.thirteen.datamation.service.DmService;
 import org.thirteen.datamation.web.PagerResult;
 import org.thirteen.datamation.web.ResponseResult;
 
@@ -21,18 +21,18 @@ import java.util.Map;
 @Api(tags = "数据化配置通用接口")
 @RestController
 @RequestMapping(value = "/dm")
-public class DatamationController {
+public class DmController {
 
-    private final DatamationService datamationService;
+    private final DmService dmService;
 
-    public DatamationController(DatamationService datamationService) {
-        this.datamationService = datamationService;
+    public DmController(DmService dmService) {
+        this.dmService = dmService;
     }
 
     @ApiOperation(value = "刷新", notes = "刷新", response = ResponseResult.class)
     @GetMapping(value = "/refresh ")
     public ResponseResult<Map<String, Object>> refresh() {
-        datamationService.refresh();
+        dmService.refresh();
         return ResponseResult.ok();
     }
 
@@ -41,7 +41,7 @@ public class DatamationController {
     public ResponseResult<String> insert(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "对象信息") @RequestBody Map<String, Object> model) {
-        datamationService.insert(tableCode, model);
+        dmService.insert(tableCode, model);
         return ResponseResult.ok();
     }
 
@@ -50,7 +50,7 @@ public class DatamationController {
     public ResponseResult<String> insertAll(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "对象信息集合") @RequestBody List<Map<String, Object>> models) {
-        datamationService.insertAll(tableCode, models);
+        dmService.insertAll(tableCode, models);
         return ResponseResult.ok();
     }
 
@@ -59,7 +59,7 @@ public class DatamationController {
     public ResponseResult<String> update(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "对象信息") @RequestBody Map<String, Object> model) {
-        datamationService.update(tableCode, model);
+        dmService.update(tableCode, model);
         return ResponseResult.ok();
     }
 
@@ -68,7 +68,7 @@ public class DatamationController {
     public ResponseResult<String> updateAll(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "对象信息集合") @RequestBody List<Map<String, Object>> models) {
-        datamationService.updateAll(tableCode, models);
+        dmService.updateAll(tableCode, models);
         return ResponseResult.ok();
     }
 
@@ -77,7 +77,7 @@ public class DatamationController {
     public ResponseResult<String> deleteById(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "ID") @RequestParam("id") String id) {
-        datamationService.delete(tableCode, id);
+        dmService.delete(tableCode, id);
         return ResponseResult.ok();
     }
 
@@ -86,7 +86,7 @@ public class DatamationController {
     public ResponseResult<String> deleteInBatch(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "ID集合") @RequestParam("ids") List<String> ids) {
-        datamationService.deleteInBatch(tableCode, ids);
+        dmService.deleteInBatch(tableCode, ids);
         return ResponseResult.ok();
     }
 
@@ -95,7 +95,7 @@ public class DatamationController {
     public ResponseResult<Map<String, Object>> getById(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "ID") @RequestParam("id") String id) {
-        return ResponseResult.ok(datamationService.findById(tableCode, id));
+        return ResponseResult.ok(dmService.findById(tableCode, id));
     }
 
     @ApiOperation(value = "由ID集合获取详细信息", notes = "由ID集合获取详细信息", response = ResponseResult.class)
@@ -103,28 +103,28 @@ public class DatamationController {
     public ResponseResult<List<Map<String, Object>>> getById(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode,
         @ApiParam(required = true, value = "ID集合") @RequestParam("ids") List<String> ids) {
-        return ResponseResult.ok(datamationService.findByIds(tableCode, ids));
+        return ResponseResult.ok(dmService.findByIds(tableCode, ids));
     }
 
     @ApiOperation(value = "查询所有信息", notes = "查询所有信息", response = ResponseResult.class)
     @GetMapping(value = "/findAll")
     public ResponseResult<PagerResult<Map<String, Object>>> findAll(
         @ApiParam(required = true, value = "表名") @RequestParam String tableCode) {
-        return ResponseResult.ok(datamationService.findAll(tableCode));
+        return ResponseResult.ok(dmService.findAll(tableCode));
     }
 
     @ApiOperation(value = "由条件查询单条信息", notes = "由条件查询单条信息", response = ResponseResult.class)
     @GetMapping(value = "/findOneByParam")
     public ResponseResult<Map<String, Object>> findOneByParam(
         @ApiParam(required = true, value = "条件") @RequestBody DmSpecification specification) {
-        return ResponseResult.ok(datamationService.findOneBySpecification(specification));
+        return ResponseResult.ok(dmService.findOneBySpecification(specification));
     }
 
     @ApiOperation(value = "由条件查询多条信息", notes = "由条件查询多条信息", response = ResponseResult.class)
     @GetMapping(value = "/findAllByParam")
     public ResponseResult<PagerResult<Map<String, Object>>> findAllByParam(
         @ApiParam(required = true, value = "条件") @RequestBody DmSpecification specification) {
-        return ResponseResult.ok(datamationService.findAllBySpecification(specification));
+        return ResponseResult.ok(dmService.findAllBySpecification(specification));
     }
 
 }

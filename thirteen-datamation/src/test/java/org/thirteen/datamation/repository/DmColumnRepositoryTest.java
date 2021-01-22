@@ -37,7 +37,6 @@ public class DmColumnRepositoryTest {
         po.setCreateBy("admin");
         po.setCreateTime(LocalDateTime.now());
         po.setRemark(null);
-        po.setDelFlag((byte) 1);
         dmColumnRepository.save(po);
     }
 

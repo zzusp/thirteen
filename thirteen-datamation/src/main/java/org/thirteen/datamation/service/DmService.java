@@ -12,7 +12,7 @@ import java.util.Map;
  * @date Created in 17:46 2020/9/21
  * @modified by
  */
-public interface DatamationService {
+public interface DmService {
 
     /**
      * 刷新

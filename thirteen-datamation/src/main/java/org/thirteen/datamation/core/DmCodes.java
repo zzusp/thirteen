@@ -11,6 +11,13 @@ public class DmCodes {
     private DmCodes() {
     }
 
+    // 字段
+
+    /** code */
+    public static final String CODE = "code";
+    /** 删除标识字段 */
+    public static final String DEL_FLAG = "delFlag";
+
     // 字段值
 
     /** 字段类型：主键字段 */

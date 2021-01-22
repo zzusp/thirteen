@@ -56,4 +56,11 @@ public class PagerResult<T> implements Serializable {
     public void setList(List<T> list) {
         this.list = list;
     }
+
+    public boolean isEmpty() {
+        if (this.list == null) {
+            return false;
+        }
+        return this.list.isEmpty();
+    }
 }

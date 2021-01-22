@@ -50,8 +50,6 @@ public class DmTablePO implements Serializable {
     @Version
     @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
     private Integer version;
-    @Column(name = "del_flag", columnDefinition = "TINYINT(1) NOT NULL COMMENT '删除标志 0：正常；1：删除'")
-    private Byte delFlag;
     @Transient
     private Set<DmColumnPO> columns = new HashSet<>();
 }

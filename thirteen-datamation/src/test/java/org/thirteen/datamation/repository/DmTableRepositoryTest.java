@@ -32,7 +32,6 @@ public class DmTableRepositoryTest {
         po.setStatus((byte) 1);
         po.setCreateBy("admin");
         po.setCreateTime(LocalDateTime.now());
-        po.setDelFlag((byte) 1);
         dmTableRepository.save(po);
     }
 

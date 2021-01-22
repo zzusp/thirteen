@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.uncapitalize;
+import static org.thirteen.datamation.core.DmCodes.DEL_FLAG;
 import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
 
 /**
@@ -199,12 +200,10 @@ public class DatamationRepository implements ApplicationContextAware {
     public void buildDatamationRepository() {
         // 构建前清空所有
         destroyBeforeBuild();
-        // 查询对象
-        DmSpecification dmSpecification = DmSpecification.of().add(DmCriteria.equal("delFlag", DEL_FLAG_NORMAL));
         // 查询所有有效table数据
-        List<DmTablePO> tableList = dmTableRepository.findAll(DmQuery.createSpecification(dmSpecification));
+        List<DmTablePO> tableList = dmTableRepository.findAll();
         // 查询所有有效column数据
-        List<DmColumnPO> columnList = dmColumnRepository.findAll(DmQuery.createSpecification(dmSpecification));
+        List<DmColumnPO> columnList = dmColumnRepository.findAll();
         // 将所有column按照tableCode分组
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
             .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
