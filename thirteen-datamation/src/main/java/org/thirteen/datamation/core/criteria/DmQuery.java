@@ -25,9 +25,13 @@ import static org.thirteen.datamation.core.DmCodes.*;
 @SuppressWarnings("squid:S3252")
 public class DmQuery {
 
-    /** 每层条件个数的最大值 */
+    /**
+     * 每层条件个数的最大值
+     */
     private static final Integer MAX_CRITERIA_SIZE = 10;
-    /** 条件最大深度 */
+    /**
+     * 条件最大深度
+     */
     private static final Integer MAX_DEEP = 5;
 
     private DmQuery() {
@@ -93,10 +97,10 @@ public class DmQuery {
     /**
      * 递归创建jpa查询参数对象
      *
-     * @param root 实体类root
-     * @param cb jpa查询参数创建对象
+     * @param root      实体类root
+     * @param cb        jpa查询参数创建对象
      * @param criterias 搜索条件参数集合
-     * @param deep 条件深度
+     * @param deep      条件深度
      * @return jpa查询参数对象
      */
     @SuppressWarnings("squid:S3776")
@@ -148,7 +152,7 @@ public class DmQuery {
      * 谓语处理
      *
      * @param root 实体类root
-     * @param cb jpa查询参数创建对象
+     * @param cb   jpa查询参数创建对象
      * @param item 搜索条件参数
      * @return 处理后的谓语对象
      */

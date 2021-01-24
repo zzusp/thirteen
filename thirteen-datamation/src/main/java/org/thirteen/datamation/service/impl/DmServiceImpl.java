@@ -223,7 +223,7 @@ public class DmServiceImpl implements DmService {
      * 关联查询处理
      *
      * @param dmLookups 关联查询对象
-     * @param data 源数据查询结果
+     * @param data      源数据查询结果
      * @return 关联查询结果
      */
     private Map<String, Object> lookupHandle(List<DmLookup> dmLookups, Map<String, Object> data) {
@@ -234,7 +234,7 @@ public class DmServiceImpl implements DmService {
      * 关联查询处理
      *
      * @param dmLookups 关联查询对象
-     * @param dataList 源数据查询结果
+     * @param dataList  源数据查询结果
      * @return 关联查询结果
      */
     private List<Map<String, Object>> lookupHandle(List<DmLookup> dmLookups, List<Map<String, Object>> dataList) {
@@ -315,8 +315,8 @@ public class DmServiceImpl implements DmService {
     /**
      * 创建查询对象
      *
-     * @param em 实体管理器
-     * @param sql sql语句
+     * @param em     实体管理器
+     * @param sql    sql语句
      * @param params 参数集合
      * @return 查询对象
      */
@@ -335,7 +335,7 @@ public class DmServiceImpl implements DmService {
      * map转po对象
      *
      * @param tableCode 表名
-     * @param map map对象
+     * @param map       map对象
      * @return po class
      */
     private Object mapToPo(String tableCode, Map<String, Object> map) {
@@ -347,7 +347,7 @@ public class DmServiceImpl implements DmService {
      * map转po对象
      *
      * @param tableCode 表名
-     * @param maps map对象集合
+     * @param maps      map对象集合
      * @return po class集合
      */
     private List<Object> mapToPo(String tableCode, List<Map<String, Object>> maps) {

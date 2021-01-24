@@ -15,9 +15,13 @@ public class DmSort implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 字段名 */
+    /**
+     * 字段名
+     */
     private String field;
-    /** 排序 asc（升序）/desc（降序） */
+    /**
+     * 排序 asc（升序）/desc（降序）
+     */
     private String orderBy;
 
     public static DmSort of() {

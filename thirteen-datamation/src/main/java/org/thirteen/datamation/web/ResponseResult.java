@@ -19,11 +19,17 @@ public class ResponseResult<T> implements Serializable {
     public static final String LOCKED_MESSAGE = "账号已被冻结，请联系管理员！";
     public static final String FORBIDDEN_MESSAGE = "您没有足够的权限执行该操作！";
 
-    /** 状态码 */
+    /**
+     * 状态码
+     */
     private int status;
-    /** 消息 */
+    /**
+     * 消息
+     */
     private String message;
-    /** 结果 */
+    /**
+     * 结果
+     */
     private T result;
 
     /**
@@ -40,7 +46,7 @@ public class ResponseResult<T> implements Serializable {
      * 请求成功
      *
      * @param result 结果
-     * @param <T> 泛型对象
+     * @param <T>    泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> ok(T result) {
@@ -51,7 +57,7 @@ public class ResponseResult<T> implements Serializable {
      * 请求失败（如：请求参数类型不匹配）
      *
      * @param message 信息
-     * @param <T> 泛型对象
+     * @param <T>     泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> bad(String message) {
@@ -72,7 +78,7 @@ public class ResponseResult<T> implements Serializable {
      * 请求失败（如：未登录或未通过验证）
      *
      * @param message 信息
-     * @param <T> 泛型对象
+     * @param <T>     泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> unauthorized(String message) {
@@ -103,7 +109,7 @@ public class ResponseResult<T> implements Serializable {
      * 请求失败（如：权限不足）
      *
      * @param message 信息
-     * @param <T> 泛型对象
+     * @param <T>     泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> forbidden(String message) {
@@ -114,7 +120,7 @@ public class ResponseResult<T> implements Serializable {
      * 请求失败（如：请求资源不存在）
      *
      * @param message 信息
-     * @param <T> 泛型对象
+     * @param <T>     泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> notFind(String message) {
@@ -125,7 +131,7 @@ public class ResponseResult<T> implements Serializable {
      * 请求失败（如：查询数据库报错）
      *
      * @param message 信息
-     * @param <T> 泛型对象
+     * @param <T>     泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> error(String message) {
@@ -136,7 +142,7 @@ public class ResponseResult<T> implements Serializable {
      * 请求失败（如：请求频繁或系统维护）
      *
      * @param message 信息
-     * @param <T> 泛型对象
+     * @param <T>     泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> unavailable(String message) {
@@ -146,9 +152,9 @@ public class ResponseResult<T> implements Serializable {
     /**
      * 请求失败（如：服务器异常）
      *
-     * @param status 状态码
+     * @param status  状态码
      * @param message 信息
-     * @param <T> 泛型对象
+     * @param <T>     泛型对象
      * @return 响应结果对象
      */
     public static <T> ResponseResult<T> error(int status, String message) {

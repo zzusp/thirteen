@@ -1,7 +1,9 @@
 package org.thirteen.datamation.repository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.thirteen.datamation.model.po.DmColumnPO;
 
@@ -21,6 +23,7 @@ public interface DmColumnRepository extends JpaRepository<DmColumnPO, String>, J
      *
      * @param tableCode table编码
      */
+    @Modifying
     void deleteByTableCodeEquals(String tableCode);
 
     /**
@@ -28,6 +31,7 @@ public interface DmColumnRepository extends JpaRepository<DmColumnPO, String>, J
      *
      * @param tableCodes table编码集合
      */
+    @Modifying
     void deleteByTableCodeIn(List<String> tableCodes);
 
     /**
@@ -36,6 +40,6 @@ public interface DmColumnRepository extends JpaRepository<DmColumnPO, String>, J
      * @param tableCode table编码
      * @return 列信息集合
      */
-    List<DmColumnPO> findByTableCodeEquals(String tableCode);
+    List<DmColumnPO> findByTableCodeEquals(String tableCode, Sort sort);
 
 }

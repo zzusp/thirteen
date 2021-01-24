@@ -26,9 +26,13 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     private static final Logger logger = LoggerFactory.getLogger(AbstractClassGenerator.class);
 
     private static final String TYPEOF_BOOLEAN = "Z";
-    /** 默认的class生成路径 */
+    /**
+     * 默认的class生成路径
+     */
     protected String defaultPackage;
-    /** 生成类的邻类 */
+    /**
+     * 生成类的邻类
+     */
     private final Class<?> neighbor;
 
     public AbstractClassGenerator(DmClassLoader dmClassLoader, Class<?> neighbor) {
@@ -82,7 +86,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * 解析字节码数组，获取class定义
      *
      * @param neighbor 邻类，与生成的class同一目录
-     * @param b 字节码数组
+     * @param b        字节码数组
      * @return class定义
      * @throws IllegalAccessException 非法访问异常
      */
@@ -104,7 +108,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 注解处理
      *
-     * @param cw 类构建器
+     * @param cw              类构建器
      * @param annotationInfos 注解信息集合
      */
     protected void annotationHandle(ClassWriter cw, List<AnnotationInfo> annotationInfos) {
@@ -125,7 +129,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 注解参数处理
      *
-     * @param av 注解访问器
+     * @param av     注解访问器
      * @param params 注解参数集合
      */
     private void annotationParamHandle(AnnotationVisitor av, List<AnnotationInfo.Param> params) {
@@ -147,9 +151,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 字段处理
      *
-     * @param cw 类构建器
+     * @param cw         类构建器
      * @param fieldInfos 字段信息集合
-     * @param className 完整类名
+     * @param className  完整类名
      */
     protected void fieldHandle(ClassWriter cw, List<FieldInfo> fieldInfos, String className) {
         if (!CollectionUtils.isEmpty(fieldInfos)) {
@@ -197,9 +201,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 字段set方法
      *
-     * @param cw 类构建器
+     * @param cw        类构建器
      * @param fieldName 字段名称
-     * @param typeOf 字段类型
+     * @param typeOf    字段类型
      * @param className 完整类名
      */
     private void setMethodHandle(ClassWriter cw, String fieldName, String typeOf, String className) {
@@ -217,9 +221,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 字段get方法
      *
-     * @param cw 类构建器
+     * @param cw        类构建器
      * @param fieldName 字段名称
-     * @param typeOf 字段类型
+     * @param typeOf    字段类型
      * @param className 完整类名
      */
     private void getMethodHandle(ClassWriter cw, String fieldName, String typeOf, String className) {
@@ -241,9 +245,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * toString方法处理
      *
-     * @param cw 类构建器
+     * @param cw         类构建器
      * @param fieldInfos 字段信息集合
-     * @param className 完整类名
+     * @param className  完整类名
      */
     protected void toStringMethodHandle(ClassWriter cw, List<FieldInfo> fieldInfos, String className) {
         if (!CollectionUtils.isEmpty(fieldInfos)) {

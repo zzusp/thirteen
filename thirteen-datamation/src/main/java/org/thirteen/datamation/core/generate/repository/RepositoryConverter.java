@@ -26,9 +26,13 @@ public class RepositoryConverter extends AbstractClassConverter {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryConverter.class);
 
-    /** po类完整路径 */
+    /**
+     * po类完整路径
+     */
     private final String poClassName;
-    /** 主键的java类型 */
+    /**
+     * 主键的java类型
+     */
     private final String pkJavaType;
 
     public RepositoryConverter(Class<?> poClass) {

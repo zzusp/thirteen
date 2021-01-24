@@ -1,15 +1,18 @@
 package org.thirteen.datamation.model.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.thirteen.datamation.model.vo.DmTableVO;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Aaron.Sun
@@ -39,10 +42,14 @@ public class DmTablePO implements Serializable {
     private Byte status;
     @Column(name = "create_by", columnDefinition = "CHAR(32) COMMENT '创建人'")
     private String createBy;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "create_time", columnDefinition = "DATETIME COMMENT '创建时间'")
     private LocalDateTime createTime;
     @Column(name = "update_by", columnDefinition = "CHAR(32) COMMENT '更新人'")
     private String updateBy;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "update_time", columnDefinition = "DATETIME COMMENT '更新时间'")
     private LocalDateTime updateTime;
     @Column(name = "remark", columnDefinition = "VARCHAR(255) COMMENT '备注'")
@@ -51,5 +58,40 @@ public class DmTablePO implements Serializable {
     @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
     private Integer version;
     @Transient
-    private Set<DmColumnPO> columns = new HashSet<>();
+    private List<DmColumnPO> columns = new ArrayList<>();
+
+    /**
+     * vo转po
+     *
+     * @param vo vo对象
+     * @return po对象
+     */
+    public static DmTablePO convert(DmTableVO vo, DmTablePO po) {
+        if (vo == null) {
+            return null;
+        }
+        if (po == null) {
+            po = new DmTablePO();
+        }
+        po.setId(vo.getId());
+        po.setCode(vo.getCode());
+        po.setName(vo.getName());
+        po.setStatus(vo.getStatus());
+        if (po.getCreateBy() != null) {
+            po.setCreateBy(vo.getCreateBy());
+        }
+        if (po.getCreateTime() != null) {
+            po.setCreateTime(vo.getCreateTime());
+        }
+        if (po.getUpdateBy() != null) {
+            po.setUpdateBy(vo.getUpdateBy());
+        }
+        if (po.getUpdateTime() != null) {
+            po.setUpdateTime(vo.getUpdateTime());
+        }
+        po.setRemark(vo.getRemark());
+        po.setVersion(vo.getVersion());
+        po.setColumns(vo.getColumns());
+        return po;
+    }
 }

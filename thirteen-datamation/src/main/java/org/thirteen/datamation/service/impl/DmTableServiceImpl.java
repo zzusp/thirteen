@@ -20,7 +20,7 @@ import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.StringUtils;
 import org.thirteen.datamation.web.PagerResult;
 
-import java.util.HashSet;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,35 +45,37 @@ public class DmTableServiceImpl implements DmTableService {
     }
 
     @Override
-    public boolean isExist(DmSpecification dmSpecification) {
-        dmSpecification.setSorts(null);
-        dmSpecification.setPage(null);
-        dmSpecification.setLookups(null);
-        dmSpecification.setTable(null);
-        PagerResult<DmTableVO> pagerResult = findAllBySpecification(dmSpecification);
-        return pagerResult.isEmpty();
+    public boolean isExist(String code) {
+        PagerResult<DmTableVO> pagerResult = findAllBySpecification(DmSpecification.of().add(DmCriteria.equal(CODE, code)));
+        return !pagerResult.isEmpty();
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     @Override
     public void insert(DmTableVO model) {
-        if (StringUtils.isEmpty(model.getCode())) {
+        String tableCode = model.getCode();
+        if (StringUtils.isEmpty(tableCode)) {
             throw new DatamationException("编码不可为空");
         }
-        if (isExist(DmSpecification.of().add(DmCriteria.equal(CODE, model.getCode())))) {
-            throw new DatamationException("对应编码的数据已存在，编码：" + model.getCode());
+        if (isExist(tableCode)) {
+            throw new DatamationException("对应编码的数据已存在，编码：" + tableCode);
         }
         model.setId(null);
+        model.setCreateTime(LocalDateTime.now());
         // 保存table信息
-        dmTableRepository.save(model);
+        dmTableRepository.save(DmTablePO.convert(model, null));
         if (CollectionUtils.isNotEmpty(model.getColumns())) {
-            model.getColumns().forEach(v -> v.setId(null));
+            model.getColumns().forEach(v -> {
+                v.setId(null);
+                v.setTableCode(tableCode);
+                v.setCreateTime(LocalDateTime.now());
+            });
             // 级联保存列信息
             dmColumnRepository.saveAll(model.getColumns());
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     @Override
     public void update(DmTableVO model) {
         // 查询当前的table信息
@@ -88,14 +90,20 @@ public class DmTableServiceImpl implements DmTableService {
         }
         // 删除所有级联的列信息
         dmColumnRepository.deleteByTableCodeEquals(tableCode);
-        dmTableRepository.save(model);
+        model.setUpdateTime(LocalDateTime.now());
+        dmTableRepository.save(DmTablePO.convert(model, opt.get()));
         if (CollectionUtils.isNotEmpty(model.getColumns())) {
-            model.getColumns().forEach(v -> v.setId(null));
+            model.getColumns().forEach(v -> {
+                v.setId(null);
+                v.setTableCode(tableCode);
+                v.setCreateTime(LocalDateTime.now());
+            });
             // 级联保存列信息
             dmColumnRepository.saveAll(model.getColumns());
         }
     }
 
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     @Override
     public void delete(String id) {
         // 查询当前的table信息
@@ -108,6 +116,7 @@ public class DmTableServiceImpl implements DmTableService {
         dmTableRepository.delete(opt.get());
     }
 
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(List<String> ids) {
         List<DmTablePO> pos = dmTableRepository.findAllById(ids);
@@ -127,7 +136,8 @@ public class DmTableServiceImpl implements DmTableService {
         }
         DmTablePO po = opt.get();
         // 级联查询列信息
-        po.setColumns(new HashSet<>(dmColumnRepository.findByTableCodeEquals(po.getCode())));
+        po.setColumns(dmColumnRepository.findByTableCodeEquals(po.getCode(),
+            Sort.by(Sort.Direction.ASC, "orderNumber")));
         return DmTableVO.convert(po);
     }
 

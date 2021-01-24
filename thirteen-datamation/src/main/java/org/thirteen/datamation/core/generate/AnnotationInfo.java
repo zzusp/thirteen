@@ -14,11 +14,17 @@ public class AnnotationInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 注释类的类描述符。即注释路径 */
+    /**
+     * 注释类的类描述符。即注释路径
+     */
     private String desc;
-    /** true注释在运行时可见 */
+    /**
+     * true注释在运行时可见
+     */
     private Boolean visible;
-    /** 参数集合 */
+    /**
+     * 参数集合
+     */
     private List<Param> params;
 
     public AnnotationInfo() {
@@ -57,15 +63,21 @@ public class AnnotationInfo implements Serializable {
         this.params = params;
     }
 
-    /** 注释类的参数 */
+    /**
+     * 注释类的参数
+     */
     @SuppressWarnings("squid:S1948")
     static class Param implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        /** name */
+        /**
+         * name
+         */
         private String name;
-        /** value */
+        /**
+         * value
+         */
         private Object value;
 
         public Param(String name, Object value) {

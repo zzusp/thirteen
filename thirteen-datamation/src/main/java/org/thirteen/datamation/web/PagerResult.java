@@ -14,9 +14,13 @@ import java.util.List;
 public class PagerResult<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /** 总记录数 */
+    /**
+     * 总记录数
+     */
     private long total;
-    /** 结果集 */
+    /**
+     * 结果集
+     */
     private List<T> list;
 
     public static <T> PagerResult<T> empty() {

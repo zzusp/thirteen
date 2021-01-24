@@ -13,15 +13,25 @@ public class FieldInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 字段名称 */
+    /**
+     * 字段名称
+     */
     private String name;
-    /** 字段class */
+    /**
+     * 字段class
+     */
     private String fieldClass;
-    /** 字段的访问标志 */
+    /**
+     * 字段的访问标志
+     */
     private String access;
-    /** 字段类型 */
+    /**
+     * 字段类型
+     */
     private Byte columnType;
-    /** 类注解信息集合 */
+    /**
+     * 类注解信息集合
+     */
     private List<AnnotationInfo> annotationInfos;
 
     public String getName() {

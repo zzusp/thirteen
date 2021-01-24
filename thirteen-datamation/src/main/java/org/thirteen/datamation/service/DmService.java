@@ -23,7 +23,7 @@ public interface DmService {
      * 新增
      *
      * @param tableCode 表名
-     * @param model 对象
+     * @param model     对象
      */
     void insert(String tableCode, Map<String, Object> model);
 
@@ -31,7 +31,7 @@ public interface DmService {
      * 批量新增
      *
      * @param tableCode 表名
-     * @param models 对象集合
+     * @param models    对象集合
      */
     void insertAll(String tableCode, List<Map<String, Object>> models);
 
@@ -39,7 +39,7 @@ public interface DmService {
      * 根据主键更新，只更新属性值不为null的字段
      *
      * @param tableCode 表名
-     * @param model 对象
+     * @param model     对象
      */
     void update(String tableCode, Map<String, Object> model);
 
@@ -47,7 +47,7 @@ public interface DmService {
      * 根据主键批量更新，只更新属性值不为null的字段
      *
      * @param tableCode 表名
-     * @param models VO对象集合
+     * @param models    VO对象集合
      */
     void updateAll(String tableCode, List<Map<String, Object>> models);
 
@@ -55,7 +55,7 @@ public interface DmService {
      * 根据主键删除
      *
      * @param tableCode 表名
-     * @param id 主键
+     * @param id        主键
      */
     void delete(String tableCode, String id);
 
@@ -63,7 +63,7 @@ public interface DmService {
      * 根据主键批量删除，一条sql语句，效率高，推荐
      *
      * @param tableCode 表名
-     * @param ids 主键数组
+     * @param ids       主键数组
      */
     void deleteInBatch(String tableCode, List<String> ids);
 
@@ -71,7 +71,7 @@ public interface DmService {
      * 根据ID值获取一条数据
      *
      * @param tableCode 表名
-     * @param id 主键
+     * @param id        主键
      * @return VO对象
      */
     Map<String, Object> findById(String tableCode, String id);
@@ -80,7 +80,7 @@ public interface DmService {
      * 获取所有数据
      *
      * @param tableCode 表名
-     * @param ids 主键数组
+     * @param ids       主键数组
      * @return VO对象集合
      */
     List<Map<String, Object>> findByIds(String tableCode, List<String> ids);

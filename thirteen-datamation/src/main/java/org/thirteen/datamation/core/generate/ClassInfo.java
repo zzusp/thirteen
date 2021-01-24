@@ -18,19 +18,33 @@ public class ClassInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 类名 */
+    /**
+     * 类名
+     */
     private String className;
-    /** 类的访问标志 */
+    /**
+     * 类的访问标志
+     */
     private String access;
-    /** 签名（设置泛型值时使用） */
+    /**
+     * 签名（设置泛型值时使用）
+     */
     private String signature;
-    /** 父类名 */
+    /**
+     * 父类名
+     */
     private String superName;
-    /** 实现的接口 */
+    /**
+     * 实现的接口
+     */
     String[] interfaces;
-    /** 类注解信息集合 */
+    /**
+     * 类注解信息集合
+     */
     private List<AnnotationInfo> annotationInfos;
-    /** 类字段信息集合 */
+    /**
+     * 类字段信息集合
+     */
     private List<FieldInfo> fieldInfos;
 
     public ClassInfo() {

@@ -17,10 +17,10 @@ public interface DmTableService {
     /**
      * 检查数据是否已存在
      *
-     * @param dmSpecification 条件对象
+     * @param code 编码
      * @return 是否存在
      */
-    boolean isExist(DmSpecification dmSpecification);
+    boolean isExist(String code);
 
     /**
      * 新增

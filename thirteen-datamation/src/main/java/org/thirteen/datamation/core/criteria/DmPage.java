@@ -11,9 +11,13 @@ import java.io.Serializable;
 public class DmPage implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /** 当前页码，第一页页码为0 */
+    /**
+     * 当前页码，第一页页码为0
+     */
     private Integer pageNum;
-    /** 每页大小 */
+    /**
+     * 每页大小
+     */
     private Integer pageSize;
 
     public Integer getPageNum() {

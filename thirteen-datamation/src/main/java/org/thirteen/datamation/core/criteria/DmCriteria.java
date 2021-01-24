@@ -18,20 +18,38 @@ public class DmCriteria implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 字段 */
+    /**
+     * 字段
+     */
     protected String field;
-    /** 比较操作符，默认为equals */
+    /**
+     * 比较操作符，默认为equals
+     */
     protected String operator;
-    /** 字段对应值 */
+    /**
+     * 字段对应值
+     */
     protected Object value;
-    /** 字段对应值的集合，一般用于比较操作符in */
+    /**
+     * 字段对应值的集合，一般用于比较操作符in
+     */
     protected List<Object> values;
-    /** 与上个条件的关系 AND/OR，默认为AND */
+    /**
+     * 与上个条件的关系 AND/OR，默认为AND
+     */
     protected String relation;
-    /** 是否必选（字段对应值为空或null时，条件是否仍生效），默认为false */
+    /**
+     * 是否必选（字段对应值为空或null时，条件是否仍生效），默认为false
+     */
     protected boolean required;
-    /** 多个条件组成的条件组 */
+    /**
+     * 多个条件组成的条件组
+     */
     protected List<DmCriteria> criterias;
+
+    private DmCriteria() {
+        this.criterias = new ArrayList<>();
+    }
 
     public static DmCriteria of() {
         return new DmCriteria().operator(EQUAL).and().required(false).criteria(new ArrayList<>());

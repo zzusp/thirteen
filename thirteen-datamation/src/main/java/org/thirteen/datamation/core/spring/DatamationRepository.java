@@ -10,9 +10,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.thirteen.datamation.core.criteria.DmCriteria;
-import org.thirteen.datamation.core.criteria.DmQuery;
-import org.thirteen.datamation.core.criteria.DmSpecification;
 import org.thirteen.datamation.core.exception.DatamationException;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.DmClassLoader;
@@ -34,8 +31,6 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.uncapitalize;
-import static org.thirteen.datamation.core.DmCodes.DEL_FLAG;
-import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
 
 /**
  * @author Aaron.Sun
@@ -46,28 +41,46 @@ import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
 
 public class DatamationRepository implements ApplicationContextAware {
 
-    /** spring中，repository的bean定义中，属性entityManager的key */
+    /**
+     * spring中，repository的bean定义中，属性entityManager的key
+     */
     private static final String SPRING_ENTITY_MANAGER = "entityManager";
-    /** spring中，repository的bean定义中，属性transactionManager的key */
+    /**
+     * spring中，repository的bean定义中，属性transactionManager的key
+     */
     private static final String SPRING_TRANSACTION_MANAGER = "transactionManager";
 
-    /** 手动生成的bean统一添加前缀 */
+    /**
+     * 手动生成的bean统一添加前缀
+     */
     private static final String BEAN_NAME_PREFIX = "datamation:";
 
     private ApplicationContext applicationContext;
     private final DmTableRepository dmTableRepository;
     private final DmColumnRepository dmColumnRepository;
-    /** 记录repository bean定义的map。key为beanName，value为bean定义 */
+    /**
+     * 记录repository bean定义的map。key为beanName，value为bean定义
+     */
     Map<String, RootBeanDefinition> repositoryBeanDefinitionMap;
-    /** 实体管理工厂 */
+    /**
+     * 实体管理工厂
+     */
     private EntityManagerFactory emf;
-    /** 表名与po类的映射 */
+    /**
+     * 表名与po类的映射
+     */
     private Map<String, Class<?>> poMap;
-    /** 表名与类信息（用于生成po）对象的映射 */
+    /**
+     * 表名与类信息（用于生成po）对象的映射
+     */
     private Map<String, ClassInfo> poClassInfoMap;
-    /** 表名与repository类的映射 */
+    /**
+     * 表名与repository类的映射
+     */
     private Map<String, Class<?>> repositoryMap;
-    /** 表名与表名的关联的映射 */
+    /**
+     * 表名与表名的关联的映射
+     */
     private Map<String, Set<String>> tableRelationMap;
 
     public DatamationRepository(DmTableRepository dmTableRepository, DmColumnRepository dmColumnRepository) {
@@ -127,10 +140,10 @@ public class DatamationRepository implements ApplicationContextAware {
     /**
      * 检查两个表之间是否有关联
      *
-     * @param tableCode 表名
+     * @param tableCode      表名
      * @param otherTableCode 表名
-     * @param checkedTable 检查过的表名集合
-     * @param result 用来接收递归结果的对象
+     * @param checkedTable   检查过的表名集合
+     * @param result         用来接收递归结果的对象
      * @return 两表间所有的关联表（包含目标表表名，不包含源表表名，关联顺序为倒叙）
      */
     private LinkedList<String> checkRelation(String tableCode, String otherTableCode, Set<String> checkedTable,
@@ -280,7 +293,7 @@ public class DatamationRepository implements ApplicationContextAware {
      *
      * @param beanFactory bean工厂对象
      * @param classLoader 类加载器
-     * @param entities 实体类集合
+     * @param entities    实体类集合
      * @return EntityManagerFactory
      */
     private EntityManagerFactory createEntityManagerFactory(DefaultListableBeanFactory beanFactory,
@@ -309,8 +322,8 @@ public class DatamationRepository implements ApplicationContextAware {
     /**
      * 注册repository到spring容器
      *
-     * @param beanFactory bean工厂对象
-     * @param emf 实体管理工厂
+     * @param beanFactory                 bean工厂对象
+     * @param emf                         实体管理工厂
      * @param repositoryBeanDefinitionMap 记录repository bean定义的map。key为beanName，value为bean定义
      */
     private void registerRepository(DefaultListableBeanFactory beanFactory, EntityManagerFactory emf,

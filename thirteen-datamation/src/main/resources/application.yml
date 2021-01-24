@@ -1,10 +1,48 @@
+server:
+  # 端口
+  port: 8771
+
 # spring 配置
 spring:
+  application:
+    name: thirteen-dm
   http:
     encoding:
       force: true
       charset: UTF-8
       enabled: true
+  # zipkin配置
+  zipkin:
+    # 必须http://开头。否则无法生成zipkin记录
+    base-url: http://39.106.150.132:9411
+  # 探测器配置
+  sleuth:
+    sampler:
+      # 取样率。1：所有请求都取样；0.5：仅对一半请求取样
+      probability: 1
+  # spring cloud nacos配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  # redis 配置
+  redis:
+    # 地址
+    host: 127.0.0.1
+    # 端口
+    port: 6379
+    # 密码
+    # password:
+    jedis:
+      pool:
+        # 最大空闲连接数
+        max-idle: 30
+        # 最大连接数
+        max-active: 100
+        # 获取连接时的最大等待毫秒数(如果设置为阻塞时BlockWhenExhausted),如果超时就抛异常, 小于零:阻塞不确定的时间,  默认-1
+        max-wait: -1ms
+    # 超时时间
+    timeout: 100000ms
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
