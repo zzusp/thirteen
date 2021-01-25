@@ -2,6 +2,7 @@ package org.thirteen.datamation;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.thirteen.datamation.core.spring.DatamationRepository;
 import org.thirteen.datamation.core.spring.DatamationRepositoryFactoryBean;
@@ -15,6 +16,7 @@ import org.thirteen.datamation.repository.DmTableRepository;
  * @modified By
  */
 @SpringBootApplication
+@EnableDiscoveryClient
 public class DatamationAppilcation {
 
     public static void main(String[] args) {
