@@ -109,4 +109,12 @@ public interface DmService {
      */
     PagerResult<Map<String, Object>> findAllBySpecification(DmSpecification dmSpecification);
 
+    /**
+     * 检查数据是否已存在
+     *
+     * @param dmSpecification 条件基类
+     * @return 是否存在
+     */
+    boolean isExist(DmSpecification dmSpecification);
+
 }

@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
-import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_DEL_FLAG;
-import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_ID;
+import static org.thirteen.datamation.core.DmCodes.*;
 
 /**
  * @author Aaron.Sun
@@ -57,17 +56,7 @@ public class ClassInfo implements Serializable {
      * @return 实体类主键字段，驼峰命名形式
      */
     public String getIdField() {
-        if (isEmpty(fieldInfos)) {
-            return null;
-        }
-        String id = null;
-        for (FieldInfo fieldInfo : fieldInfos) {
-            if (COLUMN_TYPE_ID.equals(fieldInfo.getColumnType())) {
-                id = fieldInfo.getName();
-                break;
-            }
-        }
-        return id;
+        return getFieldByColumnType(COLUMN_TYPE_ID);
     }
 
     /**
@@ -76,17 +65,39 @@ public class ClassInfo implements Serializable {
      * @return 实体类删除标识字段，驼峰命名形式
      */
     public String getDelFlagField() {
+        return getFieldByColumnType(COLUMN_TYPE_DEL_FLAG);
+    }
+
+    /**
+     * 获取实体类版本号字段，驼峰命名形式
+     *
+     * @return 实体类版本号字段，驼峰命名形式
+     */
+    public String getVersionField() {
+        return getFieldByColumnType(COLUMN_TYPE_VERSION);
+    }
+
+    /**
+     * 根据字段类型，获取字段名称
+     *
+     * @param columnType 字段类型
+     * @return 字段名称
+     */
+    private String getFieldByColumnType(Byte columnType) {
+        if (columnType == null) {
+            return null;
+        }
         if (isEmpty(fieldInfos)) {
             return null;
         }
-        String delFlag = null;
+        String field = null;
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (COLUMN_TYPE_DEL_FLAG.equals(fieldInfo.getColumnType())) {
-                delFlag = fieldInfo.getName();
+            if (columnType.equals(fieldInfo.getColumnType())) {
+                field = fieldInfo.getName();
                 break;
             }
         }
-        return delFlag;
+        return field;
     }
 
     /**

@@ -77,16 +77,16 @@ public class DmTablePO implements Serializable {
         po.setCode(vo.getCode());
         po.setName(vo.getName());
         po.setStatus(vo.getStatus());
-        if (po.getCreateBy() != null) {
+        if (vo.getCreateBy() != null) {
             po.setCreateBy(vo.getCreateBy());
         }
-        if (po.getCreateTime() != null) {
+        if (vo.getCreateTime() != null) {
             po.setCreateTime(vo.getCreateTime());
         }
-        if (po.getUpdateBy() != null) {
+        if (vo.getUpdateBy() != null) {
             po.setUpdateBy(vo.getUpdateBy());
         }
-        if (po.getUpdateTime() != null) {
+        if (vo.getUpdateTime() != null) {
             po.setUpdateTime(vo.getUpdateTime());
         }
         po.setRemark(vo.getRemark());

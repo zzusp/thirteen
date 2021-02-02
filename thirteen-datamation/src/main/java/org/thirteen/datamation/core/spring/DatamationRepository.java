@@ -41,18 +41,12 @@ import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
 public class DatamationRepository implements ApplicationContextAware {
 
-    /**
-     * spring中，repository的bean定义中，属性entityManager的key
-     */
+    /** spring中，repository的bean定义中，属性entityManager的key */
     private static final String SPRING_ENTITY_MANAGER = "entityManager";
-    /**
-     * spring中，repository的bean定义中，属性transactionManager的key
-     */
+    /** spring中，repository的bean定义中，属性transactionManager的key */
     private static final String SPRING_TRANSACTION_MANAGER = "transactionManager";
 
-    /**
-     * 手动生成的bean统一添加前缀
-     */
+    /** 手动生成的bean统一添加前缀 */
     private static final String BEAN_NAME_PREFIX = "datamation:";
 
     private ApplicationContext applicationContext;
@@ -78,15 +72,10 @@ public class DatamationRepository implements ApplicationContextAware {
      * 表名与repository类的映射
      */
     private Map<String, Class<?>> repositoryMap;
-    /**
-     * 表名与表名的关联的映射
-     */
-    private Map<String, Set<String>> tableRelationMap;
 
     public DatamationRepository(DmTableRepository dmTableRepository, DmColumnRepository dmColumnRepository) {
         this.dmTableRepository = dmTableRepository;
         this.dmColumnRepository = dmColumnRepository;
-        ;
     }
 
     /**
@@ -137,42 +126,6 @@ public class DatamationRepository implements ApplicationContextAware {
         return poClassInfoMap.get(tableCode);
     }
 
-    /**
-     * 检查两个表之间是否有关联
-     *
-     * @param tableCode      表名
-     * @param otherTableCode 表名
-     * @param checkedTable   检查过的表名集合
-     * @param result         用来接收递归结果的对象
-     * @return 两表间所有的关联表（包含目标表表名，不包含源表表名，关联顺序为倒叙）
-     */
-    private LinkedList<String> checkRelation(String tableCode, String otherTableCode, Set<String> checkedTable,
-                                             LinkedList<String> result) {
-        if (CollectionUtils.isEmpty(tableRelationMap)) {
-            return new LinkedList<>();
-        }
-        Set<String> relations = tableRelationMap.get(tableCode);
-        // 判断是否关联
-        if (relations.contains(otherTableCode)) {
-            result.add(otherTableCode);
-            return result;
-        }
-        for (String relation : relations) {
-            // 跳过已检查过的数据
-            if (checkedTable.contains(relation)) {
-                continue;
-            }
-            checkedTable.add(relation);
-            // 递归调用，判断是否找到
-            if (!org.springframework.util.CollectionUtils.isEmpty(checkRelation(relation, otherTableCode, checkedTable, result))) {
-                // 如果找到，设置返回结果
-                result.add(relation);
-                return result;
-            }
-        }
-        return new LinkedList<>();
-    }
-
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -187,7 +140,6 @@ public class DatamationRepository implements ApplicationContextAware {
         poMap = new HashMap<>();
         poClassInfoMap = new HashMap<>();
         repositoryMap = new HashMap<>();
-        tableRelationMap = new HashMap<>();
         // 手动关闭emf
         if (emf != null && emf.isOpen()) {
             emf.close();

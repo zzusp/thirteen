@@ -68,7 +68,6 @@ public class DmTableServiceImpl implements DmTableService {
             model.getColumns().forEach(v -> {
                 v.setId(null);
                 v.setTableCode(tableCode);
-                v.setCreateTime(LocalDateTime.now());
             });
             // 级联保存列信息
             dmColumnRepository.saveAll(model.getColumns());
@@ -96,7 +95,6 @@ public class DmTableServiceImpl implements DmTableService {
             model.getColumns().forEach(v -> {
                 v.setId(null);
                 v.setTableCode(tableCode);
-                v.setCreateTime(LocalDateTime.now());
             });
             // 级联保存列信息
             dmColumnRepository.saveAll(model.getColumns());

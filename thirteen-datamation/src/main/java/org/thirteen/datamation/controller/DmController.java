@@ -30,8 +30,8 @@ public class DmController {
     }
 
     @ApiOperation(value = "刷新", notes = "刷新", response = ResponseResult.class)
-    @GetMapping(value = "/refresh ")
-    public ResponseResult<Map<String, Object>> refresh() {
+    @GetMapping(value = "/refresh")
+    public ResponseResult<Object> refresh() {
         dmService.refresh();
         return ResponseResult.ok();
     }

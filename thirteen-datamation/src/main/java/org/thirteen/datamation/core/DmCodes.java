@@ -36,6 +36,7 @@ public class DmCodes {
      * 字段类型：版本号字段
      */
     public static final Byte COLUMN_TYPE_VERSION = 2;
+
     /**
      * 删除标识：未删除
      */

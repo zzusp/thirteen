@@ -1,15 +1,12 @@
 package org.thirteen.datamation.model.po;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * @author Aaron.Sun
@@ -51,21 +48,6 @@ public class DmColumnPO implements Serializable {
     private Integer orderNumber;
     @Column(name = "status", columnDefinition = "TINYINT(4) NOT NULL COMMENT '状态 0：禁用；1启用'")
     private Byte status;
-    @Column(name = "create_by", columnDefinition = "CHAR(32) COMMENT '创建人'")
-    private String createBy;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column(name = "create_time", columnDefinition = "DATETIME COMMENT '创建时间'")
-    private LocalDateTime createTime;
-    @Column(name = "update_by", columnDefinition = "CHAR(32) COMMENT '更新人'")
-    private String updateBy;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column(name = "update_time", columnDefinition = "DATETIME COMMENT '更新时间'")
-    private LocalDateTime updateTime;
     @Column(name = "remark", columnDefinition = "VARCHAR(255) COMMENT '备注'")
     private String remark;
-    @Version
-    @Column(name = "version", columnDefinition = "INT NOT NULL COMMENT '版本号'")
-    private Integer version;
 }

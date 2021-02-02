@@ -6,10 +6,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thirteen.datamation.core.criteria.*;
+import org.thirteen.datamation.core.exception.DatamationException;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.spring.DatamationRepository;
+import org.thirteen.datamation.model.vo.DmTableVO;
 import org.thirteen.datamation.service.DmService;
 import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.JsonUtil;
@@ -18,12 +21,13 @@ import org.thirteen.datamation.web.PagerResult;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.join;
-import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_DELETE;
-import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
+import static org.thirteen.datamation.core.DmCodes.*;
 
 /**
  * @author Aaron.Sun
@@ -47,27 +51,78 @@ public class DmServiceImpl implements DmService {
         datamationRepository.buildDatamationRepository();
     }
 
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
     public void insert(String tableCode, Map<String, Object> model) {
         getRepository(tableCode).save(mapToPo(tableCode, model));
     }
 
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
     public void insertAll(String tableCode, List<Map<String, Object>> models) {
         getRepository(tableCode).saveAll(mapToPo(tableCode, models));
     }
 
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
     public void update(String tableCode, Map<String, Object> model) {
-        getRepository(tableCode).save(mapToPo(tableCode, model));
+        // 主键字段
+        String idField = getClassInfo(tableCode).getIdField();
+        if (idField == null) {
+            throw new DatamationException("使用update方法时，必须设置主键列");
+        }
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        // 版本号字段
+        String versionField = getClassInfo(tableCode).getVersionField();
+        if (versionField != null && model.get(versionField) == null) {
+            throw new DatamationException("请指定更新数据的版本");
+        }
+        // 查询参数
+        Object[] params = new Object[model.size() + 1];
+        // 动态sql
+        StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET", getClassInfo(tableCode).getClassName()));
+        // 条件序号
+        int i = 1;
+        List<String> equations = new ArrayList<>();
+        // 动态拼接条件
+        for (Map.Entry<String,Object> entry : model.entrySet()) {
+            if (!idField.equals(entry.getKey())) {
+                equations.add(String.format(" %s = ?%d", entry.getKey(), i));
+                if (versionField != null && versionField.equals(entry.getKey())) {
+                    params[i] = ((Integer) entry.getValue()) + 1;
+                } else {
+                    params[i] = entry.getValue();
+                }
+                i++;
+            }
+        }
+        sql.append(StringUtils.join(equations, ","));
+        sql.append(String.format(" WHERE %s = ?%d", idField, i + 1));
+        params[i + 1] = model.get(idField);
+        // 如果逻辑删除字段
+        if (delFlag != null) {
+            sql.append(String.format(" AND %s = ?%d", delFlag, i + 2));
+            params[i + 2] = DEL_FLAG_NORMAL;
+        }
+        // 如果版本号字段
+        if (versionField != null) {
+            sql.append(String.format(" AND %s = ?%d", versionField, i + 3));
+            params[i + 3] = model.get(versionField);
+        }
+        // 创建实体管理器
+        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+        createQuery(em, sql.toString(), params).executeUpdate();
     }
 
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
     public void updateAll(String tableCode, List<Map<String, Object>> models) {
         getRepository(tableCode).saveAll(mapToPo(tableCode, models));
     }
 
     @SuppressWarnings("unchecked")
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
     public void delete(String tableCode, String id) {
         // 逻辑删除标志字段
@@ -81,16 +136,13 @@ public class DmServiceImpl implements DmService {
                 getClassInfo(tableCode).getIdField());
             // 创建实体管理器
             EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
-            // 开启事务
-            em.getTransaction().begin();
             createQuery(em, sql, DEL_FLAG_DELETE, id).executeUpdate();
-            // 提交事务
-            em.getTransaction().commit();
         } else {
             getRepository(tableCode).deleteById(id);
         }
     }
 
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(String tableCode, List<String> ids) {
         // 查询参数
@@ -217,6 +269,12 @@ public class DmServiceImpl implements DmService {
             return PagerResult.of(lookupHandle(dmSpecification.getLookups(), poToMap(getRepository(table).findAll(sort))));
         }
         return PagerResult.of(lookupHandle(dmSpecification.getLookups(), poToMap(getRepository(table).findAll())));
+    }
+
+    @Override
+    public boolean isExist(DmSpecification dmSpecification) {
+        PagerResult<Map<String, Object>> pagerResult = findAllBySpecification(dmSpecification);
+        return !pagerResult.isEmpty();
     }
 
     /**
