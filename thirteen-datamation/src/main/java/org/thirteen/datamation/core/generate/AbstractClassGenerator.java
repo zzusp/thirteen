@@ -26,6 +26,8 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     private static final Logger logger = LoggerFactory.getLogger(AbstractClassGenerator.class);
 
     private static final String TYPEOF_BOOLEAN = "Z";
+    private static final char A = 'a';
+    private static final char Z = 'z';
     /**
      * 默认的class生成路径
      */
@@ -207,7 +209,14 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * @param className 完整类名
      */
     private void setMethodHandle(ClassWriter cw, String fieldName, String typeOf, String className) {
-        String setMethodName = "set" + StringUtils.capitalize(fieldName);
+        String setMethodName = "set";
+        // 判断首字母是否不需要大写
+        boolean flag = fieldName.length() > 1 && (fieldName.charAt(1) < A || fieldName.charAt(1) > Z);
+        if (flag) {
+            setMethodName += fieldName;
+        } else {
+            setMethodName += StringUtils.capitalize(fieldName);
+        }
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, setMethodName, "(" + typeOf + ")V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -232,7 +241,13 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
         if (TYPEOF_BOOLEAN.equals(typeOf)) {
             getMethodName = "is";
         }
-        getMethodName = getMethodName + StringUtils.capitalize(fieldName);
+        // 判断首字母是否不需要大写
+        boolean flag = fieldName.length() > 1 && (fieldName.charAt(1) < A || fieldName.charAt(1) > Z);
+        if (flag) {
+            getMethodName += fieldName;
+        } else {
+            getMethodName += StringUtils.capitalize(fieldName);
+        }
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, getMethodName, "()" + typeOf, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);

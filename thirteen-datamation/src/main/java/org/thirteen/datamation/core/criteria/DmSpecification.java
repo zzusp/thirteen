@@ -14,18 +14,28 @@ import java.util.List;
 public class DmSpecification implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /** 查询表 */
-    private String table;
-    /** 条件参数对象 */
-    private List<DmCriteria> criterias;
-    /** 关联查询参数对象 */
-    private List<DmLookup> lookups;
-    /** 分页参数对象 */
-    private DmPage page;
-    /** 排序参数对象集合 */
-    private List<DmSort> sorts;
+    /**
+     * 查询表
+     */
+    protected String table;
+    /**
+     * 条件参数对象
+     */
+    protected List<DmCriteria> criterias;
+    /**
+     * 关联查询参数对象
+     */
+    protected List<DmLookup> lookups;
+    /**
+     * 分页参数对象
+     */
+    protected DmPage page;
+    /**
+     * 排序参数对象集合
+     */
+    protected List<DmSort> sorts;
 
-    private DmSpecification() {
+    protected DmSpecification() {
         this.criterias = new ArrayList<>();
         this.lookups = new ArrayList<>();
         this.sorts = new ArrayList<>();

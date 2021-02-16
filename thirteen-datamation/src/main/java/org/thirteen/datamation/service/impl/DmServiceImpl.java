@@ -12,7 +12,6 @@ import org.thirteen.datamation.core.exception.DatamationException;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
 import org.thirteen.datamation.core.spring.DatamationRepository;
-import org.thirteen.datamation.model.vo.DmTableVO;
 import org.thirteen.datamation.service.DmService;
 import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.JsonUtil;
@@ -21,13 +20,12 @@ import org.thirteen.datamation.web.PagerResult;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.join;
-import static org.thirteen.datamation.core.DmCodes.*;
+import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_DELETE;
+import static org.thirteen.datamation.core.DmCodes.DEL_FLAG_NORMAL;
 
 /**
  * @author Aaron.Sun
@@ -53,19 +51,95 @@ public class DmServiceImpl implements DmService {
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
-    public void insert(String tableCode, Map<String, Object> model) {
+    public void insert(DmInsert dmInsert) {
+        String tableCode = dmInsert.getTable();
+        Map<String, Object> model = dmInsert.getModel();
+        if (CollectionUtils.isNotEmpty(dmInsert.getLookups())) {
+            DmInsert dmSubInsert;
+            for (DmLookup dmLookup : dmInsert.getLookups()) {
+                dmSubInsert = new DmInsert();
+                dmSubInsert.setTable(dmLookup.getFrom());
+                if (dmLookup.getUnwind() == null || !dmLookup.getUnwind()) {
+                    dmSubInsert.setModels((List<Map<String, Object>>) model.get(dmLookup.getAs()));
+                    if (CollectionUtils.isNotEmpty(dmSubInsert.getModels())) {
+                        for (Map<String, Object> sub : dmSubInsert.getModels()) {
+                            sub.put(dmLookup.getForeignField(), model.get(dmLookup.getLocalField()));
+                        }
+                        this.insertAll(dmSubInsert);
+                    }
+                } else {
+                    dmSubInsert.setModel((Map<String, Object>) model.get(dmLookup.getAs()));
+                    dmSubInsert.getModel().put(dmLookup.getForeignField(), model.get(dmLookup.getLocalField()));
+                    this.insert(dmSubInsert);
+                }
+            }
+        }
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        if (delFlag != null) {
+            // 设置删除标识
+            dmInsert.getModel().put(delFlag, DEL_FLAG_NORMAL);
+        }
         getRepository(tableCode).save(mapToPo(tableCode, model));
     }
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
-    public void insertAll(String tableCode, List<Map<String, Object>> models) {
+    public void insertAll(DmInsert dmInsert) {
+        List<Map<String, Object>> models = dmInsert.getModels();
+        if (CollectionUtils.isEmpty(models)) {
+            return;
+        }
+        String tableCode = dmInsert.getTable();
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        if (delFlag != null) {
+            // 设置删除标识
+            for (Map<String, Object> model : models) {
+                model.put(delFlag, DEL_FLAG_NORMAL);
+            }
+        }
         getRepository(tableCode).saveAll(mapToPo(tableCode, models));
     }
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
-    public void update(String tableCode, Map<String, Object> model) {
+    public void update(DmUpdate dmUpdate) {
+        String tableCode = dmUpdate.getTable();
+        Map<String, Object> model = dmUpdate.getModel();
+        // 处理级联
+        if (CollectionUtils.isNotEmpty(dmUpdate.getLookups())) {
+            DmInsert dmSubInsert;
+            String localField;
+            String foreignField;
+            for (DmLookup dmLookup : dmUpdate.getLookups()) {
+                localField = dmLookup.getLocalField();
+                foreignField = dmLookup.getForeignField();
+                // 删除旧的关联
+                this.delete(model.get(localField), dmLookup);
+                dmSubInsert = new DmInsert();
+                dmSubInsert.setTable(dmLookup.getFrom());
+                if (dmLookup.getUnwind() == null || !dmLookup.getUnwind()) {
+                    dmSubInsert.setModels((List<Map<String, Object>>) model.remove(dmLookup.getAs()));
+                    if (CollectionUtils.isNotEmpty(dmSubInsert.getModels())) {
+                        for (Map<String, Object> sub : dmSubInsert.getModels()) {
+                            sub.put(foreignField, model.get(localField));
+                        }
+                        this.insertAll(dmSubInsert);
+                    }
+                } else {
+                    dmSubInsert.setModel((Map<String, Object>) model.remove(dmLookup.getAs()));
+                    if (dmSubInsert.getModel() != null) {
+                        dmSubInsert.getModel().put(foreignField, model.get(localField));
+                        this.insert(dmSubInsert);
+                    }
+                }
+            }
+        }
+        // 通过转换为po实现自动的类型转换，如前端传的为数值类型，后端入库需要byte类型
+        Set<String> keys = new HashSet<>(model.keySet());
+        model = poToMap(mapToPo(tableCode, model));
+        model.keySet().removeIf(s -> !keys.contains(s));
         // 主键字段
         String idField = getClassInfo(tableCode).getIdField();
         if (idField == null) {
@@ -73,58 +147,91 @@ public class DmServiceImpl implements DmService {
         }
         // 逻辑删除标志字段
         String delFlag = getClassInfo(tableCode).getDelFlagField();
+        if (delFlag != null) {
+            model.remove(delFlag);
+        }
         // 版本号字段
         String versionField = getClassInfo(tableCode).getVersionField();
         if (versionField != null && model.get(versionField) == null) {
             throw new DatamationException("请指定更新数据的版本");
         }
         // 查询参数
-        Object[] params = new Object[model.size() + 1];
+        List<Object> params = new ArrayList<>();
         // 动态sql
         StringBuilder sql = new StringBuilder(String.format("UPDATE %s SET", getClassInfo(tableCode).getClassName()));
         // 条件序号
         int i = 1;
         List<String> equations = new ArrayList<>();
         // 动态拼接条件
-        for (Map.Entry<String,Object> entry : model.entrySet()) {
+        for (Map.Entry<String, Object> entry : model.entrySet()) {
             if (!idField.equals(entry.getKey())) {
                 equations.add(String.format(" %s = ?%d", entry.getKey(), i));
                 if (versionField != null && versionField.equals(entry.getKey())) {
-                    params[i] = ((Integer) entry.getValue()) + 1;
+                    params.add(((Integer) entry.getValue()) + 1);
                 } else {
-                    params[i] = entry.getValue();
+                    params.add(entry.getValue());
                 }
                 i++;
             }
         }
         sql.append(StringUtils.join(equations, ","));
-        sql.append(String.format(" WHERE %s = ?%d", idField, i + 1));
-        params[i + 1] = model.get(idField);
+        sql.append(String.format(" WHERE %s = ?%d", idField, i));
+        params.add(model.get(idField));
         // 如果逻辑删除字段
         if (delFlag != null) {
-            sql.append(String.format(" AND %s = ?%d", delFlag, i + 2));
-            params[i + 2] = DEL_FLAG_NORMAL;
+            sql.append(String.format(" AND %s = ?%d", delFlag, i + 1));
+            params.add(DEL_FLAG_NORMAL);
         }
         // 如果版本号字段
         if (versionField != null) {
-            sql.append(String.format(" AND %s = ?%d", versionField, i + 3));
-            params[i + 3] = model.get(versionField);
+            sql.append(String.format(" AND %s = ?%d", versionField, i + 2));
+            params.add(model.get(versionField));
         }
         // 创建实体管理器
         EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
-        createQuery(em, sql.toString(), params).executeUpdate();
+        em.getTransaction().begin();
+        createQuery(em, sql.toString(), params.toArray()).executeUpdate();
+        em.getTransaction().commit();
     }
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
-    public void updateAll(String tableCode, List<Map<String, Object>> models) {
-        getRepository(tableCode).saveAll(mapToPo(tableCode, models));
+    public void updateAll(DmUpdate dmUpdate) {
+        String tableCode = dmUpdate.getTable();
+        getRepository(tableCode).saveAll(mapToPo(tableCode, dmUpdate.getModels()));
     }
 
     @SuppressWarnings("unchecked")
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
-    public void delete(String tableCode, String id) {
+    public void delete(DmDelete dmDelete) {
+        String tableCode = dmDelete.getTable();
+        Object id = dmDelete.getId();
+        // 判断是否需要级联删除
+        if (CollectionUtils.isNotEmpty(dmDelete.getLookups())) {
+            String idField = getClassInfo(tableCode).getIdField();
+            boolean searchFlag = false;
+            for (DmLookup dmLookup : dmDelete.getLookups()) {
+                if (!idField.equals(dmLookup.getLocalField())) {
+                    searchFlag = true;
+                    break;
+                }
+            }
+            if (searchFlag) {
+                Map<String, Object> model = this.findById(tableCode, id);
+                if (model != null) {
+                    for (DmLookup dmLookup : dmDelete.getLookups()) {
+                        // 删除旧的关联
+                        this.delete(model.get(dmLookup.getLocalField()), dmLookup);
+                    }
+                }
+            } else {
+                for (DmLookup dmLookup : dmDelete.getLookups()) {
+                    // 删除旧的关联
+                    this.delete(id, dmLookup);
+                }
+            }
+        }
         // 逻辑删除标志字段
         String delFlag = getClassInfo(tableCode).getDelFlagField();
         // 判断是否包含删除标识字段
@@ -136,7 +243,9 @@ public class DmServiceImpl implements DmService {
                 getClassInfo(tableCode).getIdField());
             // 创建实体管理器
             EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+            em.getTransaction().begin();
             createQuery(em, sql, DEL_FLAG_DELETE, id).executeUpdate();
+            em.getTransaction().commit();
         } else {
             getRepository(tableCode).deleteById(id);
         }
@@ -144,7 +253,38 @@ public class DmServiceImpl implements DmService {
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
-    public void deleteInBatch(String tableCode, List<String> ids) {
+    public void deleteInBatch(DmDelete dmDelete) {
+        String tableCode = dmDelete.getTable();
+        List<Object> ids = dmDelete.getIds();
+        // 判断是否需要级联删除
+        if (CollectionUtils.isNotEmpty(dmDelete.getLookups())) {
+            String idField = getClassInfo(tableCode).getIdField();
+            boolean searchFlag = true;
+            for (DmLookup dmLookup : dmDelete.getLookups()) {
+                if (!idField.equals(dmLookup.getLocalField())) {
+                    searchFlag = false;
+                    break;
+                }
+            }
+            if (searchFlag) {
+                List<Map<String, Object>> models = this.findByIds(tableCode, ids);
+                if (CollectionUtils.isNotEmpty(models)) {
+                    for (Map<String, Object> model : models) {
+                        for (DmLookup dmLookup : dmDelete.getLookups()) {
+                            // 删除旧的关联
+                            this.delete(model.get(dmLookup.getLocalField()), dmLookup);
+                        }
+                    }
+                }
+            } else {
+                for (Object id : ids) {
+                    for (DmLookup dmLookup : dmDelete.getLookups()) {
+                        // 删除旧的关联
+                        this.delete(id, dmLookup);
+                    }
+                }
+            }
+        }
         // 查询参数
         Object[] params;
         // 查询语句
@@ -187,14 +327,69 @@ public class DmServiceImpl implements DmService {
         em.getTransaction().commit();
     }
 
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
-    public Map<String, Object> findById(String tableCode, String id) {
+    public void deleteAll(DmDelete dmDelete) {
+        String tableCode = dmDelete.getTable();
+        // 判断是否需要级联删除
+        if (CollectionUtils.isNotEmpty(dmDelete.getLookups())) {
+            PagerResult<Map<String, Object>> page = this.findAll(tableCode);
+            if (CollectionUtils.isNotEmpty(page.getList())) {
+                for (Map<String, Object> model : page.getList()) {
+                    for (DmLookup dmLookup : dmDelete.getLookups()) {
+                        // 删除旧的关联
+                        this.delete(model.get(dmLookup.getLocalField()), dmLookup);
+                    }
+                }
+            }
+        }
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        // 判断是否包含删除标识字段
+        if (delFlag != null) {
+            // 查询语句
+            String sql = String.format("UPDATE %s SET %s = ?1", getClassInfo(tableCode).getClassName(), delFlag);
+            // 创建实体管理器
+            EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+            em.getTransaction().begin();
+            createQuery(em, sql, DEL_FLAG_DELETE).executeUpdate();
+            em.getTransaction().commit();
+        } else {
+            getRepository(tableCode).deleteAll();
+        }
+    }
+
+    @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
+    @Override
+    public void delete(Object value, DmLookup dmLookup) {
+        String tableCode = dmLookup.getFrom();
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        // 创建实体管理器
+        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        // 判断是否包含删除标识字段
+        if (delFlag != null) {
+            // 查询语句
+            String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
+                getClassInfo(tableCode).getClassName(), delFlag, dmLookup.getForeignField());
+            createQuery(em, sql, DEL_FLAG_DELETE, value).executeUpdate();
+        } else {
+            String sql = String.format("DELETE %s WHERE %s = ?1",
+                getClassInfo(tableCode).getClassName(), dmLookup.getForeignField());
+            createQuery(em, sql, value).executeUpdate();
+        }
+        em.getTransaction().commit();
+    }
+
+    @Override
+    public Map<String, Object> findById(String tableCode, Object id) {
         return findOneBySpecification(DmSpecification.of(tableCode)
             .add(DmCriteria.equal(getClassInfo(tableCode).getIdField(), id)));
     }
 
     @Override
-    public List<Map<String, Object>> findByIds(String tableCode, List<String> ids) {
+    public List<Map<String, Object>> findByIds(String tableCode, List<Object> ids) {
         return findAllBySpecification(DmSpecification.of(tableCode)
             .add(DmCriteria.in(getClassInfo(tableCode).getIdField(), ids))).getList();
     }
@@ -343,7 +538,7 @@ public class DmServiceImpl implements DmService {
             foreignMap = foreignResult.stream().collect(Collectors.groupingBy(v -> v.get(finalForeignField), Collectors.toList()));
             // 设置查询结果到对应的结果集
             for (Map<String, Object> data : dataList) {
-                data.put(as, foreignMap.get(localField));
+                data.put(as, foreignMap.get(data.get(localField)));
             }
         }
         return dataList;
@@ -409,6 +604,9 @@ public class DmServiceImpl implements DmService {
      * @return po class集合
      */
     private List<Object> mapToPo(String tableCode, List<Map<String, Object>> maps) {
+        if (CollectionUtils.isEmpty(maps)) {
+            return new ArrayList<>();
+        }
         List<Object> objects = new ArrayList<>();
         Class<?> poClass = datamationRepository.getPoClass(tableCode);
         for (Map<String, Object> map : maps) {
@@ -440,6 +638,9 @@ public class DmServiceImpl implements DmService {
      * @return map
      */
     private List<Map<String, Object>> poToMap(List<?> models) {
+        if (CollectionUtils.isEmpty(models)) {
+            return new ArrayList<>();
+        }
         List<Map<String, Object>> maps = new ArrayList<>();
         for (Object model : models) {
             maps.add(poToMap(model));

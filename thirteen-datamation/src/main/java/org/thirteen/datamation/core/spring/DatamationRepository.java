@@ -41,12 +41,18 @@ import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
 public class DatamationRepository implements ApplicationContextAware {
 
-    /** spring中，repository的bean定义中，属性entityManager的key */
+    /**
+     * spring中，repository的bean定义中，属性entityManager的key
+     */
     private static final String SPRING_ENTITY_MANAGER = "entityManager";
-    /** spring中，repository的bean定义中，属性transactionManager的key */
+    /**
+     * spring中，repository的bean定义中，属性transactionManager的key
+     */
     private static final String SPRING_TRANSACTION_MANAGER = "transactionManager";
 
-    /** 手动生成的bean统一添加前缀 */
+    /**
+     * 手动生成的bean统一添加前缀
+     */
     private static final String BEAN_NAME_PREFIX = "datamation:";
 
     private ApplicationContext applicationContext;

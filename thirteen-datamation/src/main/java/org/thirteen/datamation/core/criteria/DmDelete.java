@@ -1,18 +1,16 @@
 package org.thirteen.datamation.core.criteria;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Aaron.Sun
- * @description 查询入参对象基类
- * @date Created in 14:16 2021/2/2
+ * @description 删除参数对象
+ * @date Created in 16:10 2021/2/13
  * @modified by
  */
 @SuppressWarnings("squid:S1948")
-public class DmInsert implements Serializable {
+public class DmDelete implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,21 +19,19 @@ public class DmInsert implements Serializable {
      */
     private String table;
     /**
-     * 新增或修改的对象
+     * id
      */
-    private Map<String, Object> model;
+    private Object id;
     /**
-     * 新增或修改的对象
+     * id集合
      */
-    private List<Map<String, Object>> models;
+    private List<Object> ids;
     /**
      * 关联参数对象
      */
     private List<DmLookup> lookups;
 
-    public DmInsert() {
-        this.models = new ArrayList<>();
-        this.lookups = new ArrayList<>();
+    public DmDelete() {
     }
 
     public String getTable() {
@@ -46,20 +42,20 @@ public class DmInsert implements Serializable {
         this.table = table;
     }
 
-    public Map<String, Object> getModel() {
-        return model;
+    public Object getId() {
+        return id;
     }
 
-    public void setModel(Map<String, Object> model) {
-        this.model = model;
+    public void setId(Object id) {
+        this.id = id;
     }
 
-    public List<Map<String, Object>> getModels() {
-        return models;
+    public List<Object> getIds() {
+        return ids;
     }
 
-    public void setModels(List<Map<String, Object>> models) {
-        this.models = models;
+    public void setIds(List<Object> ids) {
+        this.ids = ids;
     }
 
     public List<DmLookup> getLookups() {

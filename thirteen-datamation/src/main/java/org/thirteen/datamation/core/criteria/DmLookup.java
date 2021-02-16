@@ -48,27 +48,27 @@ public class DmLookup implements Serializable {
         return new DmLookup();
     }
 
-    private DmLookup from(String from) {
+    public DmLookup from(String from) {
         this.from = from;
         return this;
     }
 
-    private DmLookup localField(String localField) {
+    public DmLookup localField(String localField) {
         this.localField = localField;
         return this;
     }
 
-    private DmLookup foreignField(String foreignField) {
+    public DmLookup foreignField(String foreignField) {
         this.foreignField = foreignField;
         return this;
     }
 
-    private DmLookup as(String as) {
+    public DmLookup as(String as) {
         this.as = as;
         return this;
     }
 
-    private DmLookup unwind(Boolean unwind) {
+    public DmLookup unwind(Boolean unwind) {
         this.unwind = unwind;
         return this;
     }

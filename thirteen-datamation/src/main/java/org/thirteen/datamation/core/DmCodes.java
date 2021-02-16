@@ -17,10 +17,6 @@ public class DmCodes {
      * code
      */
     public static final String CODE = "code";
-    /**
-     * 删除标识字段
-     */
-    public static final String DEL_FLAG = "delFlag";
 
     // 字段值
 

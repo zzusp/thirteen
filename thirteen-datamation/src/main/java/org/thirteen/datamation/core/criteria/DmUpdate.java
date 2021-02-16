@@ -16,15 +16,25 @@ public class DmUpdate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 查询表 */
+    /**
+     * 查询表
+     */
     private String table;
-    /** 新增或修改的对象 */
+    /**
+     * 新增或修改的对象
+     */
     private Map<String, Object> model;
-    /** 新增或修改的对象 */
+    /**
+     * 新增或修改的对象
+     */
     private List<Map<String, Object>> models;
-    /** 关联参数对象 */
+    /**
+     * 关联参数对象
+     */
     private List<DmLookup> lookups;
-    /** 条件参数对象，预留字段 */
+    /**
+     * 条件参数对象，预留字段
+     */
     private List<DmCriteria> criterias;
 
     public DmUpdate() {

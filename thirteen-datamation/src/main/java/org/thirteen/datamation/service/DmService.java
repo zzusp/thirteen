@@ -1,6 +1,6 @@
 package org.thirteen.datamation.service;
 
-import org.thirteen.datamation.core.criteria.DmSpecification;
+import org.thirteen.datamation.core.criteria.*;
 import org.thirteen.datamation.web.PagerResult;
 
 import java.util.List;
@@ -22,50 +22,59 @@ public interface DmService {
     /**
      * 新增
      *
-     * @param tableCode 表名
-     * @param model     对象
+     * @param dmInsert 新增参数对象
      */
-    void insert(String tableCode, Map<String, Object> model);
+    void insert(DmInsert dmInsert);
 
     /**
      * 批量新增
      *
-     * @param tableCode 表名
-     * @param models    对象集合
+     * @param dmInsert 新增参数对象
      */
-    void insertAll(String tableCode, List<Map<String, Object>> models);
+    void insertAll(DmInsert dmInsert);
 
     /**
      * 根据主键更新，只更新属性值不为null的字段
      *
-     * @param tableCode 表名
-     * @param model     对象
+     * @param dmUpdate 更新参数对象
      */
-    void update(String tableCode, Map<String, Object> model);
+    void update(DmUpdate dmUpdate);
 
     /**
      * 根据主键批量更新，只更新属性值不为null的字段
      *
-     * @param tableCode 表名
-     * @param models    VO对象集合
+     * @param dmUpdate 更新参数对象
      */
-    void updateAll(String tableCode, List<Map<String, Object>> models);
+    void updateAll(DmUpdate dmUpdate);
 
     /**
      * 根据主键删除
      *
-     * @param tableCode 表名
-     * @param id        主键
+     * @param dmDelete 删除参数对象
      */
-    void delete(String tableCode, String id);
+    void delete(DmDelete dmDelete);
 
     /**
      * 根据主键批量删除，一条sql语句，效率高，推荐
      *
-     * @param tableCode 表名
-     * @param ids       主键数组
+     * @param dmDelete 删除参数对象
      */
-    void deleteInBatch(String tableCode, List<String> ids);
+    void deleteInBatch(DmDelete dmDelete);
+
+    /**
+     * 删除所有数据
+     *
+     * @param dmDelete 删除参数对象
+     */
+    void deleteAll(DmDelete dmDelete);
+
+    /**
+     * 级联删除
+     *
+     * @param value    键对应的value
+     * @param dmLookup 关联
+     */
+    void delete(Object value, DmLookup dmLookup);
 
     /**
      * 根据ID值获取一条数据
@@ -74,7 +83,7 @@ public interface DmService {
      * @param id        主键
      * @return VO对象
      */
-    Map<String, Object> findById(String tableCode, String id);
+    Map<String, Object> findById(String tableCode, Object id);
 
     /**
      * 获取所有数据
@@ -83,7 +92,7 @@ public interface DmService {
      * @param ids       主键数组
      * @return VO对象集合
      */
-    List<Map<String, Object>> findByIds(String tableCode, List<String> ids);
+    List<Map<String, Object>> findByIds(String tableCode, List<Object> ids);
 
     /**
      * 获取所有数据

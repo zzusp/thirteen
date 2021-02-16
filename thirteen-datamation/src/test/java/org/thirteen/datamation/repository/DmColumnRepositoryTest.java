@@ -10,7 +10,6 @@ import org.thirteen.datamation.DatamationAppilcation;
 import org.thirteen.datamation.model.po.DmColumnPO;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 
 @Transactional
 @Rollback

@@ -1,10 +1,22 @@
 package org.thirteen.datamation.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.thirteen.datamation.auth.interceptor.JwtInterceptor;
+import org.thirteen.datamation.auth.redis.service.RedisTokenService;
+import org.thirteen.datamation.auth.service.DmLoginService;
+import org.thirteen.datamation.service.DmService;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -17,8 +29,11 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 /**
  * @author Aaron.Sun
@@ -29,6 +44,16 @@ import java.util.List;
 @EnableSwagger2
 @Configuration
 public class Swagger2Config extends WebMvcConfigurationSupport {
+
+    private final DmService dmService;
+    private final DmLoginService dmLoginService;
+    private final RedisTokenService redisTokenService;
+
+    public Swagger2Config(DmService dmService, DmLoginService dmLoginService, RedisTokenService redisTokenService) {
+        this.dmService = dmService;
+        this.dmLoginService = dmLoginService;
+        this.redisTokenService = redisTokenService;
+    }
 
     /**
      * 这个地方要重新注入一下资源文件，不然不会注入资源的，也没有注入requestHandlerMappping,相当于xml配置的
@@ -44,6 +69,33 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
             .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")
             .addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor())
+            .addPathPatterns("/**");
+    }
+
+    @Bean
+    public JwtInterceptor jwtInterceptor() {
+        return new JwtInterceptor(dmService, dmLoginService, redisTokenService);
+    }
+
+    @Override
+    protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        super.extendMessageConverters(converters);
+        converters.forEach(v -> {
+            if (v instanceof AbstractJackson2HttpMessageConverter) {
+                ObjectMapper objectMapper = ((AbstractJackson2HttpMessageConverter) v).getObjectMapper();
+                SimpleModule module = new SimpleModule();
+                module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(ofPattern("yyyy-MM-dd HH:mm:ss")));
+                module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(ofPattern("yyyy-MM-dd HH:mm:ss")));
+                objectMapper.registerModule(module);
+//                objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+                objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            }
+        });
     }
 
     /**
