@@ -204,6 +204,7 @@ public class DatamationRepository implements ApplicationContextAware {
         String tempBeanName = beanFactory.getBeanNamesForType(DmTableRepository.class)[0];
         // 设置自定义类加载器到spring容器
         beanFactory.setBeanClassLoader(dmClassLoader);
+        beanFactory.setAllowBeanDefinitionOverriding(true);
         RootBeanDefinition tempBeanDefinition = (RootBeanDefinition) beanFactory.getBeanDefinition(tempBeanName);
         // 遍历所有table
         for (DmTablePO table : tableList) {
@@ -236,7 +237,6 @@ public class DatamationRepository implements ApplicationContextAware {
             // 添加表名与repository类的映射
             repositoryMap.put(table.getCode(), repositoryClass);
         }
-
         // 判断是否有生成实体对象
         if (!entities.isEmpty()) {
             // 创建EntityManagerFactory

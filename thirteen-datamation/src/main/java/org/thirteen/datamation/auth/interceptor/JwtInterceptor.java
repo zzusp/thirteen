@@ -6,6 +6,7 @@ import org.thirteen.datamation.auth.exception.ForbiddenException;
 import org.thirteen.datamation.auth.exception.UnauthorizedException;
 import org.thirteen.datamation.auth.redis.service.RedisTokenService;
 import org.thirteen.datamation.auth.redis.token.RedisToken;
+import org.thirteen.datamation.auth.service.DmValidateService;
 import org.thirteen.datamation.auth.service.DmLoginService;
 import org.thirteen.datamation.service.DmService;
 import org.thirteen.datamation.util.JwtUtil;
@@ -29,26 +30,19 @@ import java.util.Map;
 public class JwtInterceptor extends HandlerInterceptorAdapter {
 
     private final DmService dmService;
-    private final DmLoginService dmLoginService;
+    private final DmValidateService dmValidateService;
     private final RedisTokenService redisTokenService;
 
-    /**
-     * 所有登陆后可访问的地址
-     */
+    /** 所有登陆后可访问的地址 */
     private List<String> loginUrlList;
-    /**
-     * 所有认证后可访问的地址
-     */
+    /** 所有认证后可访问的地址 */
     private List<String> authUrlList;
-    /**
-     * 所有授权后可访问的地址
-     */
+    /** 所有授权后可访问的地址 */
     private List<String> permsUrlList;
 
-    public JwtInterceptor(DmService dmService,
-                          DmLoginService dmLoginService, RedisTokenService redisTokenService) {
+    public JwtInterceptor(DmService dmService,DmValidateService dmValidateService, RedisTokenService redisTokenService) {
         this.dmService = dmService;
-        this.dmLoginService = dmLoginService;
+        this.dmValidateService = dmValidateService;
         this.redisTokenService = redisTokenService;
         this.initFilterChains();
     }
@@ -61,6 +55,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         this.validate(now, request);
         // 地址过滤
         String uri = request.getRequestURI();
+        String permsCode = request.getParameter("permsCode");
         // TODO 需登录判断与需认证判断暂用同一逻辑，待后续拆分
         if (this.loginUrlList.contains(uri) || this.authUrlList.contains(uri) || this.permsUrlList.contains(uri)) {
             if (StringUtils.isEmpty(JwtUtil.getAccount())) {
@@ -69,22 +64,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
             flag = true;
             // 校验权限
             if (this.permsUrlList.contains(uri)) {
-                flag = false;
-                // 获取用户详细信息（包含用户角色、用户权限等信息）
-                Map<String, Object> user = this.dmLoginService.me();
-                try {
-                    if (user != null && user.get(DmAuthCodes.PERMISSION_KEY) != null) {
-                        for (Map<String, Object> perm : ((List<Map<String, Object>>) user.get(DmAuthCodes.PERMISSION_KEY))) {
-                            // 判断请求路径是否与权限中的路径匹配
-                            if (uri.equals(perm.get(DmAuthCodes.URL))) {
-                                flag = true;
-                                break;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new UnauthorizedException("鉴权失败", e.getCause());
-                }
+                flag = dmValidateService.validate(uri, permsCode);
                 if (!flag) {
                     throw new ForbiddenException();
                 }

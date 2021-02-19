@@ -119,19 +119,19 @@ public class DmServiceImpl implements DmService {
                 this.delete(model.get(localField), dmLookup);
                 dmSubInsert = new DmInsert();
                 dmSubInsert.setTable(dmLookup.getFrom());
-                if (dmLookup.getUnwind() == null || !dmLookup.getUnwind()) {
+                if (dmLookup.getUnwind() == null || dmLookup.getUnwind()) {
+                    dmSubInsert.setModel((Map<String, Object>) model.remove(dmLookup.getAs()));
+                    if (dmSubInsert.getModel() != null) {
+                        dmSubInsert.getModel().put(foreignField, model.get(localField));
+                        this.insert(dmSubInsert);
+                    }
+                } else {
                     dmSubInsert.setModels((List<Map<String, Object>>) model.remove(dmLookup.getAs()));
                     if (CollectionUtils.isNotEmpty(dmSubInsert.getModels())) {
                         for (Map<String, Object> sub : dmSubInsert.getModels()) {
                             sub.put(foreignField, model.get(localField));
                         }
                         this.insertAll(dmSubInsert);
-                    }
-                } else {
-                    dmSubInsert.setModel((Map<String, Object>) model.remove(dmLookup.getAs()));
-                    if (dmSubInsert.getModel() != null) {
-                        dmSubInsert.getModel().put(foreignField, model.get(localField));
-                        this.insert(dmSubInsert);
                     }
                 }
             }
@@ -513,7 +513,7 @@ public class DmServiceImpl implements DmService {
         Map<Object, List<Map<String, Object>>> foreignMap;
         for (DmLookup lookup : dmLookups) {
             from = lookup.getFrom();
-            unwind = lookup.getUnwind() != null ? false : lookup.getUnwind();
+            unwind = lookup.getUnwind() == null ? true : lookup.getUnwind();
             as = StringUtils.isEmpty(lookup.getAs()) ? StringUtils.lineToHump(lookup.getFrom()) : lookup.getAs();
             localFieldValues = new ArrayList<>();
             localField = lookup.getLocalField();
@@ -538,7 +538,11 @@ public class DmServiceImpl implements DmService {
             foreignMap = foreignResult.stream().collect(Collectors.groupingBy(v -> v.get(finalForeignField), Collectors.toList()));
             // 设置查询结果到对应的结果集
             for (Map<String, Object> data : dataList) {
-                data.put(as, foreignMap.get(data.get(localField)));
+                if (unwind) {
+                    data.put(as, foreignMap.get(data.get(localField)).get(0));
+                } else {
+                    data.put(as, foreignMap.get(data.get(localField)));
+                }
             }
         }
         return dataList;

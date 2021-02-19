@@ -16,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.thirteen.datamation.auth.interceptor.JwtInterceptor;
 import org.thirteen.datamation.auth.redis.service.RedisTokenService;
 import org.thirteen.datamation.auth.service.DmLoginService;
+import org.thirteen.datamation.auth.service.DmValidateService;
 import org.thirteen.datamation.service.DmService;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
@@ -46,12 +47,12 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 public class Swagger2Config extends WebMvcConfigurationSupport {
 
     private final DmService dmService;
-    private final DmLoginService dmLoginService;
+    private final DmValidateService dmValidateService;
     private final RedisTokenService redisTokenService;
 
-    public Swagger2Config(DmService dmService, DmLoginService dmLoginService, RedisTokenService redisTokenService) {
+    public Swagger2Config(DmService dmService, DmValidateService dmValidateService, RedisTokenService redisTokenService) {
         this.dmService = dmService;
-        this.dmLoginService = dmLoginService;
+        this.dmValidateService = dmValidateService;
         this.redisTokenService = redisTokenService;
     }
 
@@ -79,7 +80,7 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
 
     @Bean
     public JwtInterceptor jwtInterceptor() {
-        return new JwtInterceptor(dmService, dmLoginService, redisTokenService);
+        return new JwtInterceptor(dmService, dmValidateService, redisTokenService);
     }
 
     @Override

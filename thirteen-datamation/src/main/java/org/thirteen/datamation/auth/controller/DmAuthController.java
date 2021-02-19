@@ -3,14 +3,12 @@ package org.thirteen.datamation.auth.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.thirteen.datamation.auth.criteria.DmAuthInsert;
 import org.thirteen.datamation.auth.criteria.DmAuthSpecification;
 import org.thirteen.datamation.auth.criteria.DmAuthUpdate;
 import org.thirteen.datamation.auth.service.DmAuthService;
+import org.thirteen.datamation.auth.service.DmValidateService;
 import org.thirteen.datamation.web.PagerResult;
 import org.thirteen.datamation.web.ResponseResult;
 
@@ -28,9 +26,18 @@ import java.util.Map;
 public class DmAuthController {
 
     private final DmAuthService dmAuthService;
+    private final DmValidateService dmValidateService;
 
-    public DmAuthController(DmAuthService dmAuthService) {
+    public DmAuthController(DmAuthService dmAuthService, DmValidateService dmValidateService) {
         this.dmAuthService = dmAuthService;
+        this.dmValidateService = dmValidateService;
+    }
+
+    @ApiOperation(value = "权限验证", notes = "验证对应请求路径是否允许访问", response = ResponseResult.class)
+    @GetMapping(value = "/validate")
+    public ResponseResult<Boolean> validate(@ApiParam(required = true, value = "需验证的请求路径") @RequestParam("url") String url,
+                                            @ApiParam(required = true, value = "权限编码") @RequestParam("permsCode") String permsCode) {
+        return ResponseResult.ok(this.dmValidateService.validate(url, permsCode));
     }
 
     @ApiOperation(value = "新增", notes = "新增", response = ResponseResult.class)
