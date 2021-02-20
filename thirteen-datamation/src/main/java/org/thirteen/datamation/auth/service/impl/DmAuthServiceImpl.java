@@ -91,7 +91,7 @@ public class DmAuthServiceImpl implements DmAuthService {
      * 规则处理
      *
      * @param model model
-     * @param rule  规则
+     * @param rule 规则
      */
     private void ruleHandle(Map<String, Object> model, DmAuthRule rule) {
         if (rule != null && model != null) {
@@ -117,7 +117,7 @@ public class DmAuthServiceImpl implements DmAuthService {
      * 规则处理
      *
      * @param models models
-     * @param rule   规则
+     * @param rule 规则
      */
     private void ruleHandle(List<Map<String, Object>> models, DmAuthRule rule) {
         if (rule != null && CollectionUtils.isNotEmpty(models)) {
@@ -131,7 +131,7 @@ public class DmAuthServiceImpl implements DmAuthService {
      * 规则条件处理
      *
      * @param criteriaList 条件
-     * @param rule         规则
+     * @param rule 规则
      */
     private void ruleCriteriaHandle(List<DmCriteria> criteriaList, DmAuthRule rule) {
         if (CollectionUtils.isNotEmpty(criteriaList) && rule != null) {

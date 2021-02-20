@@ -43,6 +43,51 @@ public class DmUpdate implements Serializable {
         this.criterias = new ArrayList<>();
     }
 
+    public static DmUpdate of(String table) {
+        return new DmUpdate().table(table);
+    }
+
+    private DmUpdate table(String table) {
+        this.table = table;
+        return this;
+    }
+
+    public DmUpdate model(Map<String, Object> model) {
+        this.model = model;
+        return this;
+    }
+
+    public DmUpdate models(List<Map<String, Object>> models) {
+        this.models = models;
+        return this;
+    }
+
+    public DmUpdate lookups(List<DmLookup> lookups) {
+        this.lookups = lookups;
+        return this;
+    }
+
+    public DmUpdate add(DmLookup lookup) {
+        if (this.lookups == null) {
+            this.lookups = new ArrayList<>();
+        }
+        this.lookups.add(lookup);
+        return this;
+    }
+
+    public DmUpdate criterias(List<DmCriteria> criterias) {
+        this.criterias = criterias;
+        return this;
+    }
+
+    public DmUpdate add(DmCriteria criteria) {
+        if (this.criterias == null) {
+            this.criterias = new ArrayList<>();
+        }
+        this.criterias.add(criteria);
+        return this;
+    }
+
     public String getTable() {
         return table;
     }

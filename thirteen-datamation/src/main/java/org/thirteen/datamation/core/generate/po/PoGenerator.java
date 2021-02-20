@@ -29,7 +29,7 @@ public class PoGenerator extends AbstractClassGenerator {
         // 设置类基本属性
         // 参数：版本号，类的访问标志，类名（包含路径），签名，父类，内部接口
         cw.visit(57, accessOf(classInfo.getAccess()), this.defaultPackage + classInfo.getClassName(),
-            classInfo.getSignature(), classInfo.getSuperName(), classInfo.getInterfaces());
+                classInfo.getSignature(), classInfo.getSuperName(), classInfo.getInterfaces());
         // 注解处理
         annotationHandle(cw, classInfo.getAnnotationInfos());
         // 无参构造函数处理

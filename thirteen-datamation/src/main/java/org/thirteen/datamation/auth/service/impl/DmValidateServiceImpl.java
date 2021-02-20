@@ -3,8 +3,8 @@ package org.thirteen.datamation.auth.service.impl;
 import org.springframework.stereotype.Service;
 import org.thirteen.datamation.auth.constant.DmAuthCodes;
 import org.thirteen.datamation.auth.exception.UnauthorizedException;
-import org.thirteen.datamation.auth.service.DmValidateService;
 import org.thirteen.datamation.auth.service.DmLoginService;
+import org.thirteen.datamation.auth.service.DmValidateService;
 import org.thirteen.datamation.util.CollectionUtils;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class DmValidateServiceImpl implements DmValidateService {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean validate(String url, String permsCode) {
+    public boolean validate(String url) {
         boolean flag = false;
         // 获取用户详细信息（包含用户角色、用户权限等信息）
         Map<String, Object> user = this.dmLoginService.me();
@@ -37,7 +37,7 @@ public class DmValidateServiceImpl implements DmValidateService {
                 if (CollectionUtils.isNotEmpty(permissions)) {
                     for (Map<String, Object> perm : permissions) {
                         // 判断请求路径是否与权限中的路径匹配
-                        if (url.equals(perm.get(DmAuthCodes.URL)) && permsCode.equals(perm.get(DmAuthCodes.CODE))) {
+                        if (url.equals(perm.get(DmAuthCodes.URL))) {
                             flag = true;
                             break;
                         }

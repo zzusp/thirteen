@@ -31,6 +31,34 @@ public class DmAuthRule {
         this.currentDateTime = new ArrayList<>();
     }
 
+    public static DmAuthRule of() {
+        return new DmAuthRule();
+    }
+
+    public DmAuthRule addCurrentAccount(String account) {
+        if (this.currentAccount == null) {
+            this.currentAccount = new ArrayList<>();
+        }
+        this.currentAccount.add(account);
+        return this;
+    }
+
+    public DmAuthRule addCurrentDate(String currentDate) {
+        if (this.currentDate == null) {
+            this.currentDate = new ArrayList<>();
+        }
+        this.currentDate.add(currentDate);
+        return this;
+    }
+
+    public DmAuthRule addCurrentDateTime(String currentDateTime) {
+        if (this.currentDateTime == null) {
+            this.currentDateTime = new ArrayList<>();
+        }
+        this.currentDateTime.add(currentDateTime);
+        return this;
+    }
+
     public List<String> getCurrentAccount() {
         return currentAccount;
     }

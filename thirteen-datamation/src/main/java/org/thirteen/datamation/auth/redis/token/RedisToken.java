@@ -98,13 +98,13 @@ public class RedisToken implements Serializable {
     @Override
     public String toString() {
         return "RedisToken{" +
-            "token='" + token + '\'' +
-            ", account='" + account + '\'' +
-            ", ip='" + ip + '\'' +
-            ", signTime=" + signTime +
-            ", reSignTime=" + reSignTime +
-            ", lastAccessTime=" + lastAccessTime +
-            '}';
+                "token='" + token + '\'' +
+                ", account='" + account + '\'' +
+                ", ip='" + ip + '\'' +
+                ", signTime=" + signTime +
+                ", reSignTime=" + reSignTime +
+                ", lastAccessTime=" + lastAccessTime +
+                '}';
     }
 
     @Override
@@ -117,11 +117,11 @@ public class RedisToken implements Serializable {
         }
         RedisToken that = (RedisToken) o;
         return Objects.equals(token, that.token) &&
-            Objects.equals(account, that.account) &&
-            Objects.equals(ip, that.ip) &&
-            Objects.equals(signTime, that.signTime) &&
-            Objects.equals(reSignTime, that.reSignTime) &&
-            Objects.equals(lastAccessTime, that.lastAccessTime);
+                Objects.equals(account, that.account) &&
+                Objects.equals(ip, that.ip) &&
+                Objects.equals(signTime, that.signTime) &&
+                Objects.equals(reSignTime, that.reSignTime) &&
+                Objects.equals(lastAccessTime, that.lastAccessTime);
     }
 
     @Override

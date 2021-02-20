@@ -7,7 +7,6 @@ import org.thirteen.datamation.auth.exception.UnauthorizedException;
 import org.thirteen.datamation.auth.redis.service.RedisTokenService;
 import org.thirteen.datamation.auth.redis.token.RedisToken;
 import org.thirteen.datamation.auth.service.DmValidateService;
-import org.thirteen.datamation.auth.service.DmLoginService;
 import org.thirteen.datamation.service.DmService;
 import org.thirteen.datamation.util.JwtUtil;
 import org.thirteen.datamation.util.StringUtils;
@@ -40,7 +39,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     /** 所有授权后可访问的地址 */
     private List<String> permsUrlList;
 
-    public JwtInterceptor(DmService dmService,DmValidateService dmValidateService, RedisTokenService redisTokenService) {
+    public JwtInterceptor(DmService dmService, DmValidateService dmValidateService, RedisTokenService redisTokenService) {
         this.dmService = dmService;
         this.dmValidateService = dmValidateService;
         this.redisTokenService = redisTokenService;
@@ -55,7 +54,6 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         this.validate(now, request);
         // 地址过滤
         String uri = request.getRequestURI();
-        String permsCode = request.getParameter("permsCode");
         // TODO 需登录判断与需认证判断暂用同一逻辑，待后续拆分
         if (this.loginUrlList.contains(uri) || this.authUrlList.contains(uri) || this.permsUrlList.contains(uri)) {
             if (StringUtils.isEmpty(JwtUtil.getAccount())) {
@@ -64,7 +62,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
             flag = true;
             // 校验权限
             if (this.permsUrlList.contains(uri)) {
-                flag = dmValidateService.validate(uri, permsCode);
+                flag = dmValidateService.validate(uri);
                 if (!flag) {
                     throw new ForbiddenException();
                 }
@@ -78,7 +76,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     /**
      * token验证，如果token有效，设置account到threadLocal
      *
-     * @param now                请求时间
+     * @param now 请求时间
      * @param httpServletRequest 请求对象
      */
     private void validate(LocalDateTime now, HttpServletRequest httpServletRequest) {

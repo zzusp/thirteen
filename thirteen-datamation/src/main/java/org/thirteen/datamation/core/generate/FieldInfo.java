@@ -77,11 +77,11 @@ public class FieldInfo implements Serializable {
     @Override
     public String toString() {
         return "FieldInfo{" +
-            "name='" + name + '\'' +
-            ", fieldClass='" + fieldClass + '\'' +
-            ", access='" + access + '\'' +
-            ", columnType='" + columnType + '\'' +
-            ", annotationInfos=" + annotationInfos +
-            '}';
+                "name='" + name + '\'' +
+                ", fieldClass='" + fieldClass + '\'' +
+                ", access='" + access + '\'' +
+                ", columnType='" + columnType + '\'' +
+                ", annotationInfos=" + annotationInfos +
+                '}';
     }
 }

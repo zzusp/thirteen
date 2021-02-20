@@ -57,10 +57,9 @@ public class DmServiceImpl implements DmService {
         if (CollectionUtils.isNotEmpty(dmInsert.getLookups())) {
             DmInsert dmSubInsert;
             for (DmLookup dmLookup : dmInsert.getLookups()) {
-                dmSubInsert = new DmInsert();
-                dmSubInsert.setTable(dmLookup.getFrom());
+                dmSubInsert = DmInsert.of(dmLookup.getFrom());
                 if (dmLookup.getUnwind() == null || !dmLookup.getUnwind()) {
-                    dmSubInsert.setModels((List<Map<String, Object>>) model.get(dmLookup.getAs()));
+                    dmSubInsert.setModels((List<Map<String, Object>>) model.remove(dmLookup.getAs()));
                     if (CollectionUtils.isNotEmpty(dmSubInsert.getModels())) {
                         for (Map<String, Object> sub : dmSubInsert.getModels()) {
                             sub.put(dmLookup.getForeignField(), model.get(dmLookup.getLocalField()));
@@ -68,7 +67,7 @@ public class DmServiceImpl implements DmService {
                         this.insertAll(dmSubInsert);
                     }
                 } else {
-                    dmSubInsert.setModel((Map<String, Object>) model.get(dmLookup.getAs()));
+                    dmSubInsert.setModel((Map<String, Object>) model.remove(dmLookup.getAs()));
                     dmSubInsert.getModel().put(dmLookup.getForeignField(), model.get(dmLookup.getLocalField()));
                     this.insert(dmSubInsert);
                 }
@@ -117,8 +116,7 @@ public class DmServiceImpl implements DmService {
                 foreignField = dmLookup.getForeignField();
                 // 删除旧的关联
                 this.delete(model.get(localField), dmLookup);
-                dmSubInsert = new DmInsert();
-                dmSubInsert.setTable(dmLookup.getFrom());
+                dmSubInsert = DmInsert.of(dmLookup.getFrom());
                 if (dmLookup.getUnwind() == null || dmLookup.getUnwind()) {
                     dmSubInsert.setModel((Map<String, Object>) model.remove(dmLookup.getAs()));
                     if (dmSubInsert.getModel() != null) {
@@ -238,9 +236,9 @@ public class DmServiceImpl implements DmService {
         if (delFlag != null) {
             // 查询语句
             String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
-                getClassInfo(tableCode).getClassName(),
-                delFlag,
-                getClassInfo(tableCode).getIdField());
+                    getClassInfo(tableCode).getClassName(),
+                    delFlag,
+                    getClassInfo(tableCode).getIdField());
             // 创建实体管理器
             EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
@@ -309,7 +307,7 @@ public class DmServiceImpl implements DmService {
             paramIndex = 1;
             // 查询语句
             sql = String.format("DELETE %s WHERE",
-                getClassInfo(tableCode).getClassName());
+                    getClassInfo(tableCode).getClassName());
         }
         // 动态拼接查询条件，及查询参数
         List<String> equations = new ArrayList<>();
@@ -372,11 +370,11 @@ public class DmServiceImpl implements DmService {
         if (delFlag != null) {
             // 查询语句
             String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
-                getClassInfo(tableCode).getClassName(), delFlag, dmLookup.getForeignField());
+                    getClassInfo(tableCode).getClassName(), delFlag, dmLookup.getForeignField());
             createQuery(em, sql, DEL_FLAG_DELETE, value).executeUpdate();
         } else {
             String sql = String.format("DELETE %s WHERE %s = ?1",
-                getClassInfo(tableCode).getClassName(), dmLookup.getForeignField());
+                    getClassInfo(tableCode).getClassName(), dmLookup.getForeignField());
             createQuery(em, sql, value).executeUpdate();
         }
         em.getTransaction().commit();
@@ -385,13 +383,13 @@ public class DmServiceImpl implements DmService {
     @Override
     public Map<String, Object> findById(String tableCode, Object id) {
         return findOneBySpecification(DmSpecification.of(tableCode)
-            .add(DmCriteria.equal(getClassInfo(tableCode).getIdField(), id)));
+                .add(DmCriteria.equal(getClassInfo(tableCode).getIdField(), id)));
     }
 
     @Override
     public List<Map<String, Object>> findByIds(String tableCode, List<Object> ids) {
         return findAllBySpecification(DmSpecification.of(tableCode)
-            .add(DmCriteria.in(getClassInfo(tableCode).getIdField(), ids))).getList();
+                .add(DmCriteria.in(getClassInfo(tableCode).getIdField(), ids))).getList();
     }
 
     @Override
@@ -476,7 +474,7 @@ public class DmServiceImpl implements DmService {
      * 关联查询处理
      *
      * @param dmLookups 关联查询对象
-     * @param data      源数据查询结果
+     * @param data 源数据查询结果
      * @return 关联查询结果
      */
     private Map<String, Object> lookupHandle(List<DmLookup> dmLookups, Map<String, Object> data) {
@@ -487,7 +485,7 @@ public class DmServiceImpl implements DmService {
      * 关联查询处理
      *
      * @param dmLookups 关联查询对象
-     * @param dataList  源数据查询结果
+     * @param dataList 源数据查询结果
      * @return 关联查询结果
      */
     private List<Map<String, Object>> lookupHandle(List<DmLookup> dmLookups, List<Map<String, Object>> dataList) {
@@ -572,8 +570,8 @@ public class DmServiceImpl implements DmService {
     /**
      * 创建查询对象
      *
-     * @param em     实体管理器
-     * @param sql    sql语句
+     * @param em 实体管理器
+     * @param sql sql语句
      * @param params 参数集合
      * @return 查询对象
      */
@@ -592,7 +590,7 @@ public class DmServiceImpl implements DmService {
      * map转po对象
      *
      * @param tableCode 表名
-     * @param map       map对象
+     * @param map map对象
      * @return po class
      */
     private Object mapToPo(String tableCode, Map<String, Object> map) {
@@ -604,7 +602,7 @@ public class DmServiceImpl implements DmService {
      * map转po对象
      *
      * @param tableCode 表名
-     * @param maps      map对象集合
+     * @param maps map对象集合
      * @return po class集合
      */
     private List<Object> mapToPo(String tableCode, List<Map<String, Object>> maps) {

@@ -38,6 +38,38 @@ public class DmInsert implements Serializable {
         this.lookups = new ArrayList<>();
     }
 
+    public static DmInsert of(String table) {
+        return new DmInsert().table(table);
+    }
+
+    private DmInsert table(String table) {
+        this.table = table;
+        return this;
+    }
+
+    public DmInsert model(Map<String, Object> model) {
+        this.model = model;
+        return this;
+    }
+
+    public DmInsert models(List<Map<String, Object>> models) {
+        this.models = models;
+        return this;
+    }
+
+    public DmInsert lookups(List<DmLookup> lookups) {
+        this.lookups = lookups;
+        return this;
+    }
+
+    public DmInsert add(DmLookup lookup) {
+        if (this.lookups == null) {
+            this.lookups = new ArrayList<>();
+        }
+        this.lookups.add(lookup);
+        return this;
+    }
+
     public String getTable() {
         return table;
     }

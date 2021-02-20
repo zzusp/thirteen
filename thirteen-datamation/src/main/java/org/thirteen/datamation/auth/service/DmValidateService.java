@@ -12,8 +12,7 @@ public interface DmValidateService {
      * 权限验证
      *
      * @param url 需验证的请求路径
-     * @param permsCode 权限编码
      * @return 是否拥有权限
      */
-    boolean validate(String url, String permsCode);
+    boolean validate(String url);
 }

@@ -67,9 +67,9 @@ public class JsonUtil {
     /**
      * 反序列化，将json字符串转化为对象
      *
-     * @param json  json字符串
+     * @param json json字符串
      * @param clazz 目标对象类型
-     * @param <T>   泛型，目标对象
+     * @param <T> 泛型，目标对象
      * @return 转化后的对象
      */
     public static <T> T parseObject(String json, Class<T> clazz) {

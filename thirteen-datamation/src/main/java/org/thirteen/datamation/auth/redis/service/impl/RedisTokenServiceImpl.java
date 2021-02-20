@@ -31,7 +31,7 @@ public class RedisTokenServiceImpl implements RedisTokenService {
     /**
      * 设置redisToken
      *
-     * @param token      token
+     * @param token token
      * @param redisToken redisToken
      */
     @Override
@@ -74,7 +74,7 @@ public class RedisTokenServiceImpl implements RedisTokenService {
     /**
      * 判断最后一次访问时间加上过期时间，是否在当前时间之后
      *
-     * @param now            当前时间
+     * @param now 当前时间
      * @param lastAccessTime 后一次访问时间
      * @return 是否未过期，即是否可以续签token
      */

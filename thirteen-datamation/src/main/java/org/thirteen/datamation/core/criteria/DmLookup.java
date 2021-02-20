@@ -36,19 +36,11 @@ public class DmLookup implements Serializable {
         this.unwind = false;
     }
 
-    private DmLookup(String from, String localField, String foreignField, String as, Boolean unwind) {
-        this.from = from;
-        this.localField = localField;
-        this.foreignField = foreignField;
-        this.as = as;
-        this.unwind = unwind;
+    public static DmLookup of(String from) {
+        return new DmLookup().from(from);
     }
 
-    public static DmLookup of() {
-        return new DmLookup();
-    }
-
-    public DmLookup from(String from) {
+    private DmLookup from(String from) {
         this.from = from;
         return this;
     }

@@ -135,7 +135,7 @@ public class DmTableServiceImpl implements DmTableService {
         DmTablePO po = opt.get();
         // 级联查询列信息
         po.setColumns(dmColumnRepository.findByTableCodeEquals(po.getCode(),
-            Sort.by(Sort.Direction.ASC, "orderNumber")));
+                Sort.by(Sort.Direction.ASC, "orderNumber")));
         return DmTableVO.convert(po);
     }
 

@@ -23,9 +23,9 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableJpaRepositories(
-    entityManagerFactoryRef = "entityManagerFactory",
-    transactionManagerRef = "transactionManager",
-    basePackages = {"org.thirteen.datamation.repository"})
+        entityManagerFactoryRef = "entityManagerFactory",
+        transactionManagerRef = "transactionManager",
+        basePackages = {"org.thirteen.datamation.repository"})
 @EnableTransactionManagement
 public class JpaDatasourceConfig {
 

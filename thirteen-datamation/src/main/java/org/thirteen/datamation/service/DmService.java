@@ -71,7 +71,7 @@ public interface DmService {
     /**
      * 级联删除
      *
-     * @param value    键对应的value
+     * @param value 键对应的value
      * @param dmLookup 关联
      */
     void delete(Object value, DmLookup dmLookup);
@@ -80,7 +80,7 @@ public interface DmService {
      * 根据ID值获取一条数据
      *
      * @param tableCode 表名
-     * @param id        主键
+     * @param id 主键
      * @return VO对象
      */
     Map<String, Object> findById(String tableCode, Object id);
@@ -89,7 +89,7 @@ public interface DmService {
      * 获取所有数据
      *
      * @param tableCode 表名
-     * @param ids       主键数组
+     * @param ids 主键数组
      * @return VO对象集合
      */
     List<Map<String, Object>> findByIds(String tableCode, List<Object> ids);

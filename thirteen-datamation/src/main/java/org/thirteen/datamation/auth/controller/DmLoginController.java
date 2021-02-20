@@ -29,9 +29,15 @@ public class DmLoginController {
     @ApiOperation(value = "登录", notes = "用户登录，登录成功分发token", response = ResponseResult.class)
     @PostMapping(value = "/login")
     public ResponseResult<String> login(
-        @ApiParam(required = true, value = "用户账号") @RequestParam("account") String account,
-        @ApiParam(required = true, value = "用户密码") @RequestParam("password") String password) {
+            @ApiParam(required = true, value = "用户账号") @RequestParam("account") String account,
+            @ApiParam(required = true, value = "用户密码") @RequestParam("password") String password) {
         return ResponseResult.ok(this.dmLoginService.login(account, password));
+    }
+
+    @ApiOperation(value = "登出", notes = "用户登出", response = ResponseResult.class)
+    @PostMapping(value = "/logout")
+    public ResponseResult<String> logout() {
+        return ResponseResult.ok();
     }
 
     @ApiOperation(value = "获取当前登录用户信息", notes = "获取当前登录用户信息", response = ResponseResult.class)

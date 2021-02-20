@@ -48,7 +48,7 @@ public class DmLoginServiceImpl implements DmLoginService {
     public String login(String account, String password) {
         // 校验账号密码
         Map<String, Object> user = this.dmService.findOneBySpecification(DmSpecification.of(DmAuthCodes.AUTH_USER)
-            .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
+                .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
         if (null == user) {
             throw new BusinessException("账号不存在");
         }
@@ -56,7 +56,7 @@ public class DmLoginServiceImpl implements DmLoginService {
             throw new BusinessException("账号已被冻结，请联系管理员");
         }
         if (!Md5Util.encrypt(account, password, user.get(DmAuthCodes.SALT).toString())
-            .equals(user.get(DmAuthCodes.PASSWORD).toString())) {
+                .equals(user.get(DmAuthCodes.PASSWORD).toString())) {
             throw new BusinessException("账号或密码错误");
         }
         // 分配token

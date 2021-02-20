@@ -104,18 +104,18 @@ public class AnnotationInfo implements Serializable {
         @Override
         public String toString() {
             return "Param{" +
-                "name='" + name + '\'' +
-                ", value=" + value +
-                '}';
+                    "name='" + name + '\'' +
+                    ", value=" + value +
+                    '}';
         }
     }
 
     @Override
     public String toString() {
         return "AnnotationInfo{" +
-            "desc='" + desc + '\'' +
-            ", visible=" + visible +
-            ", params=" + params +
-            '}';
+                "desc='" + desc + '\'' +
+                ", visible=" + visible +
+                ", params=" + params +
+                '}';
     }
 }

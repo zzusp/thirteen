@@ -13,7 +13,7 @@ public interface DmLoginService {
     /**
      * 登录
      *
-     * @param account  账号
+     * @param account 账号
      * @param password 密码
      * @return token
      */
