@@ -42,9 +42,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
         try {
             dmClassLoader.loadNeighbor(neighbor);
             classTemp = dmClassLoader.loadClass(neighbor.getName());
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (ClassNotFoundException e) {
             logger.error("生成器初始化失败，请检查DmClassLoader是否初始化，邻类是否存在");
-            logger.error("错误信息：", e.getCause());
+            logger.error("错误信息：", e);
         }
         this.neighbor = classTemp;
         this.defaultPackage = neighbor.getPackageName().replaceAll("\\.", "\\/") + "/";

@@ -17,7 +17,7 @@ public class DmClassLoader extends ClassLoader {
             for (Class<?> neighbor : neighbors) {
                 try {
                     loadNeighbor(neighbor);
-                } catch (IOException e) {
+                } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
@@ -28,21 +28,51 @@ public class DmClassLoader extends ClassLoader {
      * 加载asm动态生成class时，目标class的邻类
      *
      * @param neighbor 目标class的邻类
-     * @throws IOException io异常
+     * @return 类
+     * @throws ClassNotFoundException 类未找到异常
      */
-    public void loadNeighbor(Class<?> neighbor) throws IOException {
+    public Class<?> loadNeighbor(Class<?> neighbor) throws ClassNotFoundException {
         String className = neighbor.getName().replaceAll("\\.", "/") + ".class";
-        try (InputStream input = ClassLoader.getSystemResourceAsStream(className)) {
+        try (InputStream input = neighbor.getClassLoader().getResourceAsStream(className)) {
             if (input == null) {
-                return;
+                throw new ClassNotFoundException(className);
             }
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024 * 4];
+            byte[] buffer = new byte[input.available()];
             int n;
             while (-1 != (n = input.read(buffer))) {
                 output.write(buffer, 0, n);
             }
-            this.defineClass(neighbor.getName(), output.toByteArray(), 0, output.toByteArray().length);
+            return this.defineClass(neighbor.getName(), output.toByteArray(), 0, output.toByteArray().length);
+        } catch (IOException e) {
+            throw new ClassNotFoundException(className);
+        }
+    }
+
+    /**
+     * 重写loadClass方法，解决打包后找不到class的问题
+     *
+     * @param name 类名
+     * @return 类
+     * @throws ClassNotFoundException 类未找到异常
+     */
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        try {
+            String fileName = name.substring(name.lastIndexOf(".") + 1) + ".class";
+            InputStream input = this.getClass().getResourceAsStream(fileName);
+            if (input == null) {
+                return DmClassLoader.class.getClassLoader().loadClass(name);
+            }
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            byte[] buffer = new byte[input.available()];
+            int n;
+            while (-1 != (n = input.read(buffer))) {
+                output.write(buffer, 0, n);
+            }
+            return this.defineClass(name, output.toByteArray(), 0, output.toByteArray().length);
+        } catch (IOException e) {
+            throw new ClassNotFoundException(name);
         }
     }
 }
