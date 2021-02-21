@@ -122,8 +122,8 @@ public class DmAuthUserServiceImpl implements DmAuthUserService {
                         List<Map<String, Object>> roleApps = new ArrayList<>();
                         List<Map<String, Object>> rolePermissions = new ArrayList<>();
                         for (Map<String, Object> role : rolePage.getList()) {
-                            roleApps.addAll((List<Map<String, Object>>) role.get(DmAuthCodes.APP_KEY));
-                            rolePermissions.addAll((List<Map<String, Object>>) role.get(DmAuthCodes.PERMISSION_KEY));
+                            roleApps.addAll(MapUtil.getListValue(role, DmAuthCodes.APP_KEY));
+                            rolePermissions.addAll(MapUtil.getListValue(role, DmAuthCodes.PERMISSION_KEY));
                         }
                         if (CollectionUtils.isNotEmpty(roleApps)) {
                             // 查询关联应用信息
