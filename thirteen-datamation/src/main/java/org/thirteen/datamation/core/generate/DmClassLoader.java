@@ -58,11 +58,12 @@ public class DmClassLoader extends ClassLoader {
      */
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        Class<?> clazz = super.loadClass(name);
-        if (clazz == null) {
+        Class<?> clazz;
+        try {
+            clazz = super.loadClass(name);
+        } catch (ClassNotFoundException e) {
             return DmClassLoader.class.getClassLoader().loadClass(name);
-        } else {
-            return clazz;
         }
+        return clazz;
     }
 }
