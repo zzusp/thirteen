@@ -44,6 +44,8 @@ public class DmColumnPO implements Serializable {
     private Byte columnType;
     @Column(name = "length", columnDefinition = "INT COMMENT '字段长度'")
     private Integer length;
+    @Column(name = "decimal_point", columnDefinition = "INT COMMENT '小数点'")
+    private Integer decimalPoint;
     @Column(name = "order_number", columnDefinition = "INT COMMENT '显示顺序'")
     private Integer orderNumber;
     @Column(name = "status", columnDefinition = "TINYINT(4) NOT NULL COMMENT '状态 0：禁用；1启用'")

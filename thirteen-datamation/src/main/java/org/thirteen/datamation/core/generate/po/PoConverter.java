@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_ID;
-import static org.thirteen.datamation.core.DmCodes.COLUMN_TYPE_VERSION;
+import static org.thirteen.datamation.core.DmCodes.*;
 import static org.thirteen.datamation.util.StringUtils.lineToHump;
 import static org.thirteen.datamation.util.StringUtils.lineToHumpAndStartWithCapitalize;
 
@@ -105,7 +104,13 @@ public class PoConverter extends AbstractClassConverter {
         StringBuilder sb = new StringBuilder();
         sb.append(column.getDbType());
         if (column.getLength() != null && column.getLength() > 0) {
-            sb.append("(").append(column.getLength()).append(")");
+            sb.append("(").append(column.getLength());
+            if (COLUMN_DB_FLOAT.equals(column.getDbType()) || COLUMN_DB_DOUBLE.equals(column.getDbType())
+                    || COLUMN_DB_DECIMAL.equals(column.getDbType())) {
+                Integer decimalPoint = column.getDecimalPoint();
+                sb.append(",").append(decimalPoint == null || decimalPoint < 0 ? 0 : decimalPoint);
+            }
+            sb.append(")");
         }
         if (column.getNotNull() != null && column.getNotNull() == 1) {
             sb.append(" NOT NULL ");
