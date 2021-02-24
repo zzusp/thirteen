@@ -58,21 +58,11 @@ public class DmClassLoader extends ClassLoader {
      */
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        try {
-            String fileName = name.substring(name.lastIndexOf(".") + 1) + ".class";
-            InputStream input = this.getClass().getResourceAsStream(fileName);
-            if (input == null) {
-                return DmClassLoader.class.getClassLoader().loadClass(name);
-            }
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            byte[] buffer = new byte[input.available()];
-            int n;
-            while (-1 != (n = input.read(buffer))) {
-                output.write(buffer, 0, n);
-            }
-            return this.defineClass(name, output.toByteArray(), 0, output.toByteArray().length);
-        } catch (IOException e) {
-            throw new ClassNotFoundException(name);
+        Class<?> clazz = super.loadClass(name);
+        if (clazz == null) {
+            return DmClassLoader.class.getClassLoader().loadClass(name);
+        } else {
+            return clazz;
         }
     }
 }
