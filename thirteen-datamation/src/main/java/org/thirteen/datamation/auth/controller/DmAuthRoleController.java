@@ -32,7 +32,7 @@ public class DmAuthRoleController {
     @ApiOperation(value = "角色授权", notes = "角色授权", response = ResponseResult.class)
     @PostMapping(value = "/authorize")
     public ResponseResult<String> authorize(
-            @ApiParam(required = true, value = "角色授权信息") @RequestBody Map<String, Object> model) {
+        @ApiParam(required = true, value = "角色授权信息") @RequestBody Map<String, Object> model) {
         this.dmAuthRoleService.authorize(model);
         return ResponseResult.ok();
     }

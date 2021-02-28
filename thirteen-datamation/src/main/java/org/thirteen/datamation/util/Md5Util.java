@@ -61,7 +61,7 @@ public class Md5Util {
      *
      * @param username 用户名
      * @param password 密码
-     * @param salt 盐
+     * @param salt     盐
      * @return
      */
     public static String encrypt(String username, String password, String salt) {

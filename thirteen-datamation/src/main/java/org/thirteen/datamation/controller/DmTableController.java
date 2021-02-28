@@ -30,7 +30,7 @@ public class DmTableController {
     }
 
     @ApiOperation(value = "检查数据是否已存在", notes = "检查数据是否已存在，存在返回true，不存在返回false",
-            response = ResponseResult.class)
+        response = ResponseResult.class)
     @GetMapping(value = "/isExist")
     public ResponseResult<Boolean> isExist(@ApiParam(required = true, value = "编码") @RequestParam("code") String code) {
         return ResponseResult.ok(this.dmTableService.isExist(code));
@@ -60,7 +60,7 @@ public class DmTableController {
     @ApiOperation(value = "由ID集合批量删除信息", notes = "由ID集合批量删除信息", response = ResponseResult.class)
     @DeleteMapping(value = "/deleteInBatch")
     public ResponseResult<String> deleteInBatch(
-            @ApiParam(required = true, value = "ID集合") @RequestParam("ids") List<String> ids) {
+        @ApiParam(required = true, value = "ID集合") @RequestParam("ids") List<String> ids) {
         this.dmTableService.deleteInBatch(ids);
         return ResponseResult.ok();
     }
@@ -74,7 +74,7 @@ public class DmTableController {
     @ApiOperation(value = "由条件查询多条信息", notes = "由条件查询多条信息", response = ResponseResult.class)
     @PostMapping(value = "/findAllBySpecification")
     public ResponseResult<PagerResult<DmTableVO>> findAllBySpecification(
-            @ApiParam(required = true, value = "条件") @RequestBody DmSpecification dmSpecification) {
+        @ApiParam(required = true, value = "条件") @RequestBody DmSpecification dmSpecification) {
         return ResponseResult.ok(this.dmTableService.findAllBySpecification(dmSpecification));
     }
 

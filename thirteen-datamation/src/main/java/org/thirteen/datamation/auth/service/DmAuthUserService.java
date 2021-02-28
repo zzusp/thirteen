@@ -47,7 +47,7 @@ public interface DmAuthUserService {
      *
      * @param oldPassword 旧密码
      * @param newPassword 新密码
-     * @param confirm 密码确认
+     * @param confirm     密码确认
      */
     void passwordEdit(String oldPassword, String newPassword, String confirm);
 

@@ -50,7 +50,7 @@ public class JwtUtil {
      * 生成JWT token
      *
      * @param subject 面向用户（可用用户账号）
-     * @param expire 过期时间，毫秒
+     * @param expire  过期时间，毫秒
      * @return token
      */
     public static String sign(String subject, long expire) {
@@ -61,17 +61,17 @@ public class JwtUtil {
         }
         Date exp = new Date(nowMillis + expire);
         return Jwts.builder()
-                // 设置签发时间
-                .setIssuedAt(now)
-                // 设置签发者
-                .setIssuer(ISSUER)
-                // 设置面向用户
-                .setSubject(subject)
-                // 设置加密算法和密钥
-                .signWith(SignatureAlgorithm.HS256, generalKey())
-                // 设置过期时间
-                .setExpiration(exp)
-                .compact();
+            // 设置签发时间
+            .setIssuedAt(now)
+            // 设置签发者
+            .setIssuer(ISSUER)
+            // 设置面向用户
+            .setSubject(subject)
+            // 设置加密算法和密钥
+            .signWith(SignatureAlgorithm.HS256, generalKey())
+            // 设置过期时间
+            .setExpiration(exp)
+            .compact();
     }
 
     /**

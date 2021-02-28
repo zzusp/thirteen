@@ -1,4 +1,4 @@
-package org.thirteen.datamation.auth.service;
+package org.thirteen.datamation.rent.service;
 
 import org.thirteen.datamation.auth.criteria.DmAuthInsert;
 import org.thirteen.datamation.auth.criteria.DmAuthSpecification;
@@ -9,11 +9,11 @@ import java.util.Map;
 
 /**
  * @author Aaron.Sun
- * @description 数据化通用服务接口
- * @date Created in 17:46 2020/9/21
+ * @description 租赁系统通用服务接口
+ * @date Created in 21:43 2021/2/28
  * @modified by
  */
-public interface DmAuthService {
+public interface RentService {
 
     /**
      * 新增
@@ -75,10 +75,4 @@ public interface DmAuthService {
      */
     boolean isExist(DmAuthSpecification dmAuthSpecification);
 
-    /**
-     * 获取当前登录用户的账号
-     *
-     * @return 当前登录用户的账号
-     */
-    String getCurrentAccount();
 }

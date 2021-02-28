@@ -34,7 +34,7 @@ public class DmTablePO implements Serializable {
     @GeneratedValue(generator = "pk_uuid")
     @Column(name = "id", unique = true, columnDefinition = "CHAR(32) NOT NULL COMMENT '实体主键（唯一标识）'")
     private String id;
-    @Column(name = "code", columnDefinition = "CHAR(20) NOT NULL COMMENT '编码唯一，非空且不可更改'")
+    @Column(name = "code", columnDefinition = "VARCHAR(50) NOT NULL COMMENT '编码唯一，非空且不可更改'")
     private String code;
     @Column(name = "name", columnDefinition = "VARCHAR(50) NOT NULL COMMENT '名称'")
     private String name;

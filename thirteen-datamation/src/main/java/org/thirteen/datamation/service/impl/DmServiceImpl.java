@@ -54,6 +54,20 @@ public class DmServiceImpl implements DmService {
     public void insert(DmInsert dmInsert) {
         String tableCode = dmInsert.getTable();
         Map<String, Object> model = dmInsert.getModel();
+        // 主键字段
+        String idField = getClassInfo(tableCode).getIdField();
+        // 逻辑删除标志字段
+        String delFlag = getClassInfo(tableCode).getDelFlagField();
+        if (delFlag != null) {
+            // 设置删除标识
+            dmInsert.getModel().put(delFlag, DEL_FLAG_NORMAL);
+        }
+        Object po = mapToPo(tableCode, model);
+        getRepository(tableCode).save(po);
+        // 新增成功会回填ID，设置回填的ID到map
+        Map<String, Object> poMap = poToMap(po);
+        model.put(idField, poMap.get(idField));
+        // 处理关联数据
         if (CollectionUtils.isNotEmpty(dmInsert.getLookups())) {
             DmInsert dmSubInsert;
             for (DmLookup dmLookup : dmInsert.getLookups()) {
@@ -73,13 +87,6 @@ public class DmServiceImpl implements DmService {
                 }
             }
         }
-        // 逻辑删除标志字段
-        String delFlag = getClassInfo(tableCode).getDelFlagField();
-        if (delFlag != null) {
-            // 设置删除标识
-            dmInsert.getModel().put(delFlag, DEL_FLAG_NORMAL);
-        }
-        getRepository(tableCode).save(mapToPo(tableCode, model));
     }
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
@@ -236,9 +243,9 @@ public class DmServiceImpl implements DmService {
         if (delFlag != null) {
             // 查询语句
             String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
-                    getClassInfo(tableCode).getClassName(),
-                    delFlag,
-                    getClassInfo(tableCode).getIdField());
+                getClassInfo(tableCode).getClassName(),
+                delFlag,
+                getClassInfo(tableCode).getIdField());
             // 创建实体管理器
             EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
@@ -307,7 +314,7 @@ public class DmServiceImpl implements DmService {
             paramIndex = 1;
             // 查询语句
             sql = String.format("DELETE %s WHERE",
-                    getClassInfo(tableCode).getClassName());
+                getClassInfo(tableCode).getClassName());
         }
         // 动态拼接查询条件，及查询参数
         List<String> equations = new ArrayList<>();
@@ -370,11 +377,11 @@ public class DmServiceImpl implements DmService {
         if (delFlag != null) {
             // 查询语句
             String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
-                    getClassInfo(tableCode).getClassName(), delFlag, dmLookup.getForeignField());
+                getClassInfo(tableCode).getClassName(), delFlag, dmLookup.getForeignField());
             createQuery(em, sql, DEL_FLAG_DELETE, value).executeUpdate();
         } else {
             String sql = String.format("DELETE %s WHERE %s = ?1",
-                    getClassInfo(tableCode).getClassName(), dmLookup.getForeignField());
+                getClassInfo(tableCode).getClassName(), dmLookup.getForeignField());
             createQuery(em, sql, value).executeUpdate();
         }
         em.getTransaction().commit();
@@ -383,13 +390,13 @@ public class DmServiceImpl implements DmService {
     @Override
     public Map<String, Object> findById(String tableCode, Object id) {
         return findOneBySpecification(DmSpecification.of(tableCode)
-                .add(DmCriteria.equal(getClassInfo(tableCode).getIdField(), id)));
+            .add(DmCriteria.equal(getClassInfo(tableCode).getIdField(), id)));
     }
 
     @Override
     public List<Map<String, Object>> findByIds(String tableCode, List<Object> ids) {
         return findAllBySpecification(DmSpecification.of(tableCode)
-                .add(DmCriteria.in(getClassInfo(tableCode).getIdField(), ids))).getList();
+            .add(DmCriteria.in(getClassInfo(tableCode).getIdField(), ids))).getList();
     }
 
     @Override
@@ -474,7 +481,7 @@ public class DmServiceImpl implements DmService {
      * 关联查询处理
      *
      * @param dmLookups 关联查询对象
-     * @param data 源数据查询结果
+     * @param data      源数据查询结果
      * @return 关联查询结果
      */
     private Map<String, Object> lookupHandle(List<DmLookup> dmLookups, Map<String, Object> data) {
@@ -485,7 +492,7 @@ public class DmServiceImpl implements DmService {
      * 关联查询处理
      *
      * @param dmLookups 关联查询对象
-     * @param dataList 源数据查询结果
+     * @param dataList  源数据查询结果
      * @return 关联查询结果
      */
     private List<Map<String, Object>> lookupHandle(List<DmLookup> dmLookups, List<Map<String, Object>> dataList) {
@@ -570,8 +577,8 @@ public class DmServiceImpl implements DmService {
     /**
      * 创建查询对象
      *
-     * @param em 实体管理器
-     * @param sql sql语句
+     * @param em     实体管理器
+     * @param sql    sql语句
      * @param params 参数集合
      * @return 查询对象
      */
@@ -590,7 +597,7 @@ public class DmServiceImpl implements DmService {
      * map转po对象
      *
      * @param tableCode 表名
-     * @param map map对象
+     * @param map       map对象
      * @return po class
      */
     private Object mapToPo(String tableCode, Map<String, Object> map) {
@@ -602,7 +609,7 @@ public class DmServiceImpl implements DmService {
      * map转po对象
      *
      * @param tableCode 表名
-     * @param maps map对象集合
+     * @param maps      map对象集合
      * @return po class集合
      */
     private List<Object> mapToPo(String tableCode, List<Map<String, Object>> maps) {

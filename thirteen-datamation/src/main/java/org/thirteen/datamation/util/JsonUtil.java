@@ -7,11 +7,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -40,6 +43,8 @@ public class JsonUtil {
         SimpleModule module = new SimpleModule();
         module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(ofPattern("yyyy-MM-dd HH:mm:ss")));
         module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(ofPattern("yyyy-MM-dd HH:mm:ss")));
+        module.addSerializer(LocalDate.class, new LocalDateSerializer(ofPattern("yyyy-MM-dd")));
+        module.addDeserializer(LocalDate.class, new LocalDateDeserializer(ofPattern("yyyy-MM-dd")));
         MAPPER.registerModule(module);
     }
 
@@ -67,9 +72,9 @@ public class JsonUtil {
     /**
      * 反序列化，将json字符串转化为对象
      *
-     * @param json json字符串
+     * @param json  json字符串
      * @param clazz 目标对象类型
-     * @param <T> 泛型，目标对象
+     * @param <T>   泛型，目标对象
      * @return 转化后的对象
      */
     public static <T> T parseObject(String json, Class<T> clazz) {

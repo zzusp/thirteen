@@ -71,51 +71,51 @@ public class DmAuthUserServiceImpl implements DmAuthUserService {
     @Override
     public Map<String, Object> getDetailByAccount(String account) {
         DmSpecification specification = DmSpecification.of(DmAuthCodes.AUTH_USER)
-                .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account))
-                .add(DmLookup.of(DmAuthCodes.AUTH_DEPT).localField(DmAuthCodes.DEPT_CODE)
-                        .foreignField(DmAuthCodes.CODE).as(DmAuthCodes.DEPT_KEY).unwind(true))
-                .add(DmLookup.of(DmAuthCodes.AUTH_GROUP).localField(DmAuthCodes.GROUP_CODE)
-                        .foreignField(DmAuthCodes.CODE).as(DmAuthCodes.GROUP_KEY).unwind(true))
-                .add(DmLookup.of(DmAuthCodes.AUTH_USER_ROLE).localField(DmAuthCodes.ACCOUNT)
-                        .foreignField(DmAuthCodes.ACCOUNT).as(DmAuthCodes.ROLE_KEY));
+            .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account))
+            .add(DmLookup.of(DmAuthCodes.AUTH_DEPT).localField(DmAuthCodes.DEPT_CODE)
+                .foreignField(DmAuthCodes.CODE).as(DmAuthCodes.DEPT_KEY).unwind(true))
+            .add(DmLookup.of(DmAuthCodes.AUTH_GROUP).localField(DmAuthCodes.GROUP_CODE)
+                .foreignField(DmAuthCodes.CODE).as(DmAuthCodes.GROUP_KEY).unwind(true))
+            .add(DmLookup.of(DmAuthCodes.AUTH_USER_ROLE).localField(DmAuthCodes.ACCOUNT)
+                .foreignField(DmAuthCodes.ACCOUNT).as(DmAuthCodes.ROLE_KEY));
         // 获取用户信息
         Map<String, Object> user = this.dmService.findOneBySpecification(specification);
         if (user != null) {
             List<String> roleCodes = new ArrayList<>();
             // 查询部门关联的角色
             PagerResult<Map<String, Object>> deptRolePage = this.dmService.findAllBySpecification(
-                    DmSpecification.of(DmAuthCodes.AUTH_DEPT_ROLE)
-                            .add(DmCriteria.equal(DmAuthCodes.DEPT_CODE, user.get(DmAuthCodes.DEPT_CODE))));
+                DmSpecification.of(DmAuthCodes.AUTH_DEPT_ROLE)
+                    .add(DmCriteria.equal(DmAuthCodes.DEPT_CODE, user.get(DmAuthCodes.DEPT_CODE))));
             if (!deptRolePage.isEmpty()) {
                 roleCodes.addAll(deptRolePage.getList().stream().map(v -> v.get(DmAuthCodes.ROLE_CODE).toString())
-                        .collect(Collectors.toList()));
+                    .collect(Collectors.toList()));
             }
             // 查询用户角色、权限、应用
             List<Map<String, Object>> userRoles = (List<Map<String, Object>>) user.get(DmAuthCodes.ROLE_KEY);
             if (CollectionUtils.isNotEmpty(userRoles)) {
                 roleCodes.addAll(userRoles.stream().map(v -> v.get(DmAuthCodes.ROLE_CODE).toString())
-                        .collect(Collectors.toList()));
+                    .collect(Collectors.toList()));
             }
             if (CollectionUtils.isNotEmpty(roleCodes)) {
                 DmSpecification roleSpecification;
                 // 判断是否拥有超管角色
                 if (roleCodes.contains(DmAuthCodes.ADMIN_CODE)) {
                     roleSpecification = DmSpecification.of(DmAuthCodes.AUTH_ROLE)
-                            .add(DmCriteria.in(DmAuthCodes.CODE, roleCodes));
+                        .add(DmCriteria.in(DmAuthCodes.CODE, roleCodes));
                     // 查询关联角色信息
                     PagerResult<Map<String, Object>> rolePage = this.dmService.findAllBySpecification(roleSpecification);
                     user.put(DmAuthCodes.ROLE_KEY, rolePage.getList());
                     // 查询所有应用、权限
                     user.put(DmAuthCodes.APP_KEY, this.dmService.findAllBySpecification(
-                            DmSpecification.of(DmAuthCodes.AUTH_APP).add(DmSort.asc(DmAuthCodes.ORDER_NUM))).getList());
+                        DmSpecification.of(DmAuthCodes.AUTH_APP).add(DmSort.asc(DmAuthCodes.ORDER_NUM))).getList());
                     user.put(DmAuthCodes.PERMISSION_KEY, this.dmService.findAll(DmAuthCodes.AUTH_PERMISSION).getList());
                 } else {
                     roleSpecification = DmSpecification.of(DmAuthCodes.AUTH_ROLE)
-                            .add(DmCriteria.in(DmAuthCodes.CODE, roleCodes))
-                            .add(DmLookup.of(DmAuthCodes.AUTH_ROLE_APP).localField(DmAuthCodes.CODE)
-                                    .foreignField(DmAuthCodes.ROLE_CODE).as(DmAuthCodes.APP_KEY))
-                            .add(DmLookup.of(DmAuthCodes.AUTH_ROLE_PERMISSION).localField(DmAuthCodes.CODE)
-                                    .foreignField(DmAuthCodes.ROLE_CODE).as(DmAuthCodes.PERMISSION_KEY));
+                        .add(DmCriteria.in(DmAuthCodes.CODE, roleCodes))
+                        .add(DmLookup.of(DmAuthCodes.AUTH_ROLE_APP).localField(DmAuthCodes.CODE)
+                            .foreignField(DmAuthCodes.ROLE_CODE).as(DmAuthCodes.APP_KEY))
+                        .add(DmLookup.of(DmAuthCodes.AUTH_ROLE_PERMISSION).localField(DmAuthCodes.CODE)
+                            .foreignField(DmAuthCodes.ROLE_CODE).as(DmAuthCodes.PERMISSION_KEY));
                     // 查询关联角色信息
                     PagerResult<Map<String, Object>> rolePage = this.dmService.findAllBySpecification(roleSpecification);
                     if (CollectionUtils.isNotEmpty(rolePage.getList())) {
@@ -128,17 +128,17 @@ public class DmAuthUserServiceImpl implements DmAuthUserService {
                         if (CollectionUtils.isNotEmpty(roleApps)) {
                             // 查询关联应用信息
                             PagerResult<Map<String, Object>> appPage = this.dmService.findAllBySpecification(
-                                    DmSpecification.of(DmAuthCodes.AUTH_APP).add(DmCriteria.in(DmAuthCodes.CODE,
-                                            roleApps.stream().map(v -> v.get(DmAuthCodes.APP_CODE).toString())
-                                                    .collect(Collectors.toList()))).add(DmSort.asc(DmAuthCodes.ORDER_NUM)));
+                                DmSpecification.of(DmAuthCodes.AUTH_APP).add(DmCriteria.in(DmAuthCodes.CODE,
+                                    roleApps.stream().map(v -> v.get(DmAuthCodes.APP_CODE).toString())
+                                        .collect(Collectors.toList()))).add(DmSort.asc(DmAuthCodes.ORDER_NUM)));
                             user.put(DmAuthCodes.APP_KEY, appPage.getList());
                         }
                         if (CollectionUtils.isNotEmpty(rolePermissions)) {
                             // 查询关联权限信息
                             PagerResult<Map<String, Object>> permissionPage = this.dmService.findAllBySpecification(
-                                    DmSpecification.of(DmAuthCodes.AUTH_PERMISSION).add(DmCriteria.in(DmAuthCodes.CODE,
-                                            rolePermissions.stream().map(v -> MapUtil.getStringValue(v, DmAuthCodes.PERMISSION_CODE))
-                                                    .collect(Collectors.toList()))));
+                                DmSpecification.of(DmAuthCodes.AUTH_PERMISSION).add(DmCriteria.in(DmAuthCodes.CODE,
+                                    rolePermissions.stream().map(v -> MapUtil.getStringValue(v, DmAuthCodes.PERMISSION_CODE))
+                                        .collect(Collectors.toList()))));
                             user.put(DmAuthCodes.PERMISSION_KEY, permissionPage.getList());
                         }
                         user.put(DmAuthCodes.ROLE_KEY, rolePage.getList());
@@ -156,7 +156,7 @@ public class DmAuthUserServiceImpl implements DmAuthUserService {
         }
         String account = this.dmAuthService.getCurrentAccount();
         Map<String, Object> user = this.dmService.findOneBySpecification(DmSpecification.of(DmAuthCodes.AUTH_USER)
-                .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
+            .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
         if (user == null) {
             throw new BusinessException("用户已被删除或不存在");
         }
@@ -171,8 +171,8 @@ public class DmAuthUserServiceImpl implements DmAuthUserService {
         String sep = System.getProperty("file.separator");
         // 文件路径 上传地址+账号+分隔符+日期时间+4为随机数+后缀名
         String filePath = uploadPath + account + sep
-                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
-                + RandomUtil.randomChar(4) + suffixName;
+            + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+            + RandomUtil.randomChar(4) + suffixName;
         File dest = new File(filePath);
         // 检测是否存在目录，如果不存在则创建，创建失败抛出异常
         if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) {
@@ -187,27 +187,27 @@ public class DmAuthUserServiceImpl implements DmAuthUserService {
         // 更新用户头像路径
         user.put(DmAuthCodes.PHOTO, filePath);
         this.dmAuthService.update(DmAuthUpdate.of(DmAuthCodes.AUTH_USER).model(user)
-                .rule(DmAuthRule.of().addCurrentAccount(DmAuthCodes.UPDATE_BY).addCurrentDateTime(DmAuthCodes.UPDATE_TIME)));
+            .rule(DmAuthRule.of().addCurrentAccount(DmAuthCodes.UPDATE_BY).addCurrentDateTime(DmAuthCodes.UPDATE_TIME)));
     }
 
     @Override
     public void profileSetting(Map<String, Object> model) {
         String account = this.dmAuthService.getCurrentAccount();
         Map<String, Object> user = this.dmService.findOneBySpecification(DmSpecification.of(DmAuthCodes.AUTH_USER)
-                .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
+            .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
         user.put(DmAuthCodes.ACCOUNT, model.get(DmAuthCodes.ACCOUNT));
         user.put(DmAuthCodes.EMAIL, model.get(DmAuthCodes.EMAIL));
         user.put(DmAuthCodes.MOBILE, model.get(DmAuthCodes.MOBILE));
         user.put(DmAuthCodes.REMARK, model.get(DmAuthCodes.REMARK));
         this.dmAuthService.update(DmAuthUpdate.of(DmAuthCodes.AUTH_USER).model(user)
-                .rule(DmAuthRule.of().addCurrentAccount(DmAuthCodes.UPDATE_BY).addCurrentDateTime(DmAuthCodes.UPDATE_TIME)));
+            .rule(DmAuthRule.of().addCurrentAccount(DmAuthCodes.UPDATE_BY).addCurrentDateTime(DmAuthCodes.UPDATE_TIME)));
     }
 
     @Override
     public void passwordEdit(String oldPassword, String newPassword, String confirm) {
         String account = this.dmAuthService.getCurrentAccount();
         Map<String, Object> user = this.dmService.findOneBySpecification(DmSpecification.of(DmAuthCodes.AUTH_USER)
-                .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
+            .add(DmCriteria.equal(DmAuthCodes.ACCOUNT, account)));
         String salt = MapUtil.getStringValue(user, DmAuthCodes.SALT);
         // 判断旧密码是否正确
         if (Md5Util.encrypt(account, oldPassword, salt).equals(user.get(DmAuthCodes.PASSWORD))) {
@@ -222,7 +222,7 @@ public class DmAuthUserServiceImpl implements DmAuthUserService {
             // 设置密码
             user.put(DmAuthCodes.PASSWORD, Md5Util.encrypt(account, newPassword, salt));
             this.dmAuthService.update(DmAuthUpdate.of(DmAuthCodes.AUTH_USER).model(user)
-                    .rule(DmAuthRule.of().addCurrentAccount(DmAuthCodes.UPDATE_BY).addCurrentDateTime(DmAuthCodes.UPDATE_TIME)));
+                .rule(DmAuthRule.of().addCurrentAccount(DmAuthCodes.UPDATE_BY).addCurrentDateTime(DmAuthCodes.UPDATE_TIME)));
         } else {
             throw new BusinessException("旧密码错误！");
         }

@@ -3,7 +3,9 @@ package org.thirteen.datamation.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +31,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,15 +69,15 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
+            .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+            .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor())
-                .addPathPatterns("/**");
+            .addPathPatterns("/**");
     }
 
     @Bean
@@ -91,8 +94,9 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
                 SimpleModule module = new SimpleModule();
                 module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(ofPattern("yyyy-MM-dd HH:mm:ss")));
                 module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(ofPattern("yyyy-MM-dd HH:mm:ss")));
+                module.addSerializer(LocalDate.class, new LocalDateSerializer(ofPattern("yyyy-MM-dd")));
+                module.addDeserializer(LocalDate.class, new LocalDateDeserializer(ofPattern("yyyy-MM-dd")));
                 objectMapper.registerModule(module);
-//                objectMapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
                 objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             }
         });
@@ -107,13 +111,13 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(apiInfo())
-                .globalOperationParameters(globalOperationParameters())
-                .groupName("v1")
-                .select()
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
-                .paths(PathSelectors.any())
-                .build();
+            .apiInfo(apiInfo())
+            .globalOperationParameters(globalOperationParameters())
+            .groupName("v1")
+            .select()
+            .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+            .paths(PathSelectors.any())
+            .build();
     }
 
     /**
@@ -136,16 +140,16 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                // 任意，请稍微规范点
-                .title("接口列表 v1.1.0")
-                // 任意，请稍微规范点
-                .description("接口测试")
-                // 将“url”换成自己的ip:port
-                .termsOfServiceUrl("http://localhost:8080/swagger-ui.html")
-                // 无所谓（这里是作者的别称）
-                .contact(new Contact("thirteen", "http://blog.csdn.net/u014231523", "thirteen@163.com"))
-                .version("1.1.0")
-                .build();
+            // 任意，请稍微规范点
+            .title("接口列表 v1.1.0")
+            // 任意，请稍微规范点
+            .description("接口测试")
+            // 将“url”换成自己的ip:port
+            .termsOfServiceUrl("http://localhost:8080/swagger-ui.html")
+            // 无所谓（这里是作者的别称）
+            .contact(new Contact("thirteen", "http://blog.csdn.net/u014231523", "thirteen@163.com"))
+            .version("1.1.0")
+            .build();
     }
 
     /**
@@ -156,17 +160,17 @@ public class Swagger2Config extends WebMvcConfigurationSupport {
     private List<Parameter> globalOperationParameters() {
         List<Parameter> aParameters = new ArrayList<>();
         Parameter parameter = new ParameterBuilder()
-                // 参数类型支持header, cookie, body, query etc
-                .parameterType("query")
-                // 参数名
-                .name("token")
-                // 默认值
-                .defaultValue("token")
-                .description("query中token字段测试")
-                // 指定参数值的类型
-                .modelRef(new ModelRef("string"))
-                // 非必需，这里是全局配置，然而在登陆的时候是不用验证的
-                .required(false).build();
+            // 参数类型支持header, cookie, body, query etc
+            .parameterType("query")
+            // 参数名
+            .name("token")
+            // 默认值
+            .defaultValue("token")
+            .description("query中token字段测试")
+            // 指定参数值的类型
+            .modelRef(new ModelRef("string"))
+            // 非必需，这里是全局配置，然而在登陆的时候是不用验证的
+            .required(false).build();
         aParameters.add(parameter);
         return aParameters;
     }

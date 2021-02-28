@@ -32,11 +32,17 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     private final DmValidateService dmValidateService;
     private final RedisTokenService redisTokenService;
 
-    /** 所有登陆后可访问的地址 */
+    /**
+     * 所有登陆后可访问的地址
+     */
     private List<String> loginUrlList;
-    /** 所有认证后可访问的地址 */
+    /**
+     * 所有认证后可访问的地址
+     */
     private List<String> authUrlList;
-    /** 所有授权后可访问的地址 */
+    /**
+     * 所有授权后可访问的地址
+     */
     private List<String> permsUrlList;
 
     public JwtInterceptor(DmService dmService, DmValidateService dmValidateService, RedisTokenService redisTokenService) {
@@ -76,7 +82,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     /**
      * token验证，如果token有效，设置account到threadLocal
      *
-     * @param now 请求时间
+     * @param now                请求时间
      * @param httpServletRequest 请求对象
      */
     private void validate(LocalDateTime now, HttpServletRequest httpServletRequest) {

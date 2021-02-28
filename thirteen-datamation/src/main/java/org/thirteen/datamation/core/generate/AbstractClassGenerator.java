@@ -77,7 +77,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      */
     public void writeClass(ClassInfo classInfo) throws IOException, URISyntaxException {
         String classFilePath = ClassLoader.getSystemResource("").toURI().getPath()
-                + this.defaultPackage + classInfo.getClassName() + ".class";
+            + this.defaultPackage + classInfo.getClassName() + ".class";
         // 将二进制流写到本地磁盘上
         try (FileOutputStream fos = new FileOutputStream(classFilePath)) {
             fos.write(getClassByteArray(classInfo));
@@ -88,7 +88,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * 解析字节码数组，获取class定义
      *
      * @param neighbor 邻类，与生成的class同一目录
-     * @param b 字节码数组
+     * @param b        字节码数组
      * @return class定义
      * @throws IllegalAccessException 非法访问异常
      */
@@ -110,7 +110,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 注解处理
      *
-     * @param cw 类构建器
+     * @param cw              类构建器
      * @param annotationInfos 注解信息集合
      */
     protected void annotationHandle(ClassWriter cw, List<AnnotationInfo> annotationInfos) {
@@ -131,7 +131,7 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 注解参数处理
      *
-     * @param av 注解访问器
+     * @param av     注解访问器
      * @param params 注解参数集合
      */
     private void annotationParamHandle(AnnotationVisitor av, List<AnnotationInfo.Param> params) {
@@ -153,9 +153,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 字段处理
      *
-     * @param cw 类构建器
+     * @param cw         类构建器
      * @param fieldInfos 字段信息集合
-     * @param className 完整类名
+     * @param className  完整类名
      */
     protected void fieldHandle(ClassWriter cw, List<FieldInfo> fieldInfos, String className) {
         if (!CollectionUtils.isEmpty(fieldInfos)) {
@@ -203,9 +203,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 字段set方法
      *
-     * @param cw 类构建器
+     * @param cw        类构建器
      * @param fieldName 字段名称
-     * @param typeOf 字段类型
+     * @param typeOf    字段类型
      * @param className 完整类名
      */
     private void setMethodHandle(ClassWriter cw, String fieldName, String typeOf, String className) {
@@ -230,9 +230,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * 字段get方法
      *
-     * @param cw 类构建器
+     * @param cw        类构建器
      * @param fieldName 字段名称
-     * @param typeOf 字段类型
+     * @param typeOf    字段类型
      * @param className 完整类名
      */
     private void getMethodHandle(ClassWriter cw, String fieldName, String typeOf, String className) {
@@ -260,9 +260,9 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
     /**
      * toString方法处理
      *
-     * @param cw 类构建器
+     * @param cw         类构建器
      * @param fieldInfos 字段信息集合
-     * @param className 完整类名
+     * @param className  完整类名
      */
     protected void toStringMethodHandle(ClassWriter cw, List<FieldInfo> fieldInfos, String className) {
         if (!CollectionUtils.isEmpty(fieldInfos)) {
@@ -297,11 +297,11 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
             desc.append(")Ljava/lang/String;");
             arguments.append("}");
             mv.visitInvokeDynamicInsn("makeConcatWithConstants", desc.toString(),
-                    new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory",
-                            "makeConcatWithConstants",
-                            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;" +
-                                    "Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;",
-                            false), arguments.toString());
+                new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory",
+                    "makeConcatWithConstants",
+                    "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;" +
+                        "Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;",
+                    false), arguments.toString());
             mv.visitInsn(ARETURN);
 
             Label label1 = new Label();

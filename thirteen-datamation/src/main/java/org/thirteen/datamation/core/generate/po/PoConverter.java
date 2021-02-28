@@ -106,7 +106,7 @@ public class PoConverter extends AbstractClassConverter {
         if (column.getLength() != null && column.getLength() > 0) {
             sb.append("(").append(column.getLength());
             if (COLUMN_DB_FLOAT.equals(column.getDbType()) || COLUMN_DB_DOUBLE.equals(column.getDbType())
-                    || COLUMN_DB_DECIMAL.equals(column.getDbType())) {
+                || COLUMN_DB_DECIMAL.equals(column.getDbType())) {
                 Integer decimalPoint = column.getDecimalPoint();
                 sb.append(",").append(decimalPoint == null || decimalPoint < 0 ? 0 : decimalPoint);
             }

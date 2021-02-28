@@ -20,23 +20,39 @@ public class DmCodes {
 
     // 字段值
 
-    /** 字段类型：主键字段 */
+    /**
+     * 字段类型：主键字段
+     */
     public static final Byte COLUMN_TYPE_ID = 0;
-    /** 字段类型：逻辑删除字段 */
+    /**
+     * 字段类型：逻辑删除字段
+     */
     public static final Byte COLUMN_TYPE_DEL_FLAG = 1;
-    /** 字段类型：版本号字段 */
+    /**
+     * 字段类型：版本号字段
+     */
     public static final Byte COLUMN_TYPE_VERSION = 2;
 
-    /** 删除标识：未删除 */
+    /**
+     * 删除标识：未删除
+     */
     public static final Byte DEL_FLAG_NORMAL = 0;
-    /** 删除标识：已删除 */
+    /**
+     * 删除标识：已删除
+     */
     public static final Byte DEL_FLAG_DELETE = 1;
 
-    /** 列数据库类型：FLOAT */
+    /**
+     * 列数据库类型：FLOAT
+     */
     public static final String COLUMN_DB_FLOAT = "FLOAT";
-    /** 列数据库类型：DOUBLE */
+    /**
+     * 列数据库类型：DOUBLE
+     */
     public static final String COLUMN_DB_DOUBLE = "DOUBLE";
-    /** 列数据库类型：DECIMAL */
+    /**
+     * 列数据库类型：DECIMAL
+     */
     public static final String COLUMN_DB_DECIMAL = "DECIMAL";
 
     // 判断条件

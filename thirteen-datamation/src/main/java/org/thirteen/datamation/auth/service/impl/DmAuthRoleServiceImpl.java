@@ -37,7 +37,7 @@ public class DmAuthRoleServiceImpl implements DmAuthRoleService {
             throw new BusinessException("角色授权时，角色编码不可为空");
         }
         Map<String, Object> role = this.dmService.findOneBySpecification(DmSpecification.of(DmAuthCodes.AUTH_ROLE)
-                .add(DmCriteria.equal(DmAuthCodes.CODE, roleCode)));
+            .add(DmCriteria.equal(DmAuthCodes.CODE, roleCode)));
         if (role == null) {
             throw new BusinessException("角色授权失败，角色不存在或已被删除");
         }

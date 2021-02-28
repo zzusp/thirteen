@@ -168,13 +168,13 @@ public class ClassInfo implements Serializable {
     @Override
     public String toString() {
         return "ClassInfo{" +
-                "className='" + className + '\'' +
-                ", access='" + access + '\'' +
-                ", signature='" + signature + '\'' +
-                ", superName='" + superName + '\'' +
-                ", interfaces=" + Arrays.toString(interfaces) +
-                ", annotationInfos=" + annotationInfos +
-                ", fieldInfos=" + fieldInfos +
-                '}';
+            "className='" + className + '\'' +
+            ", access='" + access + '\'' +
+            ", signature='" + signature + '\'' +
+            ", superName='" + superName + '\'' +
+            ", interfaces=" + Arrays.toString(interfaces) +
+            ", annotationInfos=" + annotationInfos +
+            ", fieldInfos=" + fieldInfos +
+            '}';
     }
 }

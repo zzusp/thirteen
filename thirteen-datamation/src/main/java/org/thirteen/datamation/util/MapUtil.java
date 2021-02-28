@@ -22,7 +22,7 @@ public class MapUtil {
      * 根据key获取map中的某个字符串类型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return 字符串类型的值
      */
     public static String getStringValue(Map<String, Object> param, String key) {
@@ -42,7 +42,7 @@ public class MapUtil {
      * 根据key获取map中的某个整型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return 整型的值
      */
     public static Integer getIntegerValue(Map<String, Object> param, String key) {
@@ -62,7 +62,7 @@ public class MapUtil {
      * 根据key获取map中的某个长整型类型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return 长整型的值
      */
     public static Long getLongValue(Map<String, Object> param, String key) {
@@ -82,7 +82,7 @@ public class MapUtil {
      * 根据key获取map中的某个单精度浮点数类型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return 单精度浮点数的值
      */
     public static Float getFloatValue(Map<String, Object> param, String key) {
@@ -102,7 +102,7 @@ public class MapUtil {
      * 根据key获取map中的某个双精度浮点数类型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return 双精度浮点数的值
      */
     public static Double getDoubleValue(Map<String, Object> param, String key) {
@@ -122,7 +122,7 @@ public class MapUtil {
      * 根据key获取map中的某个字节类型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return 字节类型的值
      */
     public static Byte getByteValue(Map<String, Object> param, String key) {
@@ -142,7 +142,7 @@ public class MapUtil {
      * 根据key获取map中的某个Map类型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return Map类型的值
      */
     @SuppressWarnings("unchecked")
@@ -163,7 +163,7 @@ public class MapUtil {
      * 根据key获取map中的某个集合类型的值
      *
      * @param param map对象
-     * @param key key
+     * @param key   key
      * @return 集合类型的值
      */
     @SuppressWarnings("unchecked")

@@ -177,7 +177,7 @@ public class DatamationRepository implements ApplicationContextAware {
         List<DmColumnPO> columnList = dmColumnRepository.findAll();
         // 将所有column按照tableCode分组
         Map<String, Set<DmColumnPO>> columnMap = columnList.stream()
-                .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
+            .collect(Collectors.groupingBy(DmColumnPO::getTableCode, toSet()));
 
         // 自定义类加载器
         DmClassLoader dmClassLoader = new DmClassLoader();
@@ -251,7 +251,7 @@ public class DatamationRepository implements ApplicationContextAware {
      *
      * @param beanFactory bean工厂对象
      * @param classLoader 类加载器
-     * @param entities 实体类集合
+     * @param entities    实体类集合
      * @return EntityManagerFactory
      */
     private EntityManagerFactory createEntityManagerFactory(DefaultListableBeanFactory beanFactory,
@@ -262,8 +262,8 @@ public class DatamationRepository implements ApplicationContextAware {
         properties.putAll(beanFactory.getBean(JpaProperties.class).getProperties());
         // 创建持久单元信息
         PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
-                "default",
-                properties
+            "default",
+            properties
         );
         // 设置数据源
         persistenceUnitInfo.setNonJtaDataSource(beanFactory.getBean(DataSource.class));
@@ -280,8 +280,8 @@ public class DatamationRepository implements ApplicationContextAware {
     /**
      * 注册repository到spring容器
      *
-     * @param beanFactory bean工厂对象
-     * @param emf 实体管理工厂
+     * @param beanFactory                 bean工厂对象
+     * @param emf                         实体管理工厂
      * @param repositoryBeanDefinitionMap 记录repository bean定义的map。key为beanName，value为bean定义
      */
     private void registerRepository(DefaultListableBeanFactory beanFactory, EntityManagerFactory emf,
@@ -311,7 +311,7 @@ public class DatamationRepository implements ApplicationContextAware {
                 // 将事务管理器改为自定义的事务管理器
                 if (SPRING_TRANSACTION_MANAGER.equals(pv.getName())) {
                     bd.getPropertyValues().getPropertyValueList().set(i,
-                            new PropertyValue(SPRING_TRANSACTION_MANAGER, BEAN_NAME_PREFIX + SPRING_TRANSACTION_MANAGER));
+                        new PropertyValue(SPRING_TRANSACTION_MANAGER, BEAN_NAME_PREFIX + SPRING_TRANSACTION_MANAGER));
                 }
             }
             // 将repository注入容器中
