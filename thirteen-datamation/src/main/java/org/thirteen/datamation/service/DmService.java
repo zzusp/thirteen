@@ -1,6 +1,7 @@
 package org.thirteen.datamation.service;
 
 import org.thirteen.datamation.core.criteria.*;
+import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.web.PagerResult;
 
 import java.util.List;
@@ -125,5 +126,13 @@ public interface DmService {
      * @return 是否存在
      */
     boolean isExist(DmSpecification dmSpecification);
+
+    /**
+     * 由表名获取对应类信息（用于生成po）
+     *
+     * @param tableCode 表名
+     * @return classInfo
+     */
+    ClassInfo getClassInfo(String tableCode);
 
 }

@@ -570,7 +570,8 @@ public class DmServiceImpl implements DmService {
      * @param tableCode 表名
      * @return classInfo
      */
-    private ClassInfo getClassInfo(String tableCode) {
+    @Override
+    public ClassInfo getClassInfo(String tableCode) {
         return datamationRepository.getPoClassInfo(tableCode);
     }
 

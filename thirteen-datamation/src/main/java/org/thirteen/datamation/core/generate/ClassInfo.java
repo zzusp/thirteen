@@ -109,6 +109,23 @@ public class ClassInfo implements Serializable {
         return getDelFlagField() != null;
     }
 
+    /**
+     * 判断是否包含字段
+     *
+     * @param field 字段
+     * @return 是否包含字段
+     */
+    public boolean contains(String field) {
+        boolean flag = false;
+        for (FieldInfo fieldInfo : fieldInfos) {
+            if (fieldInfo.getName().equals(field)) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
+
     public String getClassName() {
         return className;
     }
