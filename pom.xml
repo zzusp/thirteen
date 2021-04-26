@@ -41,7 +41,7 @@
     <httpclient.version>4.5.10</httpclient.version><!-- HTTP协议的客户端编程工具包 -->
     <joda-time.version>2.10.5</joda-time.version><!-- 处理时间 -->
     <commons-lang3.version>3.9</commons-lang3.version><!-- java常用处理集 -->
-    <commons-io.version>2.6</commons-io.version><!-- io处理 -->
+    <commons-io.version>2.7</commons-io.version><!-- io处理 -->
     <commons-net.version>3.6</commons-net.version><!-- 下载功能 -->
     <commons-fileupload.version>1.4</commons-fileupload.version><!-- 文件上传 -->
     <commons-codec.version>1.12</commons-codec.version><!-- 加密库 -->
