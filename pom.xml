@@ -38,7 +38,7 @@
     <mysql.version>8.0.18</mysql.version><!-- mysql连接 -->
     <slf4j.version>2.0.0-alpha1</slf4j.version><!-- 日志工具 -->
     <springfox.swagger2.version>2.9.2</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
-    <httpclient.version>4.5.10</httpclient.version><!-- HTTP协议的客户端编程工具包 -->
+    <httpclient.version>4.5.13</httpclient.version><!-- HTTP协议的客户端编程工具包 -->
     <joda-time.version>2.10.5</joda-time.version><!-- 处理时间 -->
     <commons-lang3.version>3.9</commons-lang3.version><!-- java常用处理集 -->
     <commons-io.version>2.6</commons-io.version><!-- io处理 -->
