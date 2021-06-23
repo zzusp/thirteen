@@ -27,34 +27,35 @@
     <!-- 编译时的编码 -->
     <maven.compiler.encoding>${global.encoding}</maven.compiler.encoding>
 
-    <spring.cloud.version>Hoxton.SR8</spring.cloud.version><!-- spring-cloud包 -->
-    <spring.cloud.nacos.version>0.9.0.RELEASE</spring.cloud.nacos.version><!-- spring-cloud-alibaba-nacos -->
-    <spring.boot.version>2.2.3.RELEASE</spring.boot.version><!-- spring boot -->
-    <spring.data.redis.version>2.2.3.RELEASE</spring.data.redis.version><!-- spring-data-redis -->
-    <spring.data.jpa.version>2.2.3.RELEASE</spring.data.jpa.version><!-- spring-data-jpa -->
-    <spring.test.version>5.2.2.RELEASE</spring.test.version><!-- spring test 测试包 -->
-    <junit.version>4.13.1</junit.version><!-- Junit测试包 -->
-    <jedis.version>3.1.0</jedis.version><!-- redis的java版本的客户端实现 -->
-    <mysql.version>8.0.18</mysql.version><!-- mysql连接 -->
+    <spring.cloud.version>2020.0.3</spring.cloud.version><!-- spring-cloud包 -->
+    <spring.cloud.nacos.version>2021.1</spring.cloud.nacos.version><!-- spring-cloud-alibaba-nacos -->
+    <spring.cloud.zipkin.version>2.2.8.RELEASE</spring.cloud.zipkin.version><!-- spring-cloud-starter-zipkin -->
+    <spring.boot.version>2.5.1</spring.boot.version><!-- spring boot -->
+    <spring.data.redis.version>2.5.1</spring.data.redis.version><!-- spring-data-redis -->
+    <spring.data.jpa.version>2.5.1</spring.data.jpa.version><!-- spring-data-jpa -->
+    <spring.test.version>5.3.8</spring.test.version><!-- spring test 测试包 -->
+    <junit.version>4.13.2</junit.version><!-- Junit测试包 -->
+    <hamcrest.version>2.2</hamcrest.version><!-- hamcrest -->
+    <jedis.version>3.6.1</jedis.version><!-- redis的java版本的客户端实现 -->
     <slf4j.version>2.0.0-alpha1</slf4j.version><!-- 日志工具 -->
-    <springfox.swagger2.version>2.9.2</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
+    <springfox.swagger2.version>3.0.0</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
     <httpclient.version>4.5.13</httpclient.version><!-- HTTP协议的客户端编程工具包 -->
-    <joda-time.version>2.10.5</joda-time.version><!-- 处理时间 -->
+    <joda-time.version>2.10.10</joda-time.version><!-- 处理时间 -->
     <commons-lang3.version>3.9</commons-lang3.version><!-- java常用处理集 -->
-    <commons-io.version>2.7</commons-io.version><!-- io处理 -->
-    <commons-net.version>3.6</commons-net.version><!-- 下载功能 -->
+    <commons-io.version>2.10.0</commons-io.version><!-- io处理 -->
+    <commons-net.version>3.8.0</commons-net.version><!-- 下载功能 -->
     <commons-fileupload.version>1.4</commons-fileupload.version><!-- 文件上传 -->
     <commons-collections4.version>4.4</commons-collections4.version><!-- 集合工具类 -->
-    <commons-codec.version>1.12</commons-codec.version><!-- 加密库 -->
+    <commons-codec.version>1.15</commons-codec.version><!-- 加密库 -->
     <javax.servlet.version>4.0.1</javax.servlet.version><!-- javax.servlet -->
     <javax.persistence.version>1.0.2</javax.persistence.version><!-- javax.persistence -->
-    <poi.version>4.1.1</poi.version><!-- excel导出 -->
-    <lombok.version>1.18.10</lombok.version><!-- lombok -->
-    <geoip2.version>2.12.0</geoip2.version><!-- 通过IP反解国家省份城市工具 -->
-    <jwt.version>3.8.3</jwt.version><!-- jwt -->
+    <poi.version>5.0.0</poi.version><!-- excel导出 -->
+    <lombok.version>1.18.20</lombok.version><!-- lombok -->
+    <geoip2.version>2.15.0</geoip2.version><!-- 通过IP反解国家省份城市工具 -->
+    <jwt.version>3.16.0</jwt.version><!-- jwt -->
     <jjwt.version>0.9.1</jjwt.version><!-- jwt常用工具包 -->
     <dozer.version>5.5.1</dozer.version><!-- 对象转换工具 -->
-    <ow2.asm.version>8.0.1</ow2.asm.version><!-- 字节码操作工具类 -->
+    <ow2.asm.version>9.1</ow2.asm.version><!-- 字节码操作工具类 -->
   </properties>
 
   <!-- 只定义依赖的版本，并不实际依赖 -->
@@ -72,19 +73,25 @@
         <artifactId>spring-cloud-dependencies</artifactId>
         <version>${spring.cloud.version}</version>
         <type>pom</type>
-        <scope>runtime</scope>
+        <scope>import</scope>
       </dependency>
       <!-- spring-cloud-starter-alibaba-nacos-discovery -->
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
+        <groupId>com.alibaba.cloud</groupId>
         <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         <version>${spring.cloud.nacos.version}</version>
       </dependency>
       <!-- spring-cloud-starter-alibaba-nacos-config -->
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
+        <groupId>com.alibaba.cloud</groupId>
         <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         <version>${spring.cloud.nacos.version}</version>
+      </dependency>
+      <!-- spring-cloud-starter-zipkin -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zipkin</artifactId>
+        <version>${spring.cloud.zipkin.version}</version>
       </dependency>
       <!-- spring boot -->
       <dependency>
@@ -106,6 +113,12 @@
         <artifactId>spring-data-jpa</artifactId>
         <version>${spring.data.jpa.version}</version>
       </dependency>
+      <!-- spring boot starter data mongodb -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        <version>${spring.boot.version}</version>
+      </dependency>
       <!-- spring test 测试包 -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -126,17 +139,18 @@
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
+      <!-- hamcrest -->
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
       <!-- Redis客户端 -->
       <dependency>
         <groupId>redis.clients</groupId>
         <artifactId>jedis</artifactId>
         <version>${jedis.version}</version>
-      </dependency>
-      <!-- MySql -->
-      <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>${mysql.version}</version>
       </dependency>
       <!-- 日志处理 -->
       <dependency>

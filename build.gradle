@@ -5,7 +5,7 @@ description = '依赖jar包'
 buildscript {
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.2.3.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.5.1")
     }
 }
 
@@ -40,41 +40,46 @@ subprojects {
     // java编译的时候缺省状态下会因为中文字符而失败
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
-    def springCloudVersion = 'Hoxton.SR8'// spring-cloud包
-    def springCloudNacosVersion = '0.9.0.RELEASE'// spring-cloud-alibaba-nacos
-    def springBootVersion = '2.2.3.RELEASE'// spring boot
-    def springDataVersion = '2.2.3.RELEASE'// spring-data
-    def springTestVersion = '5.2.2.RELEASE'// spring test 测试包
-    def junitVersion = '4.13.1'// Junit测试包
-    def jedisVersion = '3.1.0'// redis的java版本的客户端实现
-    def mysqlVersion = '8.0.18'// mysql连接
+    def springCloudVersion = '2020.0.3'// spring-cloud包
+    def springCloudNacosVersion = '2021.1'// spring-cloud-alibaba-nacos
+    def springCloudZipkinVersion = '2.2.8.RELEASE'// spring-cloud-alibaba-zipkin
+    def springBootVersion = '2.5.1'// spring boot
+    def springDataVersion = '2.5.1'// spring-data
+    def springTestVersion = '5.3.8'// spring test 测试包
+    def junitVersion = '4.13.2'// Junit测试包
+    def hamcrestVersion = '2.2'// hamcrest
+    def jedisVersion = '3.6.1'// redis的java版本的客户端实现
     def slf4jVersion = '2.0.0-alpha1'// 日志工具
-    def swaggerVersion = '2.9.2'// Springfox Swagger2基础包
+    def swaggerVersion = '3.0.0'// Springfox Swagger2基础包
     def httpclientVersion = '4.5.13'// HTTP协议的客户端编程工具包
-    def jodaTimeVersion = '2.10.5'// 处理时间
+    def jodaTimeVersion = '2.10.10'// 处理时间
     def commonsLang3Version = '3.9'// java常用处理集
-    def commonsIoVersion = '2.7'// io处理
-    def commonsNetVersion = '3.6'// 下载功能
+    def commonsIoVersion = '2.10.0'// io处理
+    def commonsNetVersion = '3.8.0'// 下载功能
     def commonsFileUploadVersion = '1.4'// 文件上传
     def commonsCollections4Version = '4.4'// 集合工具类
-    def commonsCodecVersion = '1.12'// 加密库
+    def commonsCodecVersion = '1.15'// 加密库
     def javaxServletVersion = '4.0.1'// javax.servlet
-    def lombokVersion = '1.18.10'// lombok
-    def geoip2Version = '2.12.0'// 通过IP反解国家省份城市工具
-    def jwtVersion = '3.8.3'// jwt
+    def lombokVersion = '1.18.20'// lombok
+    def geoip2Version = '2.15.0'// 通过IP反解国家省份城市工具
+    def jwtVersion = '3.16.0'// jwt
     def jjwtVersion = '0.9.1'// jwt常用工具包
     def dozerVersion = '5.5.1'// 对象转换工具
-    def ow2AsmVersion = '8.0.1'// 字节码操作工具类
+    def ow2AsmVersion = '9.1'// 字节码操作工具类
 
     dependencyManagement {
         dependencies {
             // spring-cloud-starter-alibaba-nacos-discovery,spring-cloud-starter-alibaba-nacos-config
-            dependencySet(group: 'org.springframework.cloud', version: "$springCloudNacosVersion") {
+            dependencySet(group: 'com.alibaba.cloud', version: "$springCloudNacosVersion") {
                 entry 'spring-cloud-starter-alibaba-nacos-discovery'
                 entry 'spring-cloud-starter-alibaba-nacos-config'
             }
-            // spring test 测试包
-            dependency group: 'org.springframework.boot', name: 'spring-boot-test', version: "$springBootVersion"
+            dependency group: 'org.springframework.cloud', name: 'spring-cloud-starter-zipkin', version: "$springCloudZipkinVersion"
+            // spring-boot-starter-data-mongodb,spring test 测试包
+            dependencySet(group: 'org.springframework.boot', version: "$springBootVersion") {
+                entry 'spring-boot-starter-data-mongodb'
+                entry 'spring-boot-test'
+            }
             // spring data redis,spring data jpa
             dependencySet(group: 'org.springframework.data', version: "$springDataVersion") {
                 entry 'spring-data-redis'
@@ -83,10 +88,10 @@ subprojects {
             dependency group: 'org.springframework', name: 'spring-test', version: "$springTestVersion"
             // junit
             dependency group: 'junit', name: 'junit', version: "$junitVersion"
+            dependency group: 'org.hamcrest', name: 'hamcrest-core', version: "$hamcrestVersion"
+            dependency group: 'org.hamcrest', name: 'hamcrest-library', version: "$hamcrestVersion"
             // Redis客户端
             dependency group: 'redis.clients', name: 'jedis', version: "$jedisVersion"
-            // MySql
-            dependency group: 'mysql', name: 'mysql-connector-java', version: "$mysqlVersion"
             // 日志处理
             dependency group: 'org.slf4j', name: 'slf4j-log4j12', version: "$slf4jVersion"
             // springfox swagger2

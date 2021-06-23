@@ -32,13 +32,6 @@ public class DmController {
         this.dmService = dmService;
     }
 
-    @ApiOperation(value = "刷新", notes = "刷新", response = ResponseResult.class)
-    @GetMapping(value = "/refresh")
-    public ResponseResult<Object> refresh() {
-        dmService.refresh();
-        return ResponseResult.ok();
-    }
-
     @ApiOperation(value = "新增", notes = "新增", response = ResponseResult.class)
     @PostMapping(value = "/insert")
     public ResponseResult<String> insert(

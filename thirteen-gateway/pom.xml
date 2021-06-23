@@ -19,18 +19,18 @@
   <dependencies>
     <!-- spring-cloud-starter-alibaba-nacos-discovery -->
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
+      <groupId>com.alibaba.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
     </dependency>
     <!-- spring-cloud-starter-alibaba-nacos-config -->
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
+      <groupId>com.alibaba.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
     </dependency>
     <!-- hystrix 熔断器 -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
     </dependency>
     <!-- spring-cloud-starter-gateway -->
     <dependency>
