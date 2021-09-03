@@ -13,14 +13,11 @@ import java.util.List;
 @SuppressWarnings("squid:S1948")
 public class PagerResult<T> implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    /**
-     * 总记录数
-     */
+    private static final long serialVersionUID = 4636759514356939763L;
+
+    /** 总记录数 */
     private long total;
-    /**
-     * 结果集
-     */
+    /** 结果集 */
     private List<T> list;
 
     public static <T> PagerResult<T> empty() {

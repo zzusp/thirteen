@@ -11,7 +11,7 @@ import java.io.Serializable;
 @SuppressWarnings("squid:S1948")
 public class ResponseResult<T> implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4798702095576739866L;
 
     public static final String SUCCESS_MESSAGE = "请求成功";
     public static final String BAD_MESSAGE = "请求参数类型不匹配！";

@@ -11,7 +11,6 @@ import org.thirteen.datamation.core.criteria.*;
 import org.thirteen.datamation.core.exception.DatamationException;
 import org.thirteen.datamation.core.generate.ClassInfo;
 import org.thirteen.datamation.core.generate.repository.BaseRepository;
-import org.thirteen.datamation.core.spring.DatamationRepository;
 import org.thirteen.datamation.service.DmService;
 import org.thirteen.datamation.util.CollectionUtils;
 import org.thirteen.datamation.util.JsonUtil;
@@ -38,15 +37,15 @@ public class DmServiceImpl implements DmService {
 
     private static final String SUB_DATA_KEY = "subData";
 
-    private final DatamationRepository datamationRepository;
-
-    public DmServiceImpl(DatamationRepository datamationRepository) {
-        this.datamationRepository = datamationRepository;
-    }
-
+//    private final DatamationRepository datamationRepository;
+//
+//    public DmServiceImpl(DatamationRepository datamationRepository) {
+//        this.datamationRepository = datamationRepository;
+//    }
+//
     @Override
     public void refresh() {
-        datamationRepository.buildDatamationRepository();
+//        datamationRepository.buildDatamationRepository();
     }
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
@@ -193,10 +192,10 @@ public class DmServiceImpl implements DmService {
             params.add(model.get(versionField));
         }
         // 创建实体管理器
-        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
-        em.getTransaction().begin();
-        createQuery(em, sql.toString(), params.toArray()).executeUpdate();
-        em.getTransaction().commit();
+//        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+//        em.getTransaction().begin();
+//        createQuery(em, sql.toString(), params.toArray()).executeUpdate();
+//        em.getTransaction().commit();
     }
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
@@ -247,10 +246,10 @@ public class DmServiceImpl implements DmService {
                 delFlag,
                 getClassInfo(tableCode).getIdField());
             // 创建实体管理器
-            EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
-            em.getTransaction().begin();
-            createQuery(em, sql, DEL_FLAG_DELETE, id).executeUpdate();
-            em.getTransaction().commit();
+//            EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+//            em.getTransaction().begin();
+//            createQuery(em, sql, DEL_FLAG_DELETE, id).executeUpdate();
+//            em.getTransaction().commit();
         } else {
             getRepository(tableCode).deleteById(id);
         }
@@ -324,12 +323,12 @@ public class DmServiceImpl implements DmService {
         }
         sql = sql + join(equations, " OR");
         // 创建实体管理器
-        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
-        // 开启事务
-        em.getTransaction().begin();
-        createQuery(em, sql, params).executeUpdate();
-        // 提交事务
-        em.getTransaction().commit();
+//        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+//        // 开启事务
+//        em.getTransaction().begin();
+//        createQuery(em, sql, params).executeUpdate();
+//        // 提交事务
+//        em.getTransaction().commit();
     }
 
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
@@ -352,13 +351,13 @@ public class DmServiceImpl implements DmService {
         String delFlag = getClassInfo(tableCode).getDelFlagField();
         // 判断是否包含删除标识字段
         if (delFlag != null) {
-            // 查询语句
-            String sql = String.format("UPDATE %s SET %s = ?1", getClassInfo(tableCode).getClassName(), delFlag);
-            // 创建实体管理器
-            EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
-            em.getTransaction().begin();
-            createQuery(em, sql, DEL_FLAG_DELETE).executeUpdate();
-            em.getTransaction().commit();
+//            // 查询语句
+//            String sql = String.format("UPDATE %s SET %s = ?1", getClassInfo(tableCode).getClassName(), delFlag);
+//            // 创建实体管理器
+//            EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+//            em.getTransaction().begin();
+//            createQuery(em, sql, DEL_FLAG_DELETE).executeUpdate();
+//            em.getTransaction().commit();
         } else {
             getRepository(tableCode).deleteAll();
         }
@@ -367,24 +366,24 @@ public class DmServiceImpl implements DmService {
     @Transactional(value = "datamation:transactionManager", rollbackFor = Exception.class)
     @Override
     public void delete(Object value, DmLookup dmLookup) {
-        String tableCode = dmLookup.getFrom();
-        // 逻辑删除标志字段
-        String delFlag = getClassInfo(tableCode).getDelFlagField();
-        // 创建实体管理器
-        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
-        em.getTransaction().begin();
-        // 判断是否包含删除标识字段
-        if (delFlag != null) {
-            // 查询语句
-            String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
-                getClassInfo(tableCode).getClassName(), delFlag, dmLookup.getForeignField());
-            createQuery(em, sql, DEL_FLAG_DELETE, value).executeUpdate();
-        } else {
-            String sql = String.format("DELETE %s WHERE %s = ?1",
-                getClassInfo(tableCode).getClassName(), dmLookup.getForeignField());
-            createQuery(em, sql, value).executeUpdate();
-        }
-        em.getTransaction().commit();
+//        String tableCode = dmLookup.getFrom();
+//        // 逻辑删除标志字段
+//        String delFlag = getClassInfo(tableCode).getDelFlagField();
+//        // 创建实体管理器
+//        EntityManager em = datamationRepository.getEntityManagerFactory().createEntityManager();
+//        em.getTransaction().begin();
+//        // 判断是否包含删除标识字段
+//        if (delFlag != null) {
+//            // 查询语句
+//            String sql = String.format("UPDATE %s SET %s = ?1 WHERE %s = ?2",
+//                getClassInfo(tableCode).getClassName(), delFlag, dmLookup.getForeignField());
+//            createQuery(em, sql, DEL_FLAG_DELETE, value).executeUpdate();
+//        } else {
+//            String sql = String.format("DELETE %s WHERE %s = ?1",
+//                getClassInfo(tableCode).getClassName(), dmLookup.getForeignField());
+//            createQuery(em, sql, value).executeUpdate();
+//        }
+//        em.getTransaction().commit();
     }
 
     @Override
@@ -561,7 +560,8 @@ public class DmServiceImpl implements DmService {
      */
     @SuppressWarnings({"squid:S3740", "rawtypes"})
     private BaseRepository getRepository(String tableCode) {
-        return (BaseRepository) datamationRepository.getRepository(tableCode);
+//        return (BaseRepository) datamationRepository.getRepository(tableCode);
+        return null;
     }
 
     /**
@@ -572,7 +572,8 @@ public class DmServiceImpl implements DmService {
      */
     @Override
     public ClassInfo getClassInfo(String tableCode) {
-        return datamationRepository.getPoClassInfo(tableCode);
+//        return datamationRepository.getPoClassInfo(tableCode);
+        return null;
     }
 
     /**
@@ -602,8 +603,9 @@ public class DmServiceImpl implements DmService {
      * @return po class
      */
     private Object mapToPo(String tableCode, Map<String, Object> map) {
-        Class<?> poClass = datamationRepository.getPoClass(tableCode);
-        return JsonUtil.parseObject(JsonUtil.toJsonString(map), poClass);
+//        Class<?> poClass = datamationRepository.getPoClass(tableCode);
+//        return JsonUtil.parseObject(JsonUtil.toJsonString(map), poClass);
+        return null;
     }
 
     /**
@@ -618,9 +620,9 @@ public class DmServiceImpl implements DmService {
             return new ArrayList<>();
         }
         List<Object> objects = new ArrayList<>();
-        Class<?> poClass = datamationRepository.getPoClass(tableCode);
+//        Class<?> poClass = datamationRepository.getPoClass(tableCode);
         for (Map<String, Object> map : maps) {
-            objects.add(JsonUtil.parseObject(JsonUtil.toJsonString(map), poClass));
+//            objects.add(JsonUtil.parseObject(JsonUtil.toJsonString(map), poClass));
         }
         return objects;
     }
