@@ -3,10 +3,12 @@ package org.thirteen.datamation.mongodb.service.impl;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.thirteen.datamation.exception.BusinessException;
 import org.thirteen.datamation.mongodb.model.po.DmDataPO;
@@ -16,8 +18,8 @@ import org.thirteen.datamation.web.PagerResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -36,22 +38,24 @@ public class DmServiceImpl implements DmService {
     }
 
     @Override
-    public void insert(String collectionName, DmDataPO data) {
-        mongoTemplate.insert(data, collectionName);
-    }
-
-    @Override
-    public void insert(String collectionName, List<DmDataPO> data) {
-        mongoTemplate.insert(data, collectionName);
+    public void insert(DmQuery query) {
+        Assert.notNull(query, "新增对象不可为空");
+        if (!ObjectUtils.isEmpty(query.getInsertData())) {
+            mongoTemplate.insert(query.getInsertData(), query.getTableCode());
+        } else if (!ObjectUtils.isEmpty(query.getBatchInsertData())) {
+            mongoTemplate.insert(query.getBatchInsertData(), query.getTableCode());
+        }
     }
 
     @Override
     public void delete(DmQuery query) {
-
+        Assert.notNull(query, "删除对象不可为空");
+        mongoTemplate.remove(this.getQuery(query), query.getTableCode());
     }
 
     @Override
     public void update(DmQuery query) {
+        Assert.notNull(query, "更新对象不可为空");
         List<DmQuery.UpdateValue> values = query.getUpdateValues();
         if (ObjectUtils.isEmpty(values)) {
             throw new BusinessException("需指定要变更的数据");
@@ -61,22 +65,81 @@ public class DmServiceImpl implements DmService {
         for (DmQuery.UpdateValue value : values) {
             data.set(value.getField(), value.getValue());
         }
-        mongoTemplate.upsert(new Query(Criteria.where("_id").is(query.getId())), data, code);
+        mongoTemplate.upsert(this.getQuery(query), data, code);
     }
 
     @Override
     public DmDataPO get(DmQuery query) {
-        return null;
+        Assert.notNull(query, "查询对象不可为空");
+        return this.resetObjectId(mongoTemplate.findOne(this.getQuery(query), DmDataPO.class, query.getTableCode()));
     }
 
     @Override
     public List<DmDataPO> list(DmQuery query) {
-        return Collections.emptyList();
+        Assert.notNull(query, "查询对象不可为空");
+        return this.resetObjectId(mongoTemplate.find(this.getQuery(query), DmDataPO.class, query.getTableCode()));
+    }
+
+    @Override
+    public long count(DmQuery query) {
+        Assert.notNull(query, "统计查询对象不可为空");
+        return mongoTemplate.count(this.getQuery(query), DmDataPO.class, query.getTableCode());
     }
 
     @Override
     public PagerResult<DmDataPO> page(DmQuery query) {
-        return PagerResult.empty();
+        Assert.notNull(query, "分页查询对象不可为空");
+        Assert.notNull(query.getPage(), "分页参数`page`不可空");
+        if (query.getPage().getPageNum() == null || query.getPage().getPageNum() == 0) {
+            throw new BusinessException("分页参数`pageNum`不可空，且从`1`开始");
+        }
+        if (query.getPage().getPageSize() == null || query.getPage().getPageSize() == 0) {
+            throw new BusinessException("分页参数`pageSize`不可空，且从`1`开始");
+        }
+        // 查询对象
+        Query q = this.getQuery(query);
+        // 查询总条数
+        long count = mongoTemplate.count(q, DmDataPO.class, query.getTableCode());
+        // 如果总条数为0，直接返回
+        if (count == 0) {
+            return PagerResult.empty();
+        }
+        // 设置分页参数
+        q.limit(query.getPage().getPageSize());
+        q.skip((long) (query.getPage().getPageNum() - 1) * query.getPage().getPageSize());
+        // 分页查询
+        List<DmDataPO> result = mongoTemplate.find(q, DmDataPO.class, query.getTableCode());
+        return PagerResult.of((int) count, resetObjectId(result));
+    }
+
+    /**
+     * 获取mongo查询对象
+     *
+     * @param query dm查询对象
+     * @return mongo查询对象
+     */
+    private Query getQuery(DmQuery query) {
+        Query q;
+        // 条件
+        if (!ObjectUtils.isEmpty(query.getId())) {
+            q = new Query(new Criteria("_id").is(query.getId()));
+        } else if (!ObjectUtils.isEmpty(query.getIds())) {
+            q = new Query(new Criteria("_id").in(query.getIds()));
+        } else if (!ObjectUtils.isEmpty(query.getAnd()) || !ObjectUtils.isEmpty(query.getOr())) {
+            q = new Query(this.getCriteria(null, query.getAnd(), query.getOr()));
+        } else {
+            q = new Query(new Criteria());
+        }
+        // 排序
+        if (query.getSorts() != null) {
+            Sort sort = this.getSort(query.getSorts());
+            if (sort != null) {
+                q.with(sort);
+            }
+        }
+        // 设置按照数字大小排序
+        q.collation(Collation.of(Locale.CHINESE).numericOrdering(true));
+        return q;
     }
 
     /**
@@ -250,11 +313,25 @@ public class DmServiceImpl implements DmService {
     /**
      * mongodb的id是一个ObjectId的对象，直接返回前端会是一个json结构，所以需要转换
      *
+     * @param data 查询结果
+     * @return 处理过_id后的查询结果
+     */
+    private DmDataPO resetObjectId(DmDataPO data) {
+        if (ObjectUtils.isEmpty(data)) {
+            return data;
+        }
+        data.put("_id", ((ObjectId) data.get("_id")).toString());
+        return data;
+    }
+
+    /**
+     * mongodb的id是一个ObjectId的对象，直接返回前端会是一个json结构，所以需要转换
+     *
      * @param dataList 查询结果
      * @return 处理过_id后的查询结果
      */
-    private List<DmDataPO> getObjectId(List<DmDataPO> dataList) {
-        if (org.springframework.util.CollectionUtils.isEmpty(dataList)) {
+    private List<DmDataPO> resetObjectId(List<DmDataPO> dataList) {
+        if (ObjectUtils.isEmpty(dataList)) {
             return dataList;
         }
         for (DmDataPO data : dataList) {

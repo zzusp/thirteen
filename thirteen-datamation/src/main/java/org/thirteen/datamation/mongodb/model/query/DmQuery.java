@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.thirteen.datamation.mongodb.model.po.DmDataPO;
 
 import java.io.Serializable;
 import java.util.List;
@@ -37,6 +38,10 @@ public class DmQuery implements Serializable {
     private Page page;
     /** 排序参数 */
     private List<Sort> sorts;
+    /** 新增参数 */
+    private DmDataPO insertData;
+    /** 批量新增参数 */
+    private List<DmDataPO> batchInsertData;
     /** 更新参数 */
     private List<UpdateValue> updateValues;
 

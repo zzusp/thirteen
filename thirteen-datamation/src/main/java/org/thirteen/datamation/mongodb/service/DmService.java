@@ -17,18 +17,9 @@ public interface DmService {
     /**
      * 新增
      *
-     * @param collectionName 集合名称
-     * @param data 数据
+     * @param query 新增参数
      */
-    void insert(String collectionName, DmDataPO data);
-
-    /**
-     * 新增
-     *
-     * @param collectionName 集合名称
-     * @param data 数据
-     */
-    void insert(String collectionName, List<DmDataPO> data);
+    void insert(DmQuery query);
 
     /**
      * 删除
@@ -59,6 +50,14 @@ public interface DmService {
      * @return 结果
      */
     List<DmDataPO> list(DmQuery query);
+
+    /**
+     * 统计
+     *
+     * @param query 查询参数
+     * @return 统计总数
+     */
+    long count(DmQuery query);
 
     /**
      * 分页查询
