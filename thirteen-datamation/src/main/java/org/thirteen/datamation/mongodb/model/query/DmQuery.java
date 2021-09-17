@@ -134,4 +134,22 @@ public class DmQuery implements Serializable {
         private Object value;
     }
 
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class Lookup implements Serializable {
+
+        private static final long serialVersionUID = 4981736551335022382L;
+
+        /** 关联表code */
+        private String from;
+        /** 来源表关联字段 */
+        private String localField;
+        /** 关联表关联字段 */
+        private String foreignField;
+        /** 结果集别名 */
+        private String as;
+        /** 是否需要分解，扁平化输出（是否为一对一） */
+        private Boolean unwind;
+    }
+
 }
