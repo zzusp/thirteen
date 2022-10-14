@@ -27,34 +27,32 @@
     <!-- 编译时的编码 -->
     <maven.compiler.encoding>${global.encoding}</maven.compiler.encoding>
 
-    <spring.cloud.version>Hoxton.SR8</spring.cloud.version><!-- spring-cloud包 -->
-    <spring.cloud.nacos.version>0.9.0.RELEASE</spring.cloud.nacos.version><!-- spring-cloud-alibaba-nacos -->
-    <spring.boot.version>2.2.3.RELEASE</spring.boot.version><!-- spring boot -->
-    <spring.data.redis.version>2.2.3.RELEASE</spring.data.redis.version><!-- spring-data-redis -->
-    <spring.data.jpa.version>2.2.3.RELEASE</spring.data.jpa.version><!-- spring-data-jpa -->
-    <spring.test.version>5.2.2.RELEASE</spring.test.version><!-- spring test 测试包 -->
-    <junit.version>4.13.1</junit.version><!-- Junit测试包 -->
-    <jedis.version>3.1.0</jedis.version><!-- redis的java版本的客户端实现 -->
-    <mysql.version>8.0.18</mysql.version><!-- mysql连接 -->
-    <slf4j.version>2.0.0-alpha1</slf4j.version><!-- 日志工具 -->
-    <springfox.swagger2.version>2.9.2</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
-    <httpclient.version>4.5.13</httpclient.version><!-- HTTP协议的客户端编程工具包 -->
-    <joda-time.version>2.10.5</joda-time.version><!-- 处理时间 -->
-    <commons-lang3.version>3.9</commons-lang3.version><!-- java常用处理集 -->
-    <commons-io.version>2.7</commons-io.version><!-- io处理 -->
-    <commons-net.version>3.6</commons-net.version><!-- 下载功能 -->
+    <spring-cloud.version>2021.0.4</spring-cloud.version><!-- spring-cloud包 -->
+    <spring-cloud-alibaba.version>2021.1</spring-cloud-alibaba.version><!-- spring-cloud-alibaba包 -->
+    <spring-cloud-sleuth-zipkin.version>3.1.4</spring-cloud-sleuth-zipkin.version><!-- spring-cloud-sleuth-zipkin -->
+    <spring.boot.version>2.7.3</spring.boot.version><!-- spring boot -->
+    <spring.data.redis.version>2.7.2</spring.data.redis.version><!-- spring-data-redis -->
+    <spring.data.jpa.version>2.7.2</spring.data.jpa.version><!-- spring-data-jpa -->
+    <spring.test.version>5.3.23</spring.test.version><!-- spring test 测试包 -->
+    <jedis.version>4.2.3</jedis.version><!-- redis的java版本的客户端实现 -->
+    <mysql.version>8.0.30</mysql.version><!-- mysql连接 -->
+    <slf4j.version>2.0.1</slf4j.version><!-- 日志工具 -->
+    <springfox.swagger2.version>3.0.0</springfox.swagger2.version><!-- Springfox Swagger2基础包 -->
+    <httpclient5.version>5.1.3</httpclient5.version><!-- HTTP协议的客户端编程工具包 -->
+    <joda-time.version>2.11.1</joda-time.version><!-- 处理时间 -->
+    <commons-lang3.version>3.12.0</commons-lang3.version><!-- java常用处理集 -->
+    <commons-io.version>2.11.0</commons-io.version><!-- io处理 -->
+    <commons-net.version>3.8.0</commons-net.version><!-- 下载功能 -->
     <commons-fileupload.version>1.4</commons-fileupload.version><!-- 文件上传 -->
     <commons-collections4.version>4.4</commons-collections4.version><!-- 集合工具类 -->
-    <commons-codec.version>1.12</commons-codec.version><!-- 加密库 -->
-    <javax.servlet.version>4.0.1</javax.servlet.version><!-- javax.servlet -->
+    <commons-codec.version>1.15</commons-codec.version><!-- 加密库 -->
+    <javax.servlet.version>6.0.0</javax.servlet.version><!-- javax.servlet -->
     <javax.persistence.version>1.0.2</javax.persistence.version><!-- javax.persistence -->
-    <poi.version>4.1.1</poi.version><!-- excel导出 -->
-    <lombok.version>1.18.10</lombok.version><!-- lombok -->
-    <geoip2.version>2.12.0</geoip2.version><!-- 通过IP反解国家省份城市工具 -->
-    <jwt.version>3.8.3</jwt.version><!-- jwt -->
-    <jjwt.version>0.9.1</jjwt.version><!-- jwt常用工具包 -->
-    <dozer.version>5.5.1</dozer.version><!-- 对象转换工具 -->
-    <ow2.asm.version>8.0.1</ow2.asm.version><!-- 字节码操作工具类 -->
+    <lombok.version>1.18.24</lombok.version><!-- lombok -->
+    <geoip2.version>3.0.1</geoip2.version><!-- 通过IP反解国家省份城市工具 -->
+    <jwt.version>4.0.0</jwt.version><!-- jwt -->
+    <jjwt.version>0.11.5</jjwt.version><!-- jwt常用工具包 -->
+    <ow2.asm.version>9.3</ow2.asm.version><!-- 字节码操作工具类 -->
   </properties>
 
   <!-- 只定义依赖的版本，并不实际依赖 -->
@@ -70,21 +68,23 @@
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
-        <version>${spring.cloud.version}</version>
+        <version>${spring-cloud.version}</version>
         <type>pom</type>
-        <scope>runtime</scope>
+        <scope>import</scope>
       </dependency>
-      <!-- spring-cloud-starter-alibaba-nacos-discovery -->
+      <!-- spring-cloud-sleuth-zipkin -->
       <dependency>
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-        <version>${spring.cloud.nacos.version}</version>
+        <artifactId>spring-cloud-sleuth-zipkin</artifactId>
+        <version>${spring-cloud-sleuth-zipkin.version}</version>
       </dependency>
-      <!-- spring-cloud-starter-alibaba-nacos-config -->
+      <!-- SpringCloud Alibaba 微服务 -->
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-        <version>${spring.cloud.nacos.version}</version>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+        <version>${spring-cloud-alibaba.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <!-- spring boot -->
       <dependency>
@@ -119,13 +119,6 @@
         <version>${spring.test.version}</version>
         <scope>test</scope>
       </dependency>
-      <!-- junit -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
       <!-- Redis客户端 -->
       <dependency>
         <groupId>redis.clients</groupId>
@@ -157,9 +150,9 @@
       </dependency>
       <!-- http client -->
       <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${httpclient.version}</version>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>${httpclient5.version}</version>
       </dependency>
       <!-- 时间操作组件 -->
       <dependency>
@@ -201,8 +194,8 @@
       </dependency>
       <!-- javax.servlet -->
       <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
         <version>${javax.servlet.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -211,6 +204,13 @@
         <groupId>javax.persistence</groupId>
         <artifactId>persistence-api</artifactId>
         <version>${javax.persistence.version}</version>
+      </dependency>
+      <!-- lombok -->
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
       </dependency>
       <!-- 通过IP反解国家省份城市工具 -->
       <dependency>
@@ -227,26 +227,8 @@
       <!-- jwt常用工具包 -->
       <dependency>
         <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt</artifactId>
+        <artifactId>jjwt-api</artifactId>
         <version>${jjwt.version}</version>
-      </dependency>
-      <!-- lombok -->
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- 对象转换工具 -->
-      <dependency>
-        <groupId>net.sf.dozer</groupId>
-        <artifactId>dozer</artifactId>
-        <version>${dozer.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>net.sf.dozer</groupId>
-        <artifactId>dozer-spring</artifactId>
-        <version>${dozer.version}</version>
       </dependency>
       <!-- 字节码操作工具类 -->
       <dependency>

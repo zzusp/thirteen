@@ -38,8 +38,8 @@ public class DmTableRepositoryTest {
     @Test
     public void update() {
         Specification<DmTablePO> specification = (Specification<DmTablePO>)
-                (root, criteriaQuery, criteriaBuilder) ->
-                        criteriaBuilder.equal(root.get("code"), "rental_stock");
+            (root, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("code"), "rental_stock");
         Optional<DmTablePO> po = dmTableRepository.findOne(specification);
         po.ifPresent(dmTablePO -> {
             dmTablePO.setUpdateBy("admin");
@@ -51,8 +51,8 @@ public class DmTableRepositoryTest {
     @Test
     public void delete() {
         Specification<DmTablePO> specification = (Specification<DmTablePO>)
-                (root, criteriaQuery, criteriaBuilder) ->
-                        criteriaBuilder.equal(root.get("code"), "rental_stock");
+            (root, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("code"), "rental_stock");
         Optional<DmTablePO> po = dmTableRepository.findOne(specification);
         po.ifPresent(dmTablePO -> dmTableRepository.delete(dmTablePO));
     }
