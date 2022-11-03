@@ -8,7 +8,7 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbc-url: jdbc:mysql://122.152.221.117:3306/thirteen?autoReconnect=true
+    jdbc-url: jdbc:mysql://124.222.119.198:3306/thirteen?autoReconnect=true
       &useUnicode=true
       &createDatabaseIfNotExist=true
       &characterEncoding=utf8
