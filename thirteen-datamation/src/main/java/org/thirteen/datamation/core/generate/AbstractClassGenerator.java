@@ -1,6 +1,5 @@
 package org.thirteen.datamation.core.generate;
 
-import javassist.util.proxy.DefineClassHelper;
 import org.objectweb.asm.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,10 +92,11 @@ public abstract class AbstractClassGenerator extends ClassLoader implements Opco
      * @throws IllegalAccessException 非法访问异常
      */
     public Class<?> defineClass(Class<?> neighbor, byte[] b) throws IllegalAccessException {
-        DefineClassHelper.class.getModule().addReads(neighbor.getModule());
-        MethodHandles.Lookup lookup = MethodHandles.lookup();
-        MethodHandles.Lookup prvLookup = MethodHandles.privateLookupIn(neighbor, lookup);
-        return prvLookup.defineClass(b);
+//        DefineClassHelper.class.getModule().addReads(neighbor.getModule());
+//        MethodHandles.Lookup lookup = MethodHandles.lookup();
+//        MethodHandles.Lookup prvLookup = MethodHandles.privateLookupIn(neighbor, lookup);
+//        return prvLookup.defineClass(b);
+        return neighbor;
     }
 
     /**

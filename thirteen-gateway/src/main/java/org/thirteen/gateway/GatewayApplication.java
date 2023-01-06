@@ -2,6 +2,7 @@ package org.thirteen.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * @author Aaron.Sun
@@ -10,10 +11,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @modified By
  */
 @SpringBootApplication
-public class GatewayAppilcation {
+@EnableDiscoveryClient
+public class GatewayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GatewayAppilcation.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
 }

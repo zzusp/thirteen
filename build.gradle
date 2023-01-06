@@ -4,8 +4,8 @@ description = '依赖jar包'
 
 buildscript {
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.2.3.RELEASE")
+        classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.7.5")
     }
 }
 
@@ -42,14 +42,14 @@ subprojects {
 
     def springCloudVersion = '2021.0.4'// spring-cloud包
     def springCloudAlibabaVersion = '2021.1'//  spring-cloud-alibaba包
-    def springBootVersion = '2.7.3'// spring boot
+    def springBootVersion = '2.7.5'// spring boot
     def springDataVersion = '2.7.2'// spring-data
     def springTestVersion = '5.3.23'// spring test 测试包
     def jedisVersion = '4.2.3'// redis的java版本的客户端实现
     def mysqlVersion = '8.0.30'// mysql连接
     def slf4jVersion = '2.0.1'// 日志工具
     def swaggerVersion = '3.0.0'// Springfox Swagger2基础包
-    def httpclient5Version = '5.1.3'// HTTP协议的客户端编程工具包
+    def httpClient5Version = '5.1.3'// HTTP协议的客户端编程工具包
     def jodaTimeVersion = '2.11.1'// 处理时间
     def commonsLang3Version = '3.12.0'// java常用处理集
     def commonsIoVersion = '2.11.0'// io处理
@@ -92,7 +92,7 @@ subprojects {
                 entry 'springfox-swagger-ui'
             }
             // http client
-            dependency group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: "$httpclient5Version"
+            dependency group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: "$httpClient5Version"
             // 时间操作组件
             dependency group: 'joda-time', name: 'joda-time', version: "$jodaTimeVersion"
             // Apache工具组件

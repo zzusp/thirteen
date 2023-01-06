@@ -5,3 +5,4 @@
 rootProject.name = 'thirteen'
 include(':thirteen-datamation')
 include(':thirteen-gateway')
+include(':thirteen-workstation')
